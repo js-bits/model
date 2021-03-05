@@ -1,2 +1,3 @@
-# model
+# Model
+
 MVC's Model reimagined
