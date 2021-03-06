@@ -537,10 +537,10 @@
   resolved "https://registry.yarnpkg.com/@js-bits/eslint-config/-/eslint-config-0.0.2.tgz#9a36de5c6b4df2ce15d6bb7e5b4ae48ca29d2e03"
   integrity sha512-8lxcIJrL4I0rNNSOM3+4vxwneNZIYS7nKafdjCPOH90eywkDZDe0EdX2WRI+N5kQLJtJ1JGPnmSjlUIfbikUag==
 
-"@js-bits/formalinter@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@js-bits/formalinter/-/formalinter-0.1.1.tgz#0a54a15c54ec761f7bad9bb3f028f805e2bd8c25"
-  integrity sha512-A7TAWI+SlS2LNc55kf/lag9Wr+jOJAKrQaHlmCEJXDQqSlXyj70oV9IXGrLHSxMxA4JblBP27IvP2gXi2Pf+Sg==
+"@js-bits/formalinter@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@js-bits/formalinter/-/formalinter-0.1.2.tgz#a9fef7d6228ab89573630a8b9bbe8bde80f44729"
+  integrity sha512-f69KoXaOftZ80C/eTqBNg60YakaXHVrpsVi92vIAIMFhAvb905hsBUjU8cxbaMLmzMF3UP8OWJsowjM27rgHpQ==
   dependencies:
     "@babel/core" "^7.13.8"
     "@babel/eslint-parser" "^7.13.8"
