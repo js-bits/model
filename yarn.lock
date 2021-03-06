@@ -243,13 +243,19 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
-"@js-bits/formalinter@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@js-bits/formalinter/-/formalinter-0.0.1.tgz#42f149fb04e2567262075ed809530690e1430287"
-  integrity sha512-s1/lpwmUiQBinzT5VTMbVoUyTamK+FGnBjr1t4vTVAzMc5ylsG7NbbhQrfAVDoruqtc3bgy7hG9NepE8fGMZhQ==
+"@js-bits/eslint-config@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@js-bits/eslint-config/-/eslint-config-0.0.2.tgz#9a36de5c6b4df2ce15d6bb7e5b4ae48ca29d2e03"
+  integrity sha512-8lxcIJrL4I0rNNSOM3+4vxwneNZIYS7nKafdjCPOH90eywkDZDe0EdX2WRI+N5kQLJtJ1JGPnmSjlUIfbikUag==
+
+"@js-bits/formalinter@0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@js-bits/formalinter/-/formalinter-0.1.1.tgz#0a54a15c54ec761f7bad9bb3f028f805e2bd8c25"
+  integrity sha512-A7TAWI+SlS2LNc55kf/lag9Wr+jOJAKrQaHlmCEJXDQqSlXyj70oV9IXGrLHSxMxA4JblBP27IvP2gXi2Pf+Sg==
   dependencies:
     "@babel/core" "^7.13.8"
     "@babel/eslint-parser" "^7.13.8"
+    "@js-bits/eslint-config" "^0.0.2"
     eslint "^7.21.0"
     eslint-config-airbnb "^18.2.1"
     eslint-config-prettier "^8.1.0"

@@ -21,9 +21,9 @@
   "license": "ISC",
   "prettier": "@js-bits/formalinter/.prettierrc.json",
   "eslintConfig": {
-    "extends": "@js-bits/eslint-config-formalinter/.eslintrc.json"
+    "extends": "@js-bits/eslint-config/.eslintrc.json"
   },
   "devDependencies": {
-    "@js-bits/formalinter": "^0.0.1"
+    "@js-bits/formalinter": "^0.1.1"
   }
 }
