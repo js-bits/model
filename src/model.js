@@ -46,7 +46,7 @@ export default class Model {
 }
 
 Model.ID = Symbol('Model ID');
-Object.freeze(Model);
+// Object.freeze(Model);
 
 export class PrimitiveType {
   constructor(type, validator) {
