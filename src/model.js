@@ -98,13 +98,24 @@ Object.assign(Model, STATIC_PROPS);
 // Object.freeze(Model);
 
 export class PrimitiveType {
-  constructor(type, validator) {
+  constructor(validator, baseType) {
+    if (typeof validator !== 'function') {
+      throw new Error('Invalid validator');
+    }
+    let baseValidator;
+    if (typeof baseType !== 'undefined') {
+      baseValidator = PRIMITIVE_TYPES.get(baseType);
+      if (!baseValidator) {
+        throw new Error('Unknown primitive type');
+      }
+    }
     class NewClass extends PrimitiveType {}
     PRIMITIVE_TYPES.set(NewClass, value => {
-      if (PRIMITIVE_TYPES.get(type)(value)) {
-        return validator(value);
+      let errorMessage = baseValidator && baseValidator(value);
+      if (!errorMessage) {
+        errorMessage = validator(value);
       }
-      return false;
+      return errorMessage;
     });
     return NewClass;
   }
