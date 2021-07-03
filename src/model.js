@@ -35,11 +35,11 @@ export default class Model {
   constructor(schema) {
     if (schema) {
       if (typeof schema !== 'object') {
-        throw new Error('Invalid schema');
+        throw new Error('Invalid model schema');
       }
       const entries = Object.entries(schema);
       if (entries.length === 0) {
-        throw new Error('Empty schema');
+        throw new Error('Empty model schema');
       }
       for (const [key, type] of entries) {
         if (!PRIMITIVE_TYPES.has(type) && !MODELS.has(type) && type !== STATIC_PROPS.SAME) {

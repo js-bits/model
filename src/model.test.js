@@ -13,6 +13,12 @@ describe('Model', () => {
 
     test('invalid schema', () => {
       expect(() => {
+        new Model({});
+      }).toThrowError('Empty model schema');
+      expect(() => {
+        new Model(123);
+      }).toThrowError('Invalid model schema');
+      expect(() => {
         const DerivedModel = new Model({
           func: () => {},
         });
