@@ -80,11 +80,11 @@ describe('Model', () => {
           optional: 234,
         })
       ).toEqual([
-        'Field "string": Invalid value',
-        'Field "number": Invalid value',
-        'Field "boolean": Invalid value',
-        'Field "date": Invalid value',
-        'Field "optional": Invalid value',
+        'Field "string": must be a string',
+        'Field "number": must be a number',
+        'Field "boolean": must be a boolean',
+        'Field "date": must be a date',
+        'Field "optional": must be a string',
       ]);
     });
   });

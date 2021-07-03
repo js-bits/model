@@ -2,10 +2,10 @@
 import enumerate from '@js-bits/enumerate';
 
 const PRIMITIVE_TYPES = new WeakMap();
-PRIMITIVE_TYPES.set(String, value => typeof value === 'string');
-PRIMITIVE_TYPES.set(Number, value => typeof value === 'number');
-PRIMITIVE_TYPES.set(Boolean, value => typeof value === 'boolean');
-PRIMITIVE_TYPES.set(Date, value => value instanceof Date);
+PRIMITIVE_TYPES.set(String, value => (typeof value === 'string' ? undefined : 'must be a string'));
+PRIMITIVE_TYPES.set(Number, value => (typeof value === 'number' ? undefined : 'must be a number'));
+PRIMITIVE_TYPES.set(Boolean, value => (typeof value === 'boolean' ? undefined : 'must be a boolean'));
+PRIMITIVE_TYPES.set(Date, value => (value instanceof Date ? undefined : 'must be a date'));
 
 const MODELS = new WeakSet();
 
@@ -21,8 +21,11 @@ const validateValue = (type, value, isOptional) => {
       if (!isOptional) {
         return `Required field is not defined`;
       }
-    } else if (!PRIMITIVE_TYPES.get(type)(value)) {
-      return `Invalid value`;
+    } else {
+      const errorMessage = PRIMITIVE_TYPES.get(type)(value);
+      if (errorMessage) {
+        return errorMessage;
+      }
     }
   } else if (MODELS.has(type)) {
     if (!(value instanceof type)) {
