@@ -3,7 +3,9 @@ import Model, { PrimitiveType } from './model.js';
 describe('Model', () => {
   describe('#constructor', () => {
     test('inheritance', () => {
-      const DerivedModel = new Model({});
+      const DerivedModel = new Model({
+        'test?': String,
+      });
       const instance = new DerivedModel({});
       expect(instance).toBeInstanceOf(DerivedModel);
       expect(instance).toBeInstanceOf(Model);
@@ -76,7 +78,7 @@ describe('Model', () => {
         'Field "number": Invalid value',
         'Field "boolean": Invalid value',
         'Field "date": Invalid value',
-        'Field "optional?": Invalid value',
+        'Field "optional": Invalid value',
       ]);
     });
   });

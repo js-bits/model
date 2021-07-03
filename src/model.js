@@ -34,7 +34,14 @@ const validateValue = (type, value, isOptional) => {
 export default class Model {
   constructor(schema) {
     if (schema) {
-      for (const [key, type] of Object.entries(schema)) {
+      if (typeof schema !== 'object') {
+        throw new Error('Invalid schema');
+      }
+      const entries = Object.entries(schema);
+      if (entries.length === 0) {
+        throw new Error('Empty schema');
+      }
+      for (const [key, type] of entries) {
         if (!PRIMITIVE_TYPES.has(type) && !MODELS.has(type) && type !== STATIC_PROPS.SAME) {
           throw new Error(`Invalid data schema: unknown data type for "${key}"`);
         }
@@ -61,10 +68,13 @@ export default class Model {
             const propName = key.replace(/[?]?$/, '');
             const isOptional = propName !== key;
             const value = data[propName];
+            if (type === STATIC_PROPS.SAME) {
+              schema[key] = NewClass;
+            }
             // console.log('validate', propName, type, value);
             const errorMessage = validateValue(type, value, isOptional);
             if (errorMessage) {
-              errors.push(`Field "${key}": ${errorMessage}`);
+              errors.push(`Field "${propName}": ${errorMessage}`);
             }
           }
           return errors;
@@ -74,14 +84,14 @@ export default class Model {
       NewClass.ID = Symbol('Model ID'); // do I really need it
       // Object.freeze(NewClass);
       return NewClass;
-    }
+    } // else prototype is created
   }
   // parse() {}
   // validate() {}
   // sync() {}
 }
 
-// Object.assign(Model, STATIC_PROPS);
+Object.assign(Model, STATIC_PROPS);
 // Object.freeze(Model);
 
 export class PrimitiveType {

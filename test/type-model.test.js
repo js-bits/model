@@ -6,7 +6,7 @@ describe('Model', () => {
   });
   const TestModel2 = new Model({
     title: String,
-    parent: TestModel1,
+    link: TestModel1,
   });
 
   test('correct value', () => {
@@ -15,7 +15,7 @@ describe('Model', () => {
     });
     const instance2 = new TestModel2({
       title: 'TestModel1',
-      parent: instance1,
+      link: instance1,
     });
     expect(instance2).toBeInstanceOf(TestModel2);
     expect(instance2).toBeInstanceOf(Model);
@@ -33,7 +33,40 @@ describe('Model', () => {
         });
         const instance2 = new TestModel2({
           title: 'TestModel1',
-          parent: instance3,
+          link: instance3,
+        });
+      } catch (e) {
+        error = e;
+      }
+      expect(error).toEqual(new Error('Invalid data'));
+      expect(error.cause).toEqual(['Field "link": Invalid value type']);
+    });
+  });
+
+  describe('same model', () => {
+    const TestModel = new Model({
+      title: String,
+      'parent?': Model.SAME,
+    });
+    const instance1 = new TestModel({
+      title: 'TestModel1',
+    });
+    test('correct value', () => {
+      const instance2 = new TestModel({
+        title: 'TestModel2',
+        parent: instance1,
+      });
+      expect(instance1).toBeInstanceOf(TestModel);
+      expect(instance2).toBeInstanceOf(TestModel);
+    });
+    test('incorrect value', () => {
+      let error;
+      try {
+        const instance = new TestModel({
+          title: 'TestModel2',
+          parent: new TestModel1({
+            title: 'TestModel1',
+          }),
         });
       } catch (e) {
         error = e;
