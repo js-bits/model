@@ -43,7 +43,7 @@ export default class Model {
       }
       for (const [key, type] of entries) {
         if (!PRIMITIVE_TYPES.has(type) && !MODELS.has(type) && type !== STATIC_PROPS.SAME) {
-          throw new Error(`Invalid data schema: unknown data type for "${key}"`);
+          throw new Error(`Invalid model schema: unknown data type for "${key}"`);
         }
       }
       // NOTE: encapsulated class definition make it impossible to manipulate data schema from outside the model

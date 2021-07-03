@@ -22,7 +22,7 @@ describe('Model', () => {
         const DerivedModel = new Model({
           func: () => {},
         });
-      }).toThrowError('Invalid data schema: unknown data type for "func"');
+      }).toThrowError('Invalid model schema: unknown data type for "func"');
     });
 
     describe('built-in types', () => {
