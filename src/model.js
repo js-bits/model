@@ -16,16 +16,14 @@ const STATIC_PROPS = enumerate`
 
 const validateValue = (type, value, isOptional) => {
   // console.log('validate', propName, type, value);
-  if (PRIMITIVE_TYPES.has(type)) {
-    if (typeof value === 'undefined' || value === null) {
-      if (!isOptional) {
-        return `Required field is not defined`;
-      }
-    } else {
-      const errorMessage = PRIMITIVE_TYPES.get(type)(value);
-      if (errorMessage) {
-        return errorMessage;
-      }
+  if (typeof value === 'undefined' || value === null) {
+    if (!isOptional) {
+      return `Required field is not defined`;
+    }
+  } else if (PRIMITIVE_TYPES.has(type)) {
+    const errorMessage = PRIMITIVE_TYPES.get(type)(value);
+    if (errorMessage) {
+      return errorMessage;
     }
   } else if (MODELS.has(type)) {
     if (!(value instanceof type)) {
