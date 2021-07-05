@@ -19,7 +19,7 @@ describe('Model', () => {
         new Model(123);
       }).toThrowError('Invalid model schema');
       expect(() => {
-        const DerivedModel = new Model({
+        new Model({
           func: () => {},
         });
       }).toThrowError('Invalid model schema: unknown data type for "func"');
@@ -48,7 +48,7 @@ describe('Model', () => {
 
         test('incorrect values', () => {
           expect(() => {
-            const instance = new DerivedModel({
+            new DerivedModel({
               string: 123,
               number: '',
               date: false,
