@@ -1,36 +1,13 @@
 /* eslint-disable max-classes-per-file */
 import enumerate from '@js-bits/enumerate';
-
-const PRIMITIVE_TYPES = new WeakMap();
-PRIMITIVE_TYPES.set(String, value => (typeof value === 'string' ? undefined : 'must be a string'));
-PRIMITIVE_TYPES.set(Number, value => (typeof value === 'number' ? undefined : 'must be a number'));
-PRIMITIVE_TYPES.set(Boolean, value => (typeof value === 'boolean' ? undefined : 'must be a boolean'));
-PRIMITIVE_TYPES.set(Date, value => (value instanceof Date ? undefined : 'must be a date'));
-
-const MODELS = new WeakSet();
+import PRIMITIVE_TYPES from './primitive-types.js';
+import MODELS from './models-list.js';
+import validateValue from './validate-value.js';
 
 const STATIC_PROPS = enumerate`
   ID
   SAME
 `;
-
-const validateValue = (type, value, isOptional) => {
-  // console.log('validate', propName, type, value);
-  if (typeof value === 'undefined' || value === null) {
-    if (!isOptional) {
-      return `Required field is not defined`;
-    }
-  } else if (PRIMITIVE_TYPES.has(type)) {
-    const errorMessage = PRIMITIVE_TYPES.get(type)(value);
-    if (errorMessage) {
-      return errorMessage;
-    }
-  } else if (MODELS.has(type)) {
-    if (!(value instanceof type)) {
-      return `Invalid value type`;
-    }
-  }
-};
 
 export default class Model {
   constructor(schema) {
@@ -94,27 +71,3 @@ export default class Model {
 
 Object.assign(Model, STATIC_PROPS);
 // Object.freeze(Model);
-
-export class PrimitiveType {
-  constructor(validator, baseType) {
-    if (typeof validator !== 'function') {
-      throw new Error('Invalid validator');
-    }
-    let baseValidator;
-    if (typeof baseType !== 'undefined') {
-      baseValidator = PRIMITIVE_TYPES.get(baseType);
-      if (!baseValidator) {
-        throw new Error('Unknown primitive type');
-      }
-    }
-    class NewClass extends PrimitiveType {}
-    PRIMITIVE_TYPES.set(NewClass, value => {
-      let errorMessage = baseValidator && baseValidator(value);
-      if (!errorMessage) {
-        errorMessage = validator(value);
-      }
-      return errorMessage;
-    });
-    return NewClass;
-  }
-}

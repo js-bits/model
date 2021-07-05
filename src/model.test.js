@@ -1,4 +1,4 @@
-import Model, { PrimitiveType } from './model.js';
+import Model from './model.js';
 
 describe('Model', () => {
   describe('#constructor', () => {

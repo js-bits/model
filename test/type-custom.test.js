@@ -1,4 +1,5 @@
-import Model, { PrimitiveType } from '../src/model.js';
+import Model from '../src/model.js';
+import PrimitiveType from '../src/primitive-type.js';
 
 describe('Custom primitive type', () => {
   describe('without base type', () => {
