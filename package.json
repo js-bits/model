@@ -1,10 +1,11 @@
 {
   "name": "@js-bits/model",
   "version": "0.0.1",
-  "description": "MVC's Model reimagined",
+  "description": "Abstract Model",
   "keywords": [
     "javascript",
     "mvc",
+    "abstract",
     "model",
     "application",
     "architecture"

@@ -1,3 +1,3 @@
-# Model
+# Abstract Model
 
-MVC's Model reimagined
+[TBD]
