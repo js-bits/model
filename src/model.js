@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import enumerate from '@js-bits/enumerate';
-import DATA_TYPES from './data-types.js';
+import DataType from './data-type.js';
 import validateValue from './validate-value.js';
 
 const STATIC_PROPS = enumerate`
@@ -48,8 +48,8 @@ export default class Model {
             const propName = key.replace(/[?]?$/, '');
             const isOptional = propName !== key;
             const value = data[propName];
-            // console.log('validate', propName, type, value);
             const errorMessage = validateValue(type, value, isOptional);
+            // console.log('validate', propName, type, value, errorMessage);
             if (errorMessage) {
               errors.push(`Field "${propName}": ${errorMessage}`);
             }
@@ -61,12 +61,12 @@ export default class Model {
       for (const [key, type] of entries) {
         if (type === STATIC_PROPS.SAME) {
           schema[key] = NewClass;
-        } else if (!DATA_TYPES.has(type) && !Model.isModel(type)) {
+        } else if (!DataType.exists(type)) {
           throw new Error(`Invalid model schema: unknown data type for "${key}"`);
         }
       }
 
-      DATA_TYPES.set(NewClass, value => (value instanceof NewClass ? undefined : 'must be a model'));
+      DataType.add(NewClass, value => (value instanceof NewClass ? undefined : 'must be a custom model'), Model);
 
       MODELS.add(NewClass);
       // NewClass.ID = Symbol('Model ID'); // do I really need it?
@@ -82,6 +82,8 @@ export default class Model {
     return typeof type === 'function' && MODELS.has(type);
   }
 }
+
+DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'), Object);
 
 Object.assign(Model, STATIC_PROPS);
 // Object.freeze(Model);

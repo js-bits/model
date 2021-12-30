@@ -12,11 +12,6 @@ const validateValue = (type, value, isOptional) => {
       return errorMessage;
     }
   }
-  // else if (Model.isModel(type)) {
-  //   if (!(value instanceof type)) {
-  //     return `Invalid value type`;
-  //   }
-  // }
 };
 
 export default validateValue;

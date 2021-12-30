@@ -1,7 +1,7 @@
 import Model from '../src/model.js';
 import DataType from '../src/data-type.js';
 
-describe('Custom primitive type', () => {
+describe('Custom data type', () => {
   describe('without base type', () => {
     test('invalid validator', () => {
       expect(() => {
@@ -57,17 +57,18 @@ describe('Custom primitive type', () => {
 
     test('invalid base type', () => {
       expect(() => {
-        new DataType(() => {}, Model);
-      }).toThrowError('Unknown primitive type');
+        class NewClass {}
+        new DataType(() => {}, NewClass);
+      }).toThrowError('Unknown data type');
       expect(() => {
         new DataType(() => {}, null);
-      }).toThrowError('Unknown primitive type');
+      }).toThrowError('Unknown data type');
       expect(() => {
         new DataType(
           () => {},
           () => {}
         );
-      }).toThrowError('Unknown primitive type');
+      }).toThrowError('Unknown data type');
     });
 
     test('correct value', () => {

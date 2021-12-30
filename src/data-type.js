@@ -16,13 +16,7 @@ export default class DataType {
     if (typeof validator !== 'function') {
       throw new Error('Invalid validator');
     }
-    let baseValidator;
-    if (typeof baseType !== 'undefined') {
-      baseValidator = DATA_TYPES.get(baseType);
-      if (!baseValidator) {
-        throw new Error('Unknown primitive type');
-      }
-    }
+
     class NewClass extends DataType {
       // eslint-disable-next-line class-methods-use-this
       validate() {}
@@ -34,14 +28,30 @@ export default class DataType {
       deserialize() {} // toStore() // decode // toJSON
       // Date as an example (ISO string > Object)
     }
-    DATA_TYPES.set(NewClass, value => {
+    DataType.add(NewClass, validator, baseType);
+    return NewClass;
+  }
+
+  static add(type, validator, baseType) {
+    let baseValidator;
+    if (typeof baseType !== 'undefined') {
+      baseValidator = DATA_TYPES.get(baseType);
+      if (!baseValidator) {
+        throw new Error('Unknown data type');
+      }
+    }
+
+    DATA_TYPES.set(type, value => {
       let errorMessage = baseValidator && baseValidator(value);
       if (!errorMessage) {
         errorMessage = validator(value);
       }
       return errorMessage;
     });
-    return NewClass;
+  }
+
+  static exists(type) {
+    return DATA_TYPES.has(type);
   }
 }
 
