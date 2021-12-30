@@ -1,5 +1,4 @@
 import PRIMITIVE_TYPES from './primitive-types.js';
-import MODELS from './models-list.js';
 
 const validateValue = (type, value, isOptional) => {
   // console.log('validate', propName, type, value);
@@ -12,11 +11,12 @@ const validateValue = (type, value, isOptional) => {
     if (errorMessage) {
       return errorMessage;
     }
-  } else if (MODELS.has(type)) {
-    if (!(value instanceof type)) {
-      return `Invalid value type`;
-    }
   }
+  // else if (Model.isModel(type)) {
+  //   if (!(value instanceof type)) {
+  //     return `Invalid value type`;
+  //   }
+  // }
 };
 
 export default validateValue;
