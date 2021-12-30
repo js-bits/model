@@ -13,7 +13,17 @@ export default class PrimitiveType {
         throw new Error('Unknown primitive type');
       }
     }
-    class NewClass extends PrimitiveType {}
+    class NewClass extends PrimitiveType {
+      // eslint-disable-next-line class-methods-use-this
+      validate() {}
+
+      // eslint-disable-next-line class-methods-use-this
+      serialize() {} // fromStorage() // parse() // encode // fromJSON
+
+      // eslint-disable-next-line class-methods-use-this
+      deserialize() {} // toStore() // decode // toJSON
+      // Date as an example (ISO string > Object)
+    }
     PRIMITIVE_TYPES.set(NewClass, value => {
       let errorMessage = baseValidator && baseValidator(value);
       if (!errorMessage) {
