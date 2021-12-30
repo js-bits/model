@@ -35,10 +35,7 @@ export default class DataType {
   static add(type, validator, baseType) {
     let baseValidator;
     if (typeof baseType !== 'undefined') {
-      baseValidator = DATA_TYPES.get(baseType);
-      if (!baseValidator) {
-        throw new Error('Unknown data type');
-      }
+      baseValidator = DataType.get(baseType);
     }
 
     DATA_TYPES.set(type, value => {
@@ -52,6 +49,18 @@ export default class DataType {
 
   static exists(type) {
     return DATA_TYPES.has(type);
+  }
+
+  static get(type) {
+    const validator = DATA_TYPES.get(type);
+    if (!validator) {
+      throw new Error('Unknown data type');
+    }
+    return validator;
+  }
+
+  static validate(type, value) {
+    return DataType.get(type)(value);
   }
 }
 

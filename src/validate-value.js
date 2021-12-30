@@ -1,4 +1,4 @@
-import DATA_TYPES from './data-types.js';
+import DataType from './data-type.js';
 
 const validateValue = (type, value, isOptional) => {
   // console.log('validate', propName, type, value);
@@ -6,8 +6,8 @@ const validateValue = (type, value, isOptional) => {
     if (!isOptional) {
       return `Required field is not defined`;
     }
-  } else if (DATA_TYPES.has(type)) {
-    const errorMessage = DATA_TYPES.get(type)(value);
+  } else {
+    const errorMessage = DataType.validate(type, value);
     if (errorMessage) {
       return errorMessage;
     }
