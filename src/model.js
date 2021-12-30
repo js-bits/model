@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import enumerate from '@js-bits/enumerate';
-import DATA_TYPES from './primitive-types.js';
+import DATA_TYPES from './data-types.js';
 import validateValue from './validate-value.js';
 
 const STATIC_PROPS = enumerate`

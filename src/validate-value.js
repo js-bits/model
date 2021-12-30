@@ -1,4 +1,4 @@
-import DATA_TYPES from './primitive-types.js';
+import DATA_TYPES from './data-types.js';
 
 const validateValue = (type, value, isOptional) => {
   // console.log('validate', propName, type, value);
