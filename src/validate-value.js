@@ -1,4 +1,4 @@
-import PRIMITIVE_TYPES from './primitive-types.js';
+import DATA_TYPES from './primitive-types.js';
 
 const validateValue = (type, value, isOptional) => {
   // console.log('validate', propName, type, value);
@@ -6,8 +6,8 @@ const validateValue = (type, value, isOptional) => {
     if (!isOptional) {
       return `Required field is not defined`;
     }
-  } else if (PRIMITIVE_TYPES.has(type)) {
-    const errorMessage = PRIMITIVE_TYPES.get(type)(value);
+  } else if (DATA_TYPES.has(type)) {
+    const errorMessage = DATA_TYPES.get(type)(value);
     if (errorMessage) {
       return errorMessage;
     }

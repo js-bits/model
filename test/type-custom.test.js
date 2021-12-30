@@ -1,22 +1,22 @@
 import Model from '../src/model.js';
-import PrimitiveType from '../src/primitive-type.js';
+import DataType from '../src/primitive-type.js';
 
 describe('Custom primitive type', () => {
   describe('without base type', () => {
     test('invalid validator', () => {
       expect(() => {
-        new PrimitiveType();
+        new DataType();
       }).toThrowError('Invalid validator');
       expect(() => {
-        new PrimitiveType(null);
+        new DataType(null);
       }).toThrowError('Invalid validator');
       expect(() => {
-        new PrimitiveType(123123);
+        new DataType(123123);
       }).toThrowError('Invalid validator');
     });
 
     describe('valid validator', () => {
-      const NewType = new PrimitiveType(value => (value === 'valid' ? undefined : 'must have a valid value'));
+      const NewType = new DataType(value => (value === 'valid' ? undefined : 'must have a valid value'));
       const NewModel = new Model({
         field: NewType,
       });
@@ -46,8 +46,8 @@ describe('Custom primitive type', () => {
   });
 
   describe('with base type', () => {
-    const Int = new PrimitiveType(value => (Number.isInteger(value) ? undefined : 'must be an integer'), Number);
-    const PositiveInt = new PrimitiveType(value => (value > 0 ? undefined : 'must be a positive integer'), Int);
+    const Int = new DataType(value => (Number.isInteger(value) ? undefined : 'must be an integer'), Number);
+    const PositiveInt = new DataType(value => (value > 0 ? undefined : 'must be a positive integer'), Int);
     const TestModel1 = new Model({
       int: Int,
     });
@@ -57,13 +57,13 @@ describe('Custom primitive type', () => {
 
     test('invalid base type', () => {
       expect(() => {
-        new PrimitiveType(() => {}, Model);
+        new DataType(() => {}, Model);
       }).toThrowError('Unknown primitive type');
       expect(() => {
-        new PrimitiveType(() => {}, null);
+        new DataType(() => {}, null);
       }).toThrowError('Unknown primitive type');
       expect(() => {
-        new PrimitiveType(
+        new DataType(
           () => {},
           () => {}
         );

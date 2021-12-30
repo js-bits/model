@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import enumerate from '@js-bits/enumerate';
-import PRIMITIVE_TYPES from './primitive-types.js';
+import DATA_TYPES from './primitive-types.js';
 import validateValue from './validate-value.js';
 
 const STATIC_PROPS = enumerate`
@@ -25,7 +25,7 @@ export default class Model {
         throw new Error('Empty model schema');
       }
       for (const [key, type] of entries) {
-        if (!PRIMITIVE_TYPES.has(type) && !Model.isModel(type) && type !== STATIC_PROPS.SAME) {
+        if (!DATA_TYPES.has(type) && !Model.isModel(type) && type !== STATIC_PROPS.SAME) {
           throw new Error(`Invalid model schema: unknown data type for "${key}"`);
         }
       }
@@ -63,7 +63,7 @@ export default class Model {
           return errors;
         }
       }
-      PRIMITIVE_TYPES.set(NewClass, value => (value instanceof NewClass ? undefined : 'must be a model'));
+      DATA_TYPES.set(NewClass, value => (value instanceof NewClass ? undefined : 'must be a model'));
 
       MODELS.add(NewClass);
       // NewClass.ID = Symbol('Model ID'); // do I really need it?
