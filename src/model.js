@@ -15,20 +15,17 @@ export default class Model {
     return 'Model';
   }
 
-  constructor(schema) {
-    if (schema) {
-      if (typeof schema !== 'object') {
+  constructor(config) {
+    if (config) {
+      if (typeof config !== 'object') {
         throw new Error('Invalid model schema');
       }
+      const schema = { ...config };
       const entries = Object.entries(schema);
       if (entries.length === 0) {
         throw new Error('Empty model schema');
       }
-      for (const [key, type] of entries) {
-        if (!DATA_TYPES.has(type) && !Model.isModel(type) && type !== STATIC_PROPS.SAME) {
-          throw new Error(`Invalid model schema: unknown data type for "${key}"`);
-        }
-      }
+
       // NOTE: encapsulated class definition makes it impossible to manipulate data schema from outside the model
       class NewClass extends Model {
         constructor(data) {
@@ -51,9 +48,6 @@ export default class Model {
             const propName = key.replace(/[?]?$/, '');
             const isOptional = propName !== key;
             const value = data[propName];
-            if (type === STATIC_PROPS.SAME) {
-              schema[key] = NewClass;
-            }
             // console.log('validate', propName, type, value);
             const errorMessage = validateValue(type, value, isOptional);
             if (errorMessage) {
@@ -63,6 +57,15 @@ export default class Model {
           return errors;
         }
       }
+
+      for (const [key, type] of entries) {
+        if (type === STATIC_PROPS.SAME) {
+          schema[key] = NewClass;
+        } else if (!DATA_TYPES.has(type) && !Model.isModel(type)) {
+          throw new Error(`Invalid model schema: unknown data type for "${key}"`);
+        }
+      }
+
       DATA_TYPES.set(NewClass, value => (value instanceof NewClass ? undefined : 'must be a model'));
 
       MODELS.add(NewClass);
