@@ -1,7 +1,17 @@
 /* eslint-disable max-classes-per-file */
+import enumerate from '@js-bits/enumerate';
 import PRIMITIVE_TYPES from './primitive-types.js';
 
+const ERRORS = enumerate(String)`
+InvalidTypeError
+`;
+
 export default class PrimitiveType {
+  // eslint-disable-next-line class-methods-use-this
+  get [Symbol.toStringTag]() {
+    return 'PrimitiveType';
+  }
+
   constructor(validator, baseType) {
     if (typeof validator !== 'function') {
       throw new Error('Invalid validator');
@@ -34,3 +44,5 @@ export default class PrimitiveType {
     return NewClass;
   }
 }
+
+Object.assign(PrimitiveType, ERRORS);
