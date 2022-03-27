@@ -3,7 +3,10 @@ import enumerate from '@js-bits/enumerate';
 
 const ERRORS = enumerate(String)`
 InvalidDataTypeError
+UnknownDataTypeError
 `;
+
+const NO_TYPE = Object.getPrototypeOf(Object);
 
 const DATA_TYPES = new WeakMap();
 
@@ -13,14 +16,20 @@ export default class DataType {
     return 'DataType';
   }
 
-  constructor(validator, baseType) {
-    if (typeof validator !== 'function') {
-      throw new Error('Invalid validator');
+  constructor(Type) {
+    const baseType = Type && Object.getPrototypeOf(Type);
+    if (typeof Type !== 'function' || !(typeof Type.validate === 'function' || baseType !== NO_TYPE)) {
+      // console.log('Type', Type);
+      const error = new Error('Invalid data type');
+      error.name = ERRORS.InvalidDataTypeError;
+      throw error;
     }
 
     class NewClass extends DataType {
       // eslint-disable-next-line class-methods-use-this
-      validate() {}
+      get [Symbol.toStringTag]() {
+        return Type.prototype.constructor.name;
+      }
 
       // eslint-disable-next-line class-methods-use-this
       serialize() {} // fromStorage() // parse() // encode // fromJSON
@@ -29,7 +38,9 @@ export default class DataType {
       deserialize() {} // toStore() // decode // toJSON
       // Date as an example (ISO string > Object)
     }
-    DataType.add(NewClass, validator, baseType);
+    console.log('Type', Type);
+    DataType.add(NewClass, Type.validate, baseType !== NO_TYPE ? baseType : undefined);
+    DataType.add(Type, Type.validate, baseType !== NO_TYPE ? baseType : undefined);
     return NewClass;
   }
 
@@ -55,7 +66,9 @@ export default class DataType {
   static get(type) {
     const validator = DATA_TYPES.get(type);
     if (!validator) {
-      throw new Error('Unknown data type');
+      const error = new Error('Unknown data type');
+      error.name = ERRORS.UnknownDataTypeError;
+      throw error;
     }
     return validator;
   }

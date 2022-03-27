@@ -1,3 +1,4 @@
+// eslint-disable-next-line max-classes-per-file
 import Model from '../src/model.js';
 import DataType from '../src/data-type.js';
 
@@ -6,17 +7,22 @@ describe('Custom data type', () => {
     test('invalid validator', () => {
       expect(() => {
         new DataType();
-      }).toThrowError('Invalid validator');
+      }).toThrowError('Invalid data type');
       expect(() => {
         new DataType(null);
-      }).toThrowError('Invalid validator');
+      }).toThrowError('Invalid data type');
       expect(() => {
         new DataType(123123);
-      }).toThrowError('Invalid validator');
+      }).toThrowError('Invalid data type');
     });
 
     describe('valid validator', () => {
-      const NewType = new DataType(value => (value === 'valid' ? undefined : 'must have a valid value'));
+      class NewType {
+        static validate(value) {
+          if (value !== 'valid') return 'must have a valid value';
+        }
+      }
+      // const NewType = new DataType(value => (value === 'valid' ? undefined : ));
       const NewModel = new Model({
         field: NewType,
       });
@@ -46,31 +52,39 @@ describe('Custom data type', () => {
   });
 
   describe('with base type', () => {
-    const Int = new DataType(value => (Number.isInteger(value) ? undefined : 'must be an integer'), Number);
-    const PositiveInt = new DataType(value => (value > 0 ? undefined : 'must be a positive integer'), Int);
+    class Int extends Number {
+      static validate(value) {
+        if (!Number.isInteger(value)) return 'must be an integer';
+      }
+    }
+    class PositiveInt extends Int {
+      static validate(value) {
+        if (value <= 0) return 'must be a positive integer';
+      }
+    }
+    // const Int = new DataType(value => (Number.isInteger(value) ? undefined : 'must be an integer'), Number);
+    // const PositiveInt = new DataType(value => (value > 0 ? undefined : 'must be a positive integer'), Int);
     const TestModel1 = new Model({
       int: Int,
     });
     const TestModel2 = new Model({
       int: PositiveInt,
     });
-
     test('invalid base type', () => {
       expect(() => {
         class NewClass {}
         new DataType(() => {}, NewClass);
-      }).toThrowError('Unknown data type');
+      }).toThrowError('Invalid data type');
       expect(() => {
         new DataType(() => {}, null);
-      }).toThrowError('Unknown data type');
+      }).toThrowError('Invalid data type');
       expect(() => {
         new DataType(
           () => {},
           () => {}
         );
-      }).toThrowError('Unknown data type');
+      }).toThrowError('Invalid data type');
     });
-
     test('correct value', () => {
       expect(() => {
         new TestModel1({
