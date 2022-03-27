@@ -3,7 +3,7 @@ import enumerate from '@js-bits/enumerate';
 import DATA_TYPES from './data-types.js';
 
 const ERRORS = enumerate(String)`
-InvalidTypeError
+InvalidDataTypeError
 `;
 
 export default class DataType {
