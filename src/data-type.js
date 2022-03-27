@@ -1,10 +1,11 @@
 /* eslint-disable max-classes-per-file */
 import enumerate from '@js-bits/enumerate';
-import DATA_TYPES from './data-types.js';
 
 const ERRORS = enumerate(String)`
 InvalidDataTypeError
 `;
+
+const DATA_TYPES = new WeakMap();
 
 export default class DataType {
   // eslint-disable-next-line class-methods-use-this
@@ -63,5 +64,12 @@ export default class DataType {
     return DataType.get(type)(value);
   }
 }
+
+
+DataType.add(String, value => (typeof value === 'string' ? undefined : 'must be a string'));
+DataType.add(Number, value => (typeof value === 'number' ? undefined : 'must be a number'));
+DataType.add(Boolean, value => (typeof value === 'boolean' ? undefined : 'must be a boolean'));
+DataType.add(Object, value => (typeof value === 'object' ? undefined : 'must be an object'));
+DataType.add(Date, value => (value instanceof Date ? undefined : 'must be a date'));
 
 Object.assign(DataType, ERRORS);
