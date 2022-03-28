@@ -150,4 +150,12 @@ describe('DataType', () => {
       });
     });
   });
+
+  describe('#get', () => {
+    test('unknown data type', () => {
+      expect(() => {
+        DataType.get(Promise);
+      }).toThrowError('Unknown data type');
+    });
+  });
 });
