@@ -78,11 +78,9 @@ export default class DataType {
   }
 }
 
-
 DataType.add(String, value => (typeof value === 'string' ? undefined : 'must be a string'));
 DataType.add(Number, value => (typeof value === 'number' ? undefined : 'must be a number'));
 DataType.add(Boolean, value => (typeof value === 'boolean' ? undefined : 'must be a boolean'));
-DataType.add(Object, value => (typeof value === 'object' ? undefined : 'must be an object'));
 DataType.add(Date, value => (value instanceof Date ? undefined : 'must be a date'));
 
 Object.assign(DataType, ERRORS);
