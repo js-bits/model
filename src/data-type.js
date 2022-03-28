@@ -68,10 +68,7 @@ export default class DataType {
   static validate(type, value) {
     const typeDef = DataType.get(type);
     if (typeDef.extends) {
-      const baseTypeDef = DataType.get(typeDef.extends);
-      const baseValidator = baseTypeDef.validate || baseTypeDef;
-
-      const errorMessage = baseValidator && baseValidator(value);
+      const errorMessage = DataType.validate(typeDef.extends, value);
       if (errorMessage) {
         return errorMessage;
       }

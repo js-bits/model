@@ -77,7 +77,7 @@ describe('DataType', () => {
           });
         }).toThrowError('Invalid base data type');
       });
-      test('invalid data type', () => {
+      test('invalid value type', () => {
         expect(DataType.validate(CustomType, 123)).toEqual('must be a string');
       });
       test('invalid value', () => {
@@ -85,6 +85,33 @@ describe('DataType', () => {
       });
       test('valid value', () => {
         expect(DataType.validate(CustomType, 'valid')).toBeUndefined();
+      });
+    });
+
+    describe('multiple inherited data types with a object-based definition', () => {
+      const Int = new DataType({
+        extends: Number,
+        validate(value) {
+          if (!Number.isInteger(value)) return 'must be an integer';
+        },
+      });
+      const PositiveInt = new DataType({
+        extends: Int,
+        validate(value) {
+          if (value <= 0) return 'must be a positive integer';
+        },
+      });
+      test('invalid value type', () => {
+        expect(DataType.validate(PositiveInt, true)).toEqual('must be a number');
+      });
+      test('invalid value 1', () => {
+        expect(DataType.validate(PositiveInt, 12.34)).toEqual('must be an integer');
+      });
+      test('invalid value 2', () => {
+        expect(DataType.validate(PositiveInt, -123)).toEqual('must be a positive integer');
+      });
+      test('valid value', () => {
+        expect(DataType.validate(PositiveInt, 123)).toBeUndefined();
       });
     });
   });
