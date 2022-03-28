@@ -8,6 +8,9 @@ describe('DataType', () => {
         new DataType();
       }).toThrowError('Invalid data type');
       expect(() => {
+        new DataType(undefined);
+      }).toThrowError('Invalid data type');
+      expect(() => {
         new DataType(null);
       }).toThrowError('Invalid data type');
       expect(() => {
@@ -23,7 +26,21 @@ describe('DataType', () => {
       }
     });
 
-    describe('without base type', () => {});
+    describe('simple type', () => {
+      const CustomType = new DataType(value => {
+        if (value !== 'valid') return 'must have a valid value';
+      });
+
+      test('unexpected instantiation', () => {
+        expect(() => {
+          new CustomType(() => {});
+        }).toThrowError('Invalid data type');
+      });
+
+      test('conversion to string', () => {
+        expect(`${CustomType}`).toEqual('[class DataType]');
+      });
+    });
   });
 
   describe('built-in types', () => {

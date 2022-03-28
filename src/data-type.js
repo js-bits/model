@@ -1,6 +1,8 @@
 /* eslint-disable max-classes-per-file */
 import enumerate from '@js-bits/enumerate';
 
+const DATA_TYPES = new WeakMap();
+
 const ERRORS = enumerate(String)`
 InvalidDataTypeError
 UnknownDataTypeError
@@ -8,28 +10,35 @@ UnknownDataTypeError
 
 const NO_TYPE = Object.getPrototypeOf(Object);
 
-const DATA_TYPES = new WeakMap();
-
 export default class DataType {
-  // eslint-disable-next-line class-methods-use-this
-  get [Symbol.toStringTag]() {
-    return 'DataType';
+  constructor(typeDef) {
+    let validator;
+    if (typeof typeDef === 'function') {
+      validator = typeDef;
+    } else if (typeDef && typeof typeDef === 'object' && typeof typeDef.validate === 'function') {
+      validator = typeDef.validate;
   }
-
-  constructor(Type) {
-    const baseType = Type && Object.getPrototypeOf(Type);
-    if (typeof Type !== 'function' || !(typeof Type.validate === 'function' || baseType !== NO_TYPE)) {
-      // console.log('Type', Type);
+    if (!validator) {
       const error = new Error('Invalid data type');
       error.name = ERRORS.InvalidDataTypeError;
       throw error;
     }
 
-    class NewClass extends DataType {
-      // eslint-disable-next-line class-methods-use-this
-      get [Symbol.toStringTag]() {
-        return Type.prototype.constructor.name;
+    const baseType = typeof typeDef === 'object' ? typeDef.extends : undefined;
+
+    // console.log('baseType', baseType, `${baseType}`);
+
+    class NewDataType extends DataType {
+      static toString() {
+        return '[class DataType]';
       }
+
+      // eslint-disable-next-line no-useless-constructor
+      constructor() {
+        super();
+      }
+
+      static validate;
 
       // eslint-disable-next-line class-methods-use-this
       serialize() {} // fromStorage() // parse() // encode // fromJSON
@@ -38,10 +47,10 @@ export default class DataType {
       deserialize() {} // toStore() // decode // toJSON
       // Date as an example (ISO string > Object)
     }
-    console.log('Type', Type);
-    DataType.add(NewClass, Type.validate, baseType !== NO_TYPE ? baseType : undefined);
-    DataType.add(Type, Type.validate, baseType !== NO_TYPE ? baseType : undefined);
-    return NewClass;
+    // console.log('Type', typeDef);
+    DataType.add(NewDataType, typeDef.validate, baseType !== NO_TYPE ? baseType : undefined);
+    DataType.add(typeDef, typeDef.validate, baseType !== NO_TYPE ? baseType : undefined);
+    return NewDataType;
   }
 
   static add(type, validator, baseType) {
