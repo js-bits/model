@@ -20,13 +20,8 @@ export default class DataType {
         super();
       }
 
-      static validate;
-
-      // eslint-disable-next-line class-methods-use-this
-      fromJSON() {} // fromStorage() // parse() // encode // serialize
-
-      // eslint-disable-next-line class-methods-use-this
-      toJSON() {} // toStore() // decode // deserialize
+      // fromJSON() {} // fromStorage() // parse() // encode // serialize
+      // toJSON() {} // toStore() // decode // deserialize
     }
     DataType.add(NewDataType, typeDef);
     return NewDataType;

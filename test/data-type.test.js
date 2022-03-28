@@ -45,6 +45,48 @@ describe('DataType', () => {
         expect(DataType.validate(CustomType, 'valid')).toBeUndefined();
       });
     });
+
+    describe('simple data type with a object-based definition', () => {
+      const CustomType = new DataType({
+        validate(value) {
+          if (value !== 'valid') return 'must have a valid value';
+        },
+      });
+      test('invalid value', () => {
+        expect(DataType.validate(CustomType, 123)).toEqual('must have a valid value');
+      });
+      test('valid value', () => {
+        expect(DataType.validate(CustomType, 'valid')).toBeUndefined();
+      });
+    });
+
+    describe('derived data type with a object-based definition', () => {
+      const CustomType = new DataType({
+        extends: String,
+        validate(value) {
+          if (value !== 'valid') return 'must have a valid value';
+        },
+      });
+      test('invalid data type', () => {
+        expect(() => {
+          new DataType({
+            extends: Promise,
+            validate(value) {
+              if (value !== 'valid') return 'must have a valid value';
+            },
+          });
+        }).toThrowError('Invalid base data type');
+      });
+      test('invalid data type', () => {
+        expect(DataType.validate(CustomType, 123)).toEqual('must be a string');
+      });
+      test('invalid value', () => {
+        expect(DataType.validate(CustomType, '123')).toEqual('must have a valid value');
+      });
+      test('valid value', () => {
+        expect(DataType.validate(CustomType, 'valid')).toBeUndefined();
+      });
+    });
   });
 
   describe('built-in types', () => {
