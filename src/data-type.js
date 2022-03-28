@@ -10,20 +10,6 @@ UnknownDataTypeError
 
 export default class DataType {
   constructor(typeDef) {
-    let validator;
-    if (typeof typeDef === 'function') {
-      validator = typeDef;
-    } else if (typeDef && typeof typeDef === 'object' && typeof typeDef.validate === 'function') {
-      validator = typeDef.validate;
-    }
-    if (!validator) {
-      const error = new Error('Invalid data type');
-      error.name = ERRORS.InvalidDataTypeError;
-      throw error;
-    }
-
-    const baseType = typeof typeDef === 'object' ? typeDef.extends : undefined;
-
     class NewDataType extends DataType {
       static toString() {
         return '[class DataType]';
@@ -37,30 +23,37 @@ export default class DataType {
       static validate;
 
       // eslint-disable-next-line class-methods-use-this
-      serialize() {} // fromStorage() // parse() // encode // fromJSON
+      fromJSON() {} // fromStorage() // parse() // encode // serialize
 
       // eslint-disable-next-line class-methods-use-this
-      deserialize() {} // toStore() // decode // toJSON
-      // Date as an example (ISO string > Object)
+      toJSON() {} // toStore() // decode // deserialize
     }
-    // console.log('Type', typeDef);
-    DataType.add(NewDataType, validator, baseType);
+    DataType.add(NewDataType, typeDef);
     return NewDataType;
   }
 
-  static add(type, validator, baseType) {
-    let baseValidator;
-    if (typeof baseType !== 'undefined') {
-      baseValidator = DataType.get(baseType);
+  static add(type, typeDef) {
+    let validator;
+    if (typeof typeDef === 'function') {
+      validator = typeDef;
+    } else if (typeDef && typeof typeDef === 'object' && typeof typeDef.validate === 'function') {
+      validator = typeDef.validate;
+    }
+    if (!validator) {
+      const error = new Error('Invalid data type');
+      error.name = ERRORS.InvalidDataTypeError;
+      throw error;
     }
 
-    DATA_TYPES.set(type, value => {
-      let errorMessage = baseValidator && baseValidator(value);
-      if (!errorMessage) {
-        errorMessage = validator(value);
+    if (typeof typeDef === 'object') {
+      if (Object.prototype.hasOwnProperty.call(typeDef, 'extends') && !DataType.exists(typeDef.extends)) {
+        const error = new Error('Invalid base data type');
+        error.name = ERRORS.InvalidDataTypeError;
+        throw error;
       }
-      return errorMessage;
-    });
+    }
+
+    DATA_TYPES.set(type, typeDef);
   }
 
   static exists(type) {
@@ -78,7 +71,19 @@ export default class DataType {
   }
 
   static validate(type, value) {
-    return DataType.get(type)(value);
+    const typeDef = DataType.get(type);
+    if (typeDef.extends) {
+      const baseTypeDef = DataType.get(typeDef.extends);
+      const baseValidator = baseTypeDef.validate || baseTypeDef;
+
+      const errorMessage = baseValidator && baseValidator(value);
+      if (errorMessage) {
+        return errorMessage;
+      }
+    }
+
+    const validator = typeDef.validate || typeDef;
+    return validator(value);
   }
 }
 
