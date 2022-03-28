@@ -8,8 +8,6 @@ InvalidDataTypeError
 UnknownDataTypeError
 `;
 
-const NO_TYPE = Object.getPrototypeOf(Object);
-
 export default class DataType {
   constructor(typeDef) {
     let validator;
@@ -17,7 +15,7 @@ export default class DataType {
       validator = typeDef;
     } else if (typeDef && typeof typeDef === 'object' && typeof typeDef.validate === 'function') {
       validator = typeDef.validate;
-  }
+    }
     if (!validator) {
       const error = new Error('Invalid data type');
       error.name = ERRORS.InvalidDataTypeError;
@@ -25,8 +23,6 @@ export default class DataType {
     }
 
     const baseType = typeof typeDef === 'object' ? typeDef.extends : undefined;
-
-    // console.log('baseType', baseType, `${baseType}`);
 
     class NewDataType extends DataType {
       static toString() {
@@ -48,8 +44,7 @@ export default class DataType {
       // Date as an example (ISO string > Object)
     }
     // console.log('Type', typeDef);
-    DataType.add(NewDataType, typeDef.validate, baseType !== NO_TYPE ? baseType : undefined);
-    DataType.add(typeDef, typeDef.validate, baseType !== NO_TYPE ? baseType : undefined);
+    DataType.add(NewDataType, validator, baseType);
     return NewDataType;
   }
 

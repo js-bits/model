@@ -26,19 +26,23 @@ describe('DataType', () => {
       }
     });
 
-    describe('simple type', () => {
+    describe('simple data type with a function-based validator', () => {
       const CustomType = new DataType(value => {
         if (value !== 'valid') return 'must have a valid value';
       });
-
       test('unexpected instantiation', () => {
         expect(() => {
           new CustomType(() => {});
         }).toThrowError('Invalid data type');
       });
-
       test('conversion to string', () => {
         expect(`${CustomType}`).toEqual('[class DataType]');
+      });
+      test('invalid value', () => {
+        expect(DataType.validate(CustomType, 123)).toEqual('must have a valid value');
+      });
+      test('valid value', () => {
+        expect(DataType.validate(CustomType, 'valid')).toBeUndefined();
       });
     });
   });
