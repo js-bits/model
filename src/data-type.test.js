@@ -155,14 +155,14 @@ describe('DataType', () => {
         expect(DataType.validate(Date, new Date())).toBeUndefined();
       });
     });
-    describe('Object', () => {
+    describe('JSON', () => {
       test('invalid value', () => {
-        expect(DataType.validate(Object, undefined)).toEqual('must be an object');
-        expect(DataType.validate(Object, null)).toEqual('must be an object');
-        expect(DataType.validate(Object, new Date())).toEqual('must be an object');
+        expect(DataType.validate(JSON, undefined)).toEqual('must be an object');
+        expect(DataType.validate(JSON, null)).toEqual('must be an object');
+        expect(DataType.validate(JSON, new Date())).toEqual('must be an object');
       });
       test('valid value', () => {
-        expect(DataType.validate(Object, {})).toBeUndefined();
+        expect(DataType.validate(JSON, {})).toBeUndefined();
       });
     });
   });
