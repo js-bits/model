@@ -172,4 +172,13 @@ describe('DataType', () => {
       }).toThrowError('Unknown data type');
     });
   });
+
+  describe('#is', () => {
+    test('should return true for a valid value of a given type', () => {
+      expect(DataType.is(String, '')).toBeTruthy();
+    });
+    test('should return false for an invalid value of a given type', () => {
+      expect(DataType.is(String, 123)).toBeFalsy();
+    });
+  });
 });

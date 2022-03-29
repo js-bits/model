@@ -77,6 +77,10 @@ export default class DataType {
     const validator = typeDef.validate || typeDef;
     return validator(value);
   }
+
+  static is(type, value) {
+    return !DataType.validate(type, value);
+  }
 }
 
 DataType.add(String, value => (typeof value === 'string' ? undefined : 'must be a string'));
