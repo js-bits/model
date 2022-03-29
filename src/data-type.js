@@ -15,10 +15,6 @@ export default class DataType {
 
   constructor(typeDef) {
     class NewDataType extends DataType {
-      static toString() {
-        return '[class DataType]';
-      }
-
       // eslint-disable-next-line no-useless-constructor
       constructor() {
         super();
