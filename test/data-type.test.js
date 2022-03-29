@@ -1,6 +1,5 @@
 import DataType from '../src/data-type.js';
 
-
 describe('DataType', () => {
   describe('#constructor', () => {
     test('invalid validator', () => {
