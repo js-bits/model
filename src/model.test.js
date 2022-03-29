@@ -19,7 +19,7 @@ describe('Model', () => {
     });
 
     test('invalid schema', () => {
-      expect.assertions(6);
+      expect.assertions(9);
       try {
         new Model({});
       } catch (error) {
@@ -34,11 +34,15 @@ describe('Model', () => {
         expect(error.name).toEqual(Model.InvalidModelSchemaError);
         expect(error.name).toEqual('InvalidModelSchemaError');
       }
-      // expect(() => {
-      //   new Model({
-      //     func: () => {},
-      //   });
-      // }).toThrowError('Invalid model schema: invalid data type for "func"');
+      try {
+        new Model({
+          func: () => {},
+        });
+      } catch (error) {
+        expect(error.message).toEqual('Model schema is invalid: data type of "func" is invalid');
+        expect(error.name).toEqual(Model.InvalidModelSchemaError);
+        expect(error.name).toEqual('InvalidModelSchemaError');
+      }
     });
 
     describe('built-in types', () => {
