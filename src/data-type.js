@@ -35,14 +35,14 @@ export default class DataType {
       validator = typeDef.validate;
     }
     if (!validator) {
-      const error = new Error('Invalid data type');
+      const error = new Error('Data type is invalid');
       error.name = ERRORS.InvalidDataTypeError;
       throw error;
     }
 
     if (typeof typeDef === 'object') {
       if (Object.prototype.hasOwnProperty.call(typeDef, 'extends') && !DataType.exists(typeDef.extends)) {
-        const error = new Error('Invalid base data type');
+        const error = new Error('Base data type is invalid');
         error.name = ERRORS.InvalidDataTypeError;
         throw error;
       }

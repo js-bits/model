@@ -1,5 +1,22 @@
 import DataType from './data-type.js';
 
+// class ISODate extends String {
+//   constructor(input) {
+//     // super.validate(value);
+//     super(input);
+//     return new Date(input);
+//   }
+
+//   validate(value) {
+//     super.validate(value);
+//   }
+// }
+
+// ISODate.prototype.constructor.name // 'ISODate'
+// Object.getPrototypeOf(ISODate) // String
+// ISODate.prototype.constructor
+// ISODate.prototype.validate
+
 describe('DataType', () => {
   describe('#constructor', () => {
     test('conversion to string', () => {
@@ -8,21 +25,21 @@ describe('DataType', () => {
     test('invalid validator', () => {
       expect(() => {
         new DataType();
-      }).toThrowError('Invalid data type');
+      }).toThrowError('Data type is invalid');
       expect(() => {
         new DataType(undefined);
-      }).toThrowError('Invalid data type');
+      }).toThrowError('Data type is invalid');
       expect(() => {
         new DataType(null);
-      }).toThrowError('Invalid data type');
+      }).toThrowError('Data type is invalid');
       expect(() => {
         new DataType(123123);
-      }).toThrowError('Invalid data type');
+      }).toThrowError('Data type is invalid');
 
       try {
         new DataType(123123);
       } catch (error) {
-        expect(error.message).toEqual('Invalid data type');
+        expect(error.message).toEqual('Data type is invalid');
         expect(error.name).toEqual(DataType.InvalidDataTypeError);
         expect(error.name).toEqual('InvalidDataTypeError');
       }
@@ -35,7 +52,7 @@ describe('DataType', () => {
       test('unexpected instantiation', () => {
         expect(() => {
           new CustomType(() => {});
-        }).toThrowError('Invalid data type');
+        }).toThrowError('Data type is invalid');
       });
       test('conversion to string', () => {
         expect(`${CustomType}`).toEqual('[class DataType]');
@@ -77,7 +94,7 @@ describe('DataType', () => {
               if (value !== 'valid') return 'must have a valid value';
             },
           });
-        }).toThrowError('Invalid base data type');
+        }).toThrowError('Base data type is invalid');
       });
       test('invalid value type', () => {
         expect(DataType.validate(CustomType, 123)).toEqual('must be a string');
