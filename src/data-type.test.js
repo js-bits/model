@@ -165,7 +165,7 @@ describe('DataType', () => {
     });
   });
 
-  describe('#get', () => {
+  describe('.get', () => {
     test('unknown data type', () => {
       expect(() => {
         DataType.get(Promise);
@@ -173,7 +173,7 @@ describe('DataType', () => {
     });
   });
 
-  describe('#is', () => {
+  describe('.is', () => {
     test('should return true for a valid value of a given type', () => {
       expect(DataType.is(String, '')).toBeTruthy();
     });
