@@ -2,6 +2,9 @@ import DataType from './data-type.js';
 
 describe('DataType', () => {
   describe('#constructor', () => {
+    test('conversion to string', () => {
+      expect(`${DataType}`).toEqual('[class DataType]');
+    });
     test('invalid validator', () => {
       expect(() => {
         new DataType();

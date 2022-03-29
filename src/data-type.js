@@ -9,6 +9,10 @@ UnknownDataTypeError
 `;
 
 export default class DataType {
+  static toString() {
+    return '[class DataType]';
+  }
+
   constructor(typeDef) {
     class NewDataType extends DataType {
       static toString() {
