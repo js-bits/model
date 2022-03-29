@@ -37,7 +37,7 @@ describe('DataType', () => {
         expect(`${CustomType}`).toEqual('[class DataType]');
       });
       test('invalid value', () => {
-        expect(DataType.validate(CustomType, 123)).toEqual('must have a valid value');
+        expect(DataType.validate(CustomType, 123)).toEqual(['must have a valid value']);
       });
       test('valid value', () => {
         expect(DataType.validate(CustomType, 'valid')).toBeUndefined();
@@ -51,7 +51,7 @@ describe('DataType', () => {
         },
       });
       test('invalid value', () => {
-        expect(DataType.validate(CustomType, 123)).toEqual('must have a valid value');
+        expect(DataType.validate(CustomType, 123)).toEqual(['must have a valid value']);
       });
       test('valid value', () => {
         expect(DataType.validate(CustomType, 'valid')).toBeUndefined();
@@ -76,10 +76,10 @@ describe('DataType', () => {
         }).toThrowError('Base data type is invalid');
       });
       test('invalid value type', () => {
-        expect(DataType.validate(CustomType, 123)).toEqual('must be a string');
+        expect(DataType.validate(CustomType, 123)).toEqual(['must be a string']);
       });
       test('invalid value', () => {
-        expect(DataType.validate(CustomType, '123')).toEqual('must have a valid value');
+        expect(DataType.validate(CustomType, '123')).toEqual(['must have a valid value']);
       });
       test('valid value', () => {
         expect(DataType.validate(CustomType, 'valid')).toBeUndefined();
@@ -100,13 +100,13 @@ describe('DataType', () => {
         },
       });
       test('invalid value type', () => {
-        expect(DataType.validate(PositiveInt, true)).toEqual('must be a number');
+        expect(DataType.validate(PositiveInt, true)).toEqual(['must be a number']);
       });
       test('invalid value 1', () => {
-        expect(DataType.validate(PositiveInt, 12.34)).toEqual('must be an integer');
+        expect(DataType.validate(PositiveInt, 12.34)).toEqual(['must be an integer']);
       });
       test('invalid value 2', () => {
-        expect(DataType.validate(PositiveInt, -123)).toEqual('must be a positive integer');
+        expect(DataType.validate(PositiveInt, -123)).toEqual(['must be a positive integer']);
       });
       test('valid value', () => {
         expect(DataType.validate(PositiveInt, 123)).toBeUndefined();
@@ -117,9 +117,9 @@ describe('DataType', () => {
   describe('built-in types', () => {
     describe('String', () => {
       test('invalid value', () => {
-        expect(DataType.validate(String, undefined)).toEqual('must be a string');
-        expect(DataType.validate(String, null)).toEqual('must be a string');
-        expect(DataType.validate(String, 123)).toEqual('must be a string');
+        expect(DataType.validate(String, undefined)).toEqual(['must be a string']);
+        expect(DataType.validate(String, null)).toEqual(['must be a string']);
+        expect(DataType.validate(String, 123)).toEqual(['must be a string']);
       });
       test('valid value', () => {
         expect(DataType.validate(String, '123')).toBeUndefined();
@@ -127,9 +127,9 @@ describe('DataType', () => {
     });
     describe('Number', () => {
       test('invalid value', () => {
-        expect(DataType.validate(Number, undefined)).toEqual('must be a number');
-        expect(DataType.validate(Number, null)).toEqual('must be a number');
-        expect(DataType.validate(Number, '123')).toEqual('must be a number');
+        expect(DataType.validate(Number, undefined)).toEqual(['must be a number']);
+        expect(DataType.validate(Number, null)).toEqual(['must be a number']);
+        expect(DataType.validate(Number, '123')).toEqual(['must be a number']);
       });
       test('valid value', () => {
         expect(DataType.validate(Number, 123.23)).toBeUndefined();
@@ -137,7 +137,7 @@ describe('DataType', () => {
     });
     describe('Boolean', () => {
       test('invalid value', () => {
-        expect(DataType.validate(Boolean, null)).toEqual('must be a boolean');
+        expect(DataType.validate(Boolean, null)).toEqual(['must be a boolean']);
       });
       test('valid value', () => {
         expect(DataType.validate(Boolean, true)).toBeUndefined();
@@ -145,9 +145,9 @@ describe('DataType', () => {
     });
     describe('Date', () => {
       test('invalid value', () => {
-        expect(DataType.validate(Date, undefined)).toEqual('must be a date');
-        expect(DataType.validate(Date, null)).toEqual('must be a date');
-        expect(DataType.validate(Date, true)).toEqual('must be a date');
+        expect(DataType.validate(Date, undefined)).toEqual(['must be a date']);
+        expect(DataType.validate(Date, null)).toEqual(['must be a date']);
+        expect(DataType.validate(Date, true)).toEqual(['must be a date']);
       });
       test('valid value', () => {
         expect(DataType.validate(Date, new Date())).toBeUndefined();
@@ -155,9 +155,9 @@ describe('DataType', () => {
     });
     describe('JSON', () => {
       test('invalid value', () => {
-        expect(DataType.validate(JSON, undefined)).toEqual('must be a plain object');
-        expect(DataType.validate(JSON, null)).toEqual('must be a plain object');
-        expect(DataType.validate(JSON, new Date())).toEqual('must be a plain object');
+        expect(DataType.validate(JSON, undefined)).toEqual(['must be a plain object']);
+        expect(DataType.validate(JSON, null)).toEqual(['must be a plain object']);
+        expect(DataType.validate(JSON, new Date())).toEqual(['must be a plain object']);
       });
       test('valid value', () => {
         expect(DataType.validate(JSON, {})).toBeUndefined();
@@ -179,6 +179,22 @@ describe('DataType', () => {
     });
     test('should return false for an invalid value of a given type', () => {
       expect(DataType.is(String, 123)).toBeFalsy();
+    });
+  });
+
+  describe('.validate', () => {
+    const CustomType = new DataType(value => (value !== 'valid' ? ['must have a valid value'] : []));
+    test('should return undefined for a valid value of a given type', () => {
+      expect(DataType.validate(CustomType, 'valid')).toBeUndefined();
+    });
+    test('should return an array of error message for an invalid value of a given type', () => {
+      expect(DataType.validate(CustomType, 'invalid')).toEqual(['must have a valid value']);
+    });
+    test('should throw an error if a validator returns an unexpected value', () => {
+      const InvalidType = new DataType(value => (value !== 'valid' ? 123 : undefined));
+      expect(() => {
+        DataType.validate(InvalidType, 'invalid');
+      }).toThrow('Return type of data validator is invalid. String, Array or undefined is expected');
     });
   });
 });

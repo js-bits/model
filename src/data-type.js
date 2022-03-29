@@ -65,17 +65,37 @@ export default class DataType {
     return validator;
   }
 
+  /**
+   * Validates a value against a given type
+   * @param {Object} type
+   * @param {*} value
+   * @returns {Array}
+   */
   static validate(type, value) {
     const typeDef = DataType.get(type);
+    let errorMessages;
     if (typeDef.extends) {
-      const errorMessage = DataType.validate(typeDef.extends, value);
-      if (errorMessage) {
-        return errorMessage;
+      errorMessages = DataType.validate(typeDef.extends, value);
+    }
+
+    // if no error messages from a base validator
+    if (!errorMessages) {
+      const validator = typeDef.validate || typeDef;
+      errorMessages = validator(value);
+      if (Array.isArray(errorMessages)) {
+        if (errorMessages.length === 0) {
+          errorMessages = undefined;
+        }
+      } else if (typeof errorMessages === 'string') {
+        errorMessages = [errorMessages];
+      } else if (errorMessages !== undefined) {
+        const error = new Error('Return type of data validator is invalid');
+        error.name = ERRORS.InvalidDataTypeError;
+        throw error;
       }
     }
 
-    const validator = typeDef.validate || typeDef;
-    return validator(value);
+    return errorMessages;
   }
 
   static is(type, value) {
