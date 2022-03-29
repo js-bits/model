@@ -1,4 +1,4 @@
-import DataType from '../src/data-type.js';
+import DataType from './data-type.js';
 
 describe('DataType', () => {
   describe('#constructor', () => {
