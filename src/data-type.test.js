@@ -27,9 +27,7 @@ describe('DataType', () => {
     });
 
     describe('simple data type with a function-based validator', () => {
-      const CustomType = new DataType(value => {
-        if (value !== 'valid') return 'must have a valid value';
-      });
+      const CustomType = new DataType(value => (value !== 'valid' ? 'must have a valid value' : undefined));
       test('unexpected instantiation', () => {
         expect(() => {
           new CustomType(() => {});
@@ -49,7 +47,7 @@ describe('DataType', () => {
     describe('simple data type with a object-based definition', () => {
       const CustomType = new DataType({
         validate(value) {
-          if (value !== 'valid') return 'must have a valid value';
+          return value !== 'valid' ? 'must have a valid value' : undefined;
         },
       });
       test('invalid value', () => {
@@ -64,7 +62,7 @@ describe('DataType', () => {
       const CustomType = new DataType({
         extends: String,
         validate(value) {
-          if (value !== 'valid') return 'must have a valid value';
+          return value !== 'valid' ? 'must have a valid value' : undefined;
         },
       });
       test('invalid data type', () => {
@@ -72,7 +70,7 @@ describe('DataType', () => {
           new DataType({
             extends: Promise,
             validate(value) {
-              if (value !== 'valid') return 'must have a valid value';
+              return value !== 'valid' ? 'must have a valid value' : undefined;
             },
           });
         }).toThrowError('Base data type is invalid');
@@ -92,13 +90,13 @@ describe('DataType', () => {
       const Int = new DataType({
         extends: Number,
         validate(value) {
-          if (!Number.isInteger(value)) return 'must be an integer';
+          return Number.isInteger(value) ? undefined : 'must be an integer';
         },
       });
       const PositiveInt = new DataType({
         extends: Int,
         validate(value) {
-          if (value <= 0) return 'must be a positive integer';
+          return value <= 0 ? 'must be a positive integer' : undefined;
         },
       });
       test('invalid value type', () => {
@@ -157,9 +155,9 @@ describe('DataType', () => {
     });
     describe('JSON', () => {
       test('invalid value', () => {
-        expect(DataType.validate(JSON, undefined)).toEqual('must be an object');
-        expect(DataType.validate(JSON, null)).toEqual('must be an object');
-        expect(DataType.validate(JSON, new Date())).toEqual('must be an object');
+        expect(DataType.validate(JSON, undefined)).toEqual('must be a plain object');
+        expect(DataType.validate(JSON, null)).toEqual('must be a plain object');
+        expect(DataType.validate(JSON, new Date())).toEqual('must be a plain object');
       });
       test('valid value', () => {
         expect(DataType.validate(JSON, {})).toBeUndefined();
