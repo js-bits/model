@@ -2,6 +2,11 @@ import Model from './model.js';
 
 describe('Model', () => {
   describe('#constructor', () => {
+    test('conversion to string', () => {
+      expect(`${Model}`).toEqual('[class Model]');
+      expect(`${new Model()}`).toEqual('[object Model]');
+    });
+
     test('inheritance', () => {
       const DerivedModel = new Model({
         'test?': String,
@@ -9,6 +14,8 @@ describe('Model', () => {
       const instance = new DerivedModel({});
       expect(instance).toBeInstanceOf(DerivedModel);
       expect(instance).toBeInstanceOf(Model);
+      expect(`${DerivedModel}`).toEqual('[class Model]');
+      expect(`${instance}`).toEqual('[object Model]');
     });
 
     test('invalid schema', () => {

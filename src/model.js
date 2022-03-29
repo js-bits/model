@@ -10,6 +10,10 @@ const STATIC_PROPS = enumerate`
 const MODELS = new WeakSet();
 
 export default class Model {
+  static toString() {
+    return '[class Model]';
+  }
+
   // eslint-disable-next-line class-methods-use-this
   get [Symbol.toStringTag]() {
     return 'Model';
