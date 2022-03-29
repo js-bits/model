@@ -119,6 +119,8 @@ describe('DataType', () => {
   describe('built-in types', () => {
     describe('String', () => {
       test('invalid value', () => {
+        expect(DataType.validate(String, undefined)).toEqual('must be a string');
+        expect(DataType.validate(String, null)).toEqual('must be a string');
         expect(DataType.validate(String, 123)).toEqual('must be a string');
       });
       test('valid value', () => {
@@ -127,6 +129,8 @@ describe('DataType', () => {
     });
     describe('Number', () => {
       test('invalid value', () => {
+        expect(DataType.validate(Number, undefined)).toEqual('must be a number');
+        expect(DataType.validate(Number, null)).toEqual('must be a number');
         expect(DataType.validate(Number, '123')).toEqual('must be a number');
       });
       test('valid value', () => {
@@ -143,10 +147,22 @@ describe('DataType', () => {
     });
     describe('Date', () => {
       test('invalid value', () => {
+        expect(DataType.validate(Date, undefined)).toEqual('must be a date');
+        expect(DataType.validate(Date, null)).toEqual('must be a date');
         expect(DataType.validate(Date, true)).toEqual('must be a date');
       });
       test('valid value', () => {
         expect(DataType.validate(Date, new Date())).toBeUndefined();
+      });
+    });
+    describe('Object', () => {
+      test('invalid value', () => {
+        expect(DataType.validate(Object, undefined)).toEqual('must be an object');
+        expect(DataType.validate(Object, null)).toEqual('must be an object');
+        expect(DataType.validate(Object, new Date())).toEqual('must be an object');
+      });
+      test('valid value', () => {
+        expect(DataType.validate(Object, {})).toBeUndefined();
       });
     });
   });
