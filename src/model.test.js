@@ -19,17 +19,26 @@ describe('Model', () => {
     });
 
     test('invalid schema', () => {
-      expect(() => {
+      expect.assertions(6);
+      try {
         new Model({});
-      }).toThrowError('Empty model schema');
-      expect(() => {
+      } catch (error) {
+        expect(error.message).toEqual('Model schema is empty');
+        expect(error.name).toEqual(Model.InvalidModelSchemaError);
+        expect(error.name).toEqual('InvalidModelSchemaError');
+      }
+      try {
         new Model(123);
-      }).toThrowError('Invalid model schema');
-      expect(() => {
-        new Model({
-          func: () => {},
-        });
-      }).toThrowError('Invalid model schema: unknown data type for "func"');
+      } catch (error) {
+        expect(error.message).toEqual('Model schema is invalid');
+        expect(error.name).toEqual(Model.InvalidModelSchemaError);
+        expect(error.name).toEqual('InvalidModelSchemaError');
+      }
+      // expect(() => {
+      //   new Model({
+      //     func: () => {},
+      //   });
+      // }).toThrowError('Invalid model schema: invalid data type for "func"');
     });
 
     describe('built-in types', () => {

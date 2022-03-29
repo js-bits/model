@@ -1,28 +1,12 @@
 import DataType from './data-type.js';
 
-// class ISODate extends String {
-//   constructor(input) {
-//     // super.validate(value);
-//     super(input);
-//     return new Date(input);
-//   }
-
-//   validate(value) {
-//     super.validate(value);
-//   }
-// }
-
-// ISODate.prototype.constructor.name // 'ISODate'
-// Object.getPrototypeOf(ISODate) // String
-// ISODate.prototype.constructor
-// ISODate.prototype.validate
-
 describe('DataType', () => {
   describe('#constructor', () => {
     test('conversion to string', () => {
       expect(`${DataType}`).toEqual('[class DataType]');
     });
     test('invalid validator', () => {
+      expect.assertions(6);
       expect(() => {
         new DataType();
       }).toThrowError('Data type is invalid');
@@ -31,9 +15,6 @@ describe('DataType', () => {
       }).toThrowError('Data type is invalid');
       expect(() => {
         new DataType(null);
-      }).toThrowError('Data type is invalid');
-      expect(() => {
-        new DataType(123123);
       }).toThrowError('Data type is invalid');
 
       try {

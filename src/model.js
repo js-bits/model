@@ -3,11 +3,15 @@ import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
 import validateValue from './validate-value.js';
 
+const MODELS = new WeakSet();
+
 const STATIC_PROPS = enumerate`
   SAME
 `;
 
-const MODELS = new WeakSet();
+const ERRORS = enumerate(String)`
+InvalidModelSchemaError
+`;
 
 export default class Model {
   static toString() {
@@ -22,12 +26,16 @@ export default class Model {
   constructor(config) {
     if (config) {
       if (typeof config !== 'object') {
-        throw new Error('Invalid model schema');
+        const error = new Error('Model schema is invalid');
+        error.name = ERRORS.InvalidModelSchemaError;
+        throw error;
       }
       const schema = { ...config };
       const entries = Object.entries(schema);
       if (entries.length === 0) {
-        throw new Error('Empty model schema');
+        const error = new Error('Model schema is empty');
+        error.name = ERRORS.InvalidModelSchemaError;
+        throw error;
       }
 
       // NOTE: encapsulated class definition makes it impossible to manipulate data schema from outside the model
