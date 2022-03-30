@@ -39,7 +39,7 @@ describe('Model', () => {
         error = e;
       }
       expect(error).toEqual(new Error('Invalid data'));
-      expect(error.cause).toEqual(['Field "link": must be a specified model']);
+      expect(error.cause).toEqual(['Property "link": must be a specified model']);
     });
   });
 
@@ -72,7 +72,7 @@ describe('Model', () => {
         error = e;
       }
       expect(error).toEqual(new Error('Invalid data'));
-      expect(error.cause).toEqual(['Field "parent": must be a specified model']);
+      expect(error.cause).toEqual(['Property "parent": must be a specified model']);
     });
   });
 

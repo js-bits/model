@@ -40,7 +40,7 @@ describe('Model', () => {
           func: () => {},
         });
       } catch (error) {
-        expect(error.message).toEqual('Model schema is invalid: data type of "func" is invalid');
+        expect(error.message).toEqual('Model schema is invalid: data type of "func" property is invalid');
         expect(error.name).toEqual(Model.InvalidModelSchemaError);
         expect(error.name).toEqual('InvalidModelSchemaError');
       }
@@ -91,6 +91,43 @@ describe('Model', () => {
     });
   });
 
+  describe('specifiers', () => {
+    test('! specifier', () => {
+      const MyModel = new Model({
+        string: String,
+        date: Date,
+        'required!': Boolean,
+        'number!': Number,
+      });
+      expect(MyModel.validate({})).toEqual([
+        'Property "required": Required property "required" is not defined',
+        'Property "number": Required property "number" is not defined',
+      ]);
+    });
+    test('? specifier', () => {
+      const MyModel = new Model({
+        string: String,
+        date: Date,
+        'optional?': Boolean,
+        'number?': Number,
+      });
+      expect(MyModel.validate({})).toEqual([
+        'Property "string": Required property "string" is not defined',
+        'Property "date": Required property "date" is not defined',
+      ]);
+    });
+    test('illegal usage of both ! and ?', () => {
+      expect(() => {
+        const MyModel = new Model({
+          string: String,
+          date: Date,
+          'optional?': Boolean,
+          'required!': true,
+        });
+      }).toThrow('Model schema is invalid. Must contain either ? or ! specifiers');
+    });
+  });
+
   describe('#validate', () => {
     const DerivedModel = new Model({
       string: String,
@@ -110,11 +147,11 @@ describe('Model', () => {
           optional: 234,
         })
       ).toEqual([
-        'Field "string": must be a string',
-        'Field "number": must be a number',
-        'Field "boolean": must be a boolean',
-        'Field "date": must be a date',
-        'Field "optional": must be a string',
+        'Property "string": must be a string',
+        'Property "number": must be a number',
+        'Property "boolean": must be a boolean',
+        'Property "date": must be a date',
+        'Property "optional": must be a string',
       ]);
     });
   });
