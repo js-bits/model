@@ -1,3 +1,4 @@
+import DataType from './data-type.js';
 import Model from './model.js';
 
 describe('Model', () => {
@@ -43,6 +44,15 @@ describe('Model', () => {
         expect(error.name).toEqual(Model.InvalidModelSchemaError);
         expect(error.name).toEqual('InvalidModelSchemaError');
       }
+    });
+
+    test('data type', () => {
+      const MyModel = new Model({
+        string: String,
+      });
+      const instance = new MyModel({ string: '' });
+      expect(DataType.is(Model, instance)).toBeTruthy();
+      expect(DataType.validate(Model, MyModel)).toEqual(['must be a model']);
     });
 
     describe('built-in types', () => {

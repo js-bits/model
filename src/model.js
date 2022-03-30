@@ -100,7 +100,9 @@ export default class Model {
   }
 }
 
-DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'), Object);
+
+DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
+
 
 Object.assign(Model, STATIC_PROPS);
 Object.assign(Model, ERRORS);
