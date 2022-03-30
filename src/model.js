@@ -25,7 +25,7 @@ export default class Model {
 
   constructor(config) {
     if (config) {
-      if (typeof config !== 'object') {
+      if (!DataType.is(JSON, config)) {
         const error = new Error('Model schema is invalid');
         error.name = ERRORS.InvalidModelSchemaError;
         throw error;

@@ -29,7 +29,7 @@ describe('Model', () => {
         expect(error.name).toEqual('InvalidModelSchemaError');
       }
       try {
-        new Model(123);
+        new Model(new Date());
       } catch (error) {
         expect(error.message).toEqual('Model schema is invalid');
         expect(error.name).toEqual(Model.InvalidModelSchemaError);
