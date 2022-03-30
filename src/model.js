@@ -73,9 +73,11 @@ export default class Model {
       for (const [key, type] of entries) {
         if (type === STATIC_PROPS.SAME) {
           schema[key] = NewModel;
-        } else if (DataType.is(Object, type)) {
+        } else if (DataType.is(JSON, type)) {
           // nested schema
-          schema[key] = new Model(type);
+          const AnonymousModel = new Model(type);
+          DataType.add(AnonymousModel, value => AnonymousModel.validate(value));
+          schema[key] = AnonymousModel;
         } else if (!DataType.exists(type)) {
           const error = new Error(`Model schema is invalid: data type of "${key}" is invalid`);
           error.name = ERRORS.InvalidModelSchemaError;
@@ -83,7 +85,12 @@ export default class Model {
         }
       }
 
-      DataType.add(NewModel, value => (value instanceof NewModel ? undefined : 'must be a custom model'), Model);
+      DataType.add(NewModel, {
+        extends: Model,
+        validate(value) {
+          return value instanceof NewModel ? undefined : 'must be a specified model';
+        },
+      });
 
       MODELS.add(NewModel);
       // NewModel.ID = Symbol('Model ID'); // do I really need it?

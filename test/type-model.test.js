@@ -39,7 +39,7 @@ describe('Model', () => {
         error = e;
       }
       expect(error).toEqual(new Error('Invalid data'));
-      expect(error.cause).toEqual(['Field "link": must be a custom model']);
+      expect(error.cause).toEqual(['Field "link": must be a specified model']);
     });
   });
 
@@ -72,7 +72,28 @@ describe('Model', () => {
         error = e;
       }
       expect(error).toEqual(new Error('Invalid data'));
-      expect(error.cause).toEqual(['Field "parent": must be a custom model']);
+      expect(error.cause).toEqual(['Field "parent": must be a specified model']);
+    });
+  });
+
+  describe('nested model', () => {
+    const TestModel = new Model({
+      title: String,
+      options: {
+        option1: String,
+        flag: Boolean,
+      },
+    });
+    test('correct value', () => {
+      const instance1 = new TestModel({
+        title: 'NestedModel',
+        options: {
+          option1: '12',
+          flag: true,
+        },
+      });
+      expect(instance1).toBeInstanceOf(TestModel);
+      // expect(instance1.options).toBeInstanceOf(TestModel);
     });
   });
 });
