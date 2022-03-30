@@ -89,7 +89,7 @@ export default class DataType {
       } else if (typeof errorMessages === 'string') {
         errorMessages = [errorMessages];
       } else if (errorMessages !== undefined) {
-        const error = new Error('Return type of data validator is invalid');
+        const error = new Error('Return type of data validator is invalid. String, Array or undefined is expected');
         error.name = ERRORS.InvalidDataTypeError;
         throw error;
       }
