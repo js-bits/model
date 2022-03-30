@@ -4,24 +4,12 @@ import DataType from '../src/data-type.js';
 
 describe('Custom data type', () => {
   describe('without base type', () => {
-    test('invalid validator', () => {
-      expect(() => {
-        new DataType();
-      }).toThrowError('Invalid data type');
-      expect(() => {
-        new DataType(null);
-      }).toThrowError('Invalid data type');
-      expect(() => {
-        new DataType(123123);
-      }).toThrowError('Invalid data type');
-    });
-
     describe('valid validator', () => {
-      class NewType {
-        static validate(value) {
-          if (value !== 'valid') return 'must have a valid value';
-        }
-      }
+      const NewType = new DataType({
+        validate(value) {
+          return value !== 'valid' ? 'must have a valid value' : undefined;
+        },
+      });
       // const NewType = new DataType(value => (value === 'valid' ? undefined : ));
       const NewModel = new Model({
         field: NewType,
@@ -52,16 +40,18 @@ describe('Custom data type', () => {
   });
 
   describe('with base type', () => {
-    class Int extends Number {
-      static validate(value) {
-        if (!Number.isInteger(value)) return 'must be an integer';
-      }
-    }
-    class PositiveInt extends Int {
-      static validate(value) {
-        if (value <= 0) return 'must be a positive integer';
-      }
-    }
+    const Int = new DataType({
+      extends: Number,
+      validate(value) {
+        return Number.isInteger(value) ? undefined : 'must be an integer';
+      },
+    });
+    const PositiveInt = new DataType({
+      extend: Int,
+      validate(value) {
+        return value <= 0 ? 'must be a positive integer' : undefined;
+      },
+    });
     // const Int = new DataType(value => (Number.isInteger(value) ? undefined : 'must be an integer'), Number);
     // const PositiveInt = new DataType(value => (value > 0 ? undefined : 'must be a positive integer'), Int);
     const TestModel1 = new Model({
@@ -73,17 +63,23 @@ describe('Custom data type', () => {
     test('invalid base type', () => {
       expect(() => {
         class NewClass {}
-        new DataType(() => {}, NewClass);
-      }).toThrowError('Invalid data type');
+        new DataType({
+          extends: NewClass,
+          validate: () => {},
+        });
+      }).toThrowError('Base data type is invalid');
       expect(() => {
-        new DataType(() => {}, null);
-      }).toThrowError('Invalid data type');
+        new DataType({
+          extends: null,
+          validate: () => {},
+        });
+      }).toThrowError('Base data type is invalid');
       expect(() => {
-        new DataType(
-          () => {},
-          () => {}
-        );
-      }).toThrowError('Invalid data type');
+        new DataType({
+          extends: () => {},
+          validate: () => {},
+        });
+      }).toThrowError('Base data type is invalid');
     });
     test('correct value', () => {
       expect(() => {
