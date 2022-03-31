@@ -151,7 +151,6 @@ export default class Model {
   }
 }
 
-
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
 
 
