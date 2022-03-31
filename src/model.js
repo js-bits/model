@@ -48,44 +48,45 @@ export default class Model {
           const errors = NewModel.validate(data);
           if (errors) {
             const error = new Error('Invalid data');
-            error.cause = errors;
-            console.log('validationErrors', errors);
+            error.name = ERRORS.InvalidDataError;
+            error.cause = errors; // TODO: replace with native https://v8.dev/features/error-cause;
             throw error;
           }
         }
 
         /**
          * @param {*} data
-         * @returns {Array} - an array of validation errors
+         * @returns {Object} - an object representing validation errors
          */
         static validate(data) {
-          const errors = [];
-          const dataTypeErrors = DataType.validate(JSON, config);
-          if (dataTypeErrors) {
-            errors.push(...dataTypeErrors);
-          } else {
-          for (const [key, type] of Object.entries(schema)) {
-              const propName = key;
-            const value = data[propName];
+          if (!DataType.is(JSON, data)) {
+            const error = new Error('Model data must be a plain object');
+            error.name = ERRORS.InvalidDataError;
+            throw error;
+          }
+
+          const validationResult = {};
+          const properties = new Set([...Object.keys(schema), ...Object.keys(data)]);
+          for (const propName of properties) {
               // const errorMessage = validateValue(type, value, isOptional);
-              let errorMessage;
-              if (value === undefined || value === null) {
+            const propType = schema[propName];
+            const propValue = data[propName];
+            if (propValue === undefined || propValue === null) {
                 if (flags[0].has(propName)) {
-                  errorMessage = `Required property "${propName}" is not defined`;
+                validationResult[propName] = 'required property is not defined';
                 }
                 // } else if (type instanceof Model) {
                 //   const errorMessages = type.validate(value);
                 //   errors.push(...errorMessages);
+            } else if (propType) {
+              const result = DataType.validate(propType, propValue);
+              if (result) validationResult[propName] = result;
               } else {
-                errorMessage = DataType.validate(type, value);
-              }
-            // console.log('validate', propName, type, value, errorMessage);
-            if (errorMessage) {
-                errors.push(`Property "${propName}": ${errorMessage}`);
+              validationResult[propName] = 'property is not defined in schema';
             }
           }
-          }
-          return errors.length > 0 ? errors : undefined;
+
+          return Object.keys(validationResult).length ? validationResult : undefined;
         }
       }
 

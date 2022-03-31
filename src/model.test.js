@@ -52,7 +52,7 @@ describe('Model', () => {
       });
       const instance = new MyModel({ string: '' });
       expect(DataType.is(Model, instance)).toBeTruthy();
-      expect(DataType.validate(Model, MyModel)).toEqual(['must be a model']);
+      expect(DataType.validate(Model, MyModel)).toEqual('must be a model');
     });
 
     describe('built-in types', () => {
@@ -99,10 +99,10 @@ describe('Model', () => {
         'required!': Boolean,
         'number!': Number,
       });
-      expect(MyModel.validate({})).toEqual([
-        'Property "required": Required property "required" is not defined',
-        'Property "number": Required property "number" is not defined',
-      ]);
+      expect(MyModel.validate({})).toEqual({
+        required: 'required property is not defined',
+        number: 'required property is not defined',
+      });
     });
     test('? specifier', () => {
       const MyModel = new Model({
@@ -111,10 +111,10 @@ describe('Model', () => {
         'optional?': Boolean,
         'number?': Number,
       });
-      expect(MyModel.validate({})).toEqual([
-        'Property "string": Required property "string" is not defined',
-        'Property "date": Required property "date" is not defined',
-      ]);
+      expect(MyModel.validate({})).toEqual({
+        string: 'required property is not defined',
+        date: 'required property is not defined',
+      });
     });
     test('illegal usage of both ! and ?', () => {
       expect(() => {
@@ -146,13 +146,13 @@ describe('Model', () => {
           boolean: new Date(),
           optional: 234,
         })
-      ).toEqual([
-        'Property "string": must be a string',
-        'Property "number": must be a number',
-        'Property "boolean": must be a boolean',
-        'Property "date": must be a date',
-        'Property "optional": must be a string',
-      ]);
+      ).toEqual({
+        string: 'must be a string',
+        number: 'must be a number',
+        boolean: 'must be a boolean',
+        date: 'must be a date',
+        optional: 'must be a string',
+      });
     });
   });
 });

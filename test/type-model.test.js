@@ -39,7 +39,7 @@ describe('Model', () => {
         error = e;
       }
       expect(error).toEqual(new Error('Invalid data'));
-      expect(error.cause).toEqual(['Property "link": must be a specified model']);
+      expect(error.cause).toEqual({ link: 'must be a specified model' });
     });
   });
 
@@ -72,7 +72,7 @@ describe('Model', () => {
         error = e;
       }
       expect(error).toEqual(new Error('Invalid data'));
-      expect(error.cause).toEqual(['Property "parent": must be a specified model']);
+      expect(error.cause).toEqual({ parent: 'must be a specified model' });
     });
   });
 
@@ -80,7 +80,7 @@ describe('Model', () => {
     const TestModel = new Model({
       title: String,
       options: {
-        option1: String,
+        param: String,
         flag: Boolean,
       },
     });
@@ -88,12 +88,35 @@ describe('Model', () => {
       const instance1 = new TestModel({
         title: 'NestedModel',
         options: {
-          option1: '12',
+          param: '12',
           flag: true,
         },
       });
       expect(instance1).toBeInstanceOf(TestModel);
       // expect(instance1.options).toBeInstanceOf(TestModel);
+    });
+    test('incorrect value', () => {
+      let error;
+      try {
+        const instance1 = new TestModel({
+          title: 'NestedModel',
+          options: {
+            param: 123,
+            flag: '',
+            unknown: '',
+          },
+        });
+      } catch (e) {
+        error = e;
+      }
+      expect(error).toEqual(new Error('Invalid data'));
+      expect(error.cause).toEqual({
+        options: {
+          flag: 'must be a boolean',
+          param: 'must be a string',
+          unknown: 'property is not defined in schema',
+        },
+      });
     });
   });
 });
