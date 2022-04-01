@@ -20,6 +20,22 @@ const create = (Model, schema, flags) => {
         error.cause = errors; // TODO: replace with native https://v8.dev/features/error-cause;
         throw error;
       }
+
+      const proxy = new Proxy(this, {
+        get(...args) {
+          const [target, prop] = args;
+          const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toString', 'constructor'];
+          if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
+            throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
+          }
+          return Reflect.get(...args);
+        },
+        set(target, prop) {
+          throw new Error(`Property assignment is not supported for "${String(prop)}"`);
+        },
+      });
+
+      return proxy;
     }
 
     /**
