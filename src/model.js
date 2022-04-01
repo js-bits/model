@@ -2,6 +2,7 @@
 import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
 import validate from './model-validate.js';
+import prepareSchema from './model-schema.js';
 
 const MODELS = new WeakSet();
 
@@ -31,16 +32,16 @@ export default class Model {
         error.name = ERRORS.InvalidModelSchemaError;
         throw error;
       }
-      const schema = { ...config };
       const required = new Set();
       const optional = new Set();
       const flags = [required, optional];
-      const entries = Object.entries(schema);
-      if (entries.length === 0) {
+      if (Object.keys(config).length === 0) {
         const error = new Error('Model schema is empty');
         error.name = ERRORS.InvalidModelSchemaError;
         throw error;
       }
+
+      let schema;
 
       // NOTE: encapsulated class definition makes it impossible to manipulate data schema from outside of the model
       class NewModel extends Model {
@@ -64,50 +65,7 @@ export default class Model {
         }
       }
 
-      let globalSpecifier;
-      let reqIndex = 0;
-      let optIndex = 1;
-      for (const [key, type] of entries) {
-        let specifier;
-        let propName = key;
-        const match = key.match(/^(.+)([?!])$/);
-        if (match) {
-          [, propName, specifier] = match;
-          if (globalSpecifier && specifier !== globalSpecifier) {
-            const error = new Error('Model schema is invalid. Must contain either ? or ! specifiers');
-            error.name = ERRORS.InvalidModelSchemaError;
-            throw error;
-          }
-          if (!globalSpecifier && specifier === '!') {
-            flags.reverse();
-            reqIndex = 1;
-            optIndex = 0;
-          }
-          globalSpecifier = specifier;
-          schema[propName] = schema[key];
-          delete schema[key];
-        }
-        flags[specifier ? optIndex : reqIndex].add(propName);
-
-        if (type === STATIC_PROPS.SAME) {
-          schema[propName] = NewModel;
-        } else if (enumerate.isEnum(type)) {
-          DataType.add(type, value => {
-            const allowedValues = Object.values(type);
-            const x = allowedValues.map(item => String(item)).join(',');
-            return allowedValues.includes(value) ? undefined : `must be one of allowed values [${x}]`;
-          });
-        } else if (DataType.is(JSON, type)) {
-          // nested schema
-          const AnonymousModel = new Model(type);
-          DataType.add(AnonymousModel, value => AnonymousModel.validate(value));
-          schema[propName] = AnonymousModel;
-        } else if (!DataType.exists(type)) {
-          const error = new Error(`Model schema is invalid: data type of "${propName}" property is invalid`);
-          error.name = ERRORS.InvalidModelSchemaError;
-          throw error;
-        }
-      }
+      schema = prepareSchema(NewModel, config, flags, Model);
 
       DataType.add(NewModel, {
         extends: Model,
