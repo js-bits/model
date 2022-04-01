@@ -2,14 +2,20 @@ import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
 import create from './model-create.js';
 
-const init = (config, Model) => {
+/**
+ * This is just a part of Model extracted for convenience
+ * @param {Class} Model
+ * @param {Object} config
+ * @returns
+ */
+const init = (Model, config) => {
   const schema = { ...config };
   const schemaEntries = Object.entries(schema);
   const required = new Set();
   const optional = new Set();
   const flags = [required, optional];
 
-  const NewModel = create(schema, flags, Model);
+  const NewModel = create(Model, schema, flags);
 
   let globalSpecifier;
   let reqIndex = 0;

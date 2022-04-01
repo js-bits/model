@@ -38,7 +38,7 @@ export default class Model {
         throw error;
       }
 
-      const NewModel = init(config, Model);
+      const NewModel = init(Model, config);
 
       // Move this to StorageModel (extends Model)
       // MODELS.set(NewModel.ID, NewModel);

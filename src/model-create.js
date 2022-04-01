@@ -1,6 +1,13 @@
 import validate from './model-validate.js';
 
-const create = (schema, flags, Model) => {
+/**
+ * This is just a part of Model extracted for convenience
+ * @param {Class} Model
+ * @param {Object} schema
+ * @param {Array} flags
+ * @returns {Class}
+ */
+const create = (Model, schema, flags) => {
   // NOTE: encapsulated class definition makes it impossible to manipulate data schema from outside of the model
   class NewModel extends Model {
     constructor(data) {
