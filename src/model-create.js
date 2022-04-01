@@ -1,4 +1,4 @@
-import validate from './model-validate.js';
+import assemble from './model-assemble.js';
 
 /**
  * This is just a part of Model extracted for convenience
@@ -43,7 +43,7 @@ const create = (Model, schema, flags) => {
      * @returns {Object} - an object representing validation errors
      */
     static validate(data) {
-      return validate(data, schema, flags[0], Model);
+      return assemble(data, schema, flags[0], Model);
     }
 
     // static toGraphQL() {}

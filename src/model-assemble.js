@@ -8,7 +8,7 @@ import DataType from './data-type.js';
  * @param {Class} Model
  * @returns {Object}
  */
-const validate = (data, schema, required, Model) => {
+const assemble = (data, schema, required, Model) => {
   if (!DataType.is(JSON, data)) {
     const error = new Error('Model data must be a plain object');
     error.name = Model.InvalidDataError;
@@ -40,4 +40,4 @@ const validate = (data, schema, required, Model) => {
   return Object.keys(validationResult).length ? validationResult : undefined;
 };
 
-export default validate;
+export default assemble;
