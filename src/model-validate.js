@@ -1,9 +1,17 @@
 import DataType from './data-type.js';
 
-const validate = (data, schema, required) => {
+/**
+ * This is just a part of Model extracted for convenience
+ * @param {Object} data
+ * @param {Object} schema
+ * @param {Array} required
+ * @param {Class} Model
+ * @returns {Object}
+ */
+const validate = (data, schema, required, Model) => {
   if (!DataType.is(JSON, data)) {
     const error = new Error('Model data must be a plain object');
-    error.name = validate.InvalidDataError;
+    error.name = Model.InvalidDataError;
     throw error;
   }
 

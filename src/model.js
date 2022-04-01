@@ -14,8 +14,6 @@ InvalidModelSchemaError
 InvalidDataError
 `;
 
-Object.assign(validate, ERRORS);
-
 export default class Model {
   static toString() {
     return '[class Model]';
@@ -62,7 +60,7 @@ export default class Model {
          * @returns {Object} - an object representing validation errors
          */
         static validate(data) {
-          return validate(data, schema, flags[0]);
+          return validate(data, schema, flags[0], Model);
         }
       }
 
