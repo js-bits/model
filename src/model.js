@@ -1,6 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
+import validate from './validate.js';
 
 const MODELS = new WeakSet();
 
@@ -12,6 +13,8 @@ const ERRORS = enumerate(String)`
 InvalidModelSchemaError
 InvalidDataError
 `;
+
+Object.assign(validate, ERRORS);
 
 export default class Model {
   static toString() {
@@ -59,31 +62,7 @@ export default class Model {
          * @returns {Object} - an object representing validation errors
          */
         static validate(data) {
-          if (!DataType.is(JSON, data)) {
-            const error = new Error('Model data must be a plain object');
-            error.name = ERRORS.InvalidDataError;
-            throw error;
-          }
-
-          const validationResult = {};
-          const properties = new Set([...Object.keys(schema), ...Object.keys(data)]);
-          for (const propName of properties) {
-              // const errorMessage = validateValue(type, value, isOptional);
-            const propType = schema[propName];
-            const propValue = data[propName];
-            if (propValue === undefined || propValue === null) {
-                if (flags[0].has(propName)) {
-                validationResult[propName] = 'required property is not defined';
-                }
-            } else if (propType) {
-              const result = DataType.validate(propType, propValue);
-              if (result) validationResult[propName] = result;
-              } else {
-              validationResult[propName] = 'property is not defined in schema';
-            }
-          }
-
-          return Object.keys(validationResult).length ? validationResult : undefined;
+          return validate(data, schema, flags[0]);
         }
       }
 
