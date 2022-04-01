@@ -75,9 +75,6 @@ export default class Model {
                 if (flags[0].has(propName)) {
                 validationResult[propName] = 'required property is not defined';
                 }
-                // } else if (type instanceof Model) {
-                //   const errorMessages = type.validate(value);
-                //   errors.push(...errorMessages);
             } else if (propType) {
               const result = DataType.validate(propType, propValue);
               if (result) validationResult[propName] = result;

@@ -128,13 +128,19 @@ describe('Model', () => {
     });
   });
 
-  describe('#validate', () => {
+  describe('.validate', () => {
     const DerivedModel = new Model({
       string: String,
       number: Number,
       boolean: Boolean,
       date: Date,
       'optional?': String,
+    });
+
+    test('incorrect data', () => {
+      expect(() => {
+        DerivedModel.validate('');
+      }).toThrow('Model data must be a plain object');
     });
 
     test('incorrect values', () => {
@@ -153,6 +159,22 @@ describe('Model', () => {
         date: 'must be a date',
         optional: 'must be a string',
       });
+    });
+  });
+
+  describe('.isModel', () => {
+    const MyModel = new Model({
+      string: String,
+    });
+
+    test('should return true for models', () => {
+      expect(Model.isModel(MyModel)).toBeTruthy();
+    });
+
+    test('should return false otherwise', () => {
+      expect(Model.isModel(Model)).toBeFalsy();
+      expect(Model.isModel(Function)).toBeFalsy();
+      expect(Model.isModel()).toBeFalsy();
     });
   });
 });
