@@ -117,6 +117,12 @@ export default class Model {
 
         if (type === STATIC_PROPS.SAME) {
           schema[propName] = NewModel;
+        } else if (enumerate.isEnum(type)) {
+          DataType.add(type, value => {
+            const allowedValues = Object.values(type);
+            const x = allowedValues.map(item => String(item)).join(',');
+            return allowedValues.includes(value) ? undefined : `must be one of allowed values [${x}]`;
+          });
         } else if (DataType.is(JSON, type)) {
           // nested schema
           const AnonymousModel = new Model(type);

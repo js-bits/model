@@ -97,7 +97,9 @@ DataType.add(Number, value => (typeof value === 'number' ? undefined : 'must be 
 DataType.add(Boolean, value => (typeof value === 'boolean' ? undefined : 'must be a boolean'));
 DataType.add(Date, value => (value instanceof Date ? undefined : 'must be a date'));
 DataType.add(JSON, value =>
-  value instanceof Object && value.constructor === Object ? undefined : 'must be a plain object'
+  !enumerate.isEnum(value) && value instanceof Object && value.constructor === Object
+    ? undefined
+    : 'must be a plain object'
 );
 
 Object.assign(DataType, ERRORS);
