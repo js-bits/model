@@ -47,14 +47,12 @@ const init = (Model, config) => {
     } else if (enumerate.isEnum(type)) {
       DataType.add(type, value => {
         const allowedValues = Object.values(type);
-        const x = allowedValues.map(item => String(item)).join(',');
-        return allowedValues.includes(value) ? undefined : `must be one of allowed values [${x}]`;
+        const list = allowedValues.map(item => String(item)).join(',');
+        return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
       });
     } else if (DataType.is(JSON, type)) {
       // nested schema
-      const AnonymousModel = new Model(type);
-      DataType.add(AnonymousModel, value => AnonymousModel.validate(value));
-      schema[propName] = AnonymousModel;
+      schema[propName] = new Model(type);
     } else if (!DataType.exists(type)) {
       const error = new Error(`Model schema is invalid: data type of "${propName}" property is invalid`);
       error.name = Model.InvalidModelSchemaError;

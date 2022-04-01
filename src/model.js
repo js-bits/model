@@ -62,4 +62,4 @@ DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a mo
 
 Object.assign(Model, STATIC_PROPS);
 Object.assign(Model, ERRORS);
-// Object.freeze(Model);
+Object.freeze(Model);

@@ -18,15 +18,19 @@ const validate = (data, schema, required, Model) => {
   const validationResult = {};
   const properties = new Set([...Object.keys(schema), ...Object.keys(data)]);
   for (const propName of properties) {
-    // const errorMessage = validateValue(type, value, isOptional);
-    const propType = schema[propName];
+    const PropType = schema[propName];
     const propValue = data[propName];
     if (propValue === undefined || propValue === null) {
       if (required.has(propName)) {
         validationResult[propName] = 'required property is not defined';
       }
-    } else if (propType) {
-      const result = DataType.validate(propType, propValue);
+    } else if (PropType) {
+      let result;
+      if (Model.isModel(PropType) && DataType.is(JSON, propValue)) {
+        result = PropType.validate(propValue);
+      } else {
+        result = DataType.validate(PropType, propValue);
+      }
       if (result) validationResult[propName] = result;
     } else {
       validationResult[propName] = 'property is not defined in schema';

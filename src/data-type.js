@@ -20,6 +20,7 @@ export default class DataType {
         super();
       }
 
+      // name // for GraphQL conversion
       // fromJSON() {} // fromStorage() // parse() // encode // serialize
       // toJSON() {} // toStore() // decode // deserialize
     }

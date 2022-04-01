@@ -29,7 +29,11 @@ const create = (Model, schema, flags) => {
     static validate(data) {
       return validate(data, schema, flags[0], Model);
     }
+
+    // static toGraphQL() {}
   }
+
+  Object.freeze(NewModel);
 
   return NewModel;
 };
