@@ -1,8 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
-import validate from './model-validate.js';
-import prepareSchema from './model-schema.js';
+import init from './model-schema.js';
 
 const MODELS = new WeakSet();
 
@@ -32,48 +31,17 @@ export default class Model {
         error.name = ERRORS.InvalidModelSchemaError;
         throw error;
       }
-      const required = new Set();
-      const optional = new Set();
-      const flags = [required, optional];
+
       if (Object.keys(config).length === 0) {
         const error = new Error('Model schema is empty');
         error.name = ERRORS.InvalidModelSchemaError;
         throw error;
       }
 
-      let schema;
+      const NewModel = init(config, Model);
 
-      // NOTE: encapsulated class definition makes it impossible to manipulate data schema from outside of the model
-      class NewModel extends Model {
-        constructor(data) {
-          super();
-          const errors = NewModel.validate(data);
-          if (errors) {
-            const error = new Error('Invalid data');
-            error.name = ERRORS.InvalidDataError;
-            error.cause = errors; // TODO: replace with native https://v8.dev/features/error-cause;
-            throw error;
-          }
-        }
-
-        /**
-         * @param {*} data
-         * @returns {Object} - an object representing validation errors
-         */
-        static validate(data) {
-          return validate(data, schema, flags[0], Model);
-        }
-      }
-
-      schema = prepareSchema(NewModel, config, flags, Model);
-
-      DataType.add(NewModel, {
-        extends: Model,
-        validate(value) {
-          return value instanceof NewModel ? undefined : 'must be a specified model';
-        },
-      });
-
+      // Move this to StorageModel (extends Model)
+      // MODELS.set(NewModel.ID, NewModel);
       MODELS.add(NewModel);
       // NewModel.ID = Symbol('Model ID'); // do I really need it?
       // Object.freeze(NewModel);

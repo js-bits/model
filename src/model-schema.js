@@ -1,9 +1,16 @@
 import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
+import create from './model-create.js';
 
-const prepareSchema = (NewModel, config, flags, Model) => {
+const init = (config, Model) => {
   const schema = { ...config };
   const schemaEntries = Object.entries(schema);
+  const required = new Set();
+  const optional = new Set();
+  const flags = [required, optional];
+
+  const NewModel = create(schema, flags, Model);
+
   let globalSpecifier;
   let reqIndex = 0;
   let optIndex = 1;
@@ -49,7 +56,14 @@ const prepareSchema = (NewModel, config, flags, Model) => {
     }
   }
 
-  return schema;
+  DataType.add(NewModel, {
+    extends: Model,
+    validate(value) {
+      return value instanceof NewModel ? undefined : 'must be a specified model';
+    },
+  });
+
+  return NewModel;
 };
 
-export default prepareSchema;
+export default init;
