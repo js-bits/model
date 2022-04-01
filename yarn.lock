@@ -558,10 +558,10 @@
     "@types/yargs" "^16.0.0"
     chalk "^4.0.0"
 
-"@js-bits/enumerate@^0.4.1":
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/@js-bits/enumerate/-/enumerate-0.4.2.tgz#343cbef1626bc15967040b04bacd36d167e86e95"
-  integrity sha512-MqoG5xxGRHJJswx1LQAxYodsfu0CjM2EcJMeM6vD6Pbh5ercU/v51bico8k3D+EAve+z82aV1/cPxvQd+2514g==
+"@js-bits/enumerate@^0.7.0":
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/@js-bits/enumerate/-/enumerate-0.7.0.tgz#6630f7f92731d7d83c42ffe8337fc508ac43b7ec"
+  integrity sha512-dCZfLcnAPYvtJmEIADiHgy+JwrQG6cwz6WWd43dB1ywaU1G/G5REj9xPSFUrafD2lxxACF0Jy3pDQQXgtsOS5g==
 
 "@js-bits/eslint-config@^0.0.2":
   version "0.0.2"
