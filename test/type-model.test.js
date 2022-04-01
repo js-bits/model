@@ -181,6 +181,7 @@ describe('Model', () => {
           flag: Boolean,
           settings: {
             param: Number,
+            json: JSON,
           },
         },
       });
@@ -192,6 +193,11 @@ describe('Model', () => {
             flag: true,
             settings: {
               param: 123,
+              json: {
+                any: {
+                  value: 'is valid',
+                },
+              },
             },
           },
         });
@@ -204,10 +210,10 @@ describe('Model', () => {
           const instance1 = new TestModel({
             title: 123,
             options: {
-              flag: '',
               unknown: '',
               settings: {
                 param: '',
+                json: String,
               },
             },
           });
@@ -218,10 +224,11 @@ describe('Model', () => {
         expect(error.cause).toEqual({
           title: 'must be a string',
           options: {
-            flag: 'must be a boolean',
+            flag: 'required property is not defined',
             unknown: 'property is not defined in schema',
             settings: {
               param: 'must be a number',
+              json: 'must be a plain object',
             },
           },
         });
