@@ -13,8 +13,8 @@ describe('Model', () => {
         'test?': String,
       });
       const instance = new DerivedModel({});
-      expect(instance).toBeInstanceOf(DerivedModel);
-      expect(instance).toBeInstanceOf(Model);
+      expect(instance instanceof DerivedModel).toBeTruthy();
+      expect(instance instanceof Model).toBeTruthy();
       expect(`${DerivedModel}`).toEqual('[class Model]');
       expect(`${instance}`).toEqual('[object Model]');
     });

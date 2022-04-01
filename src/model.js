@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
-import validate from './validate.js';
+import validate from './model-validate.js';
 
 const MODELS = new WeakSet();
 
