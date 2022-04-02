@@ -12,19 +12,12 @@ const create = (Model, schema, flags) => {
   class NewModel extends Model {
     constructor(data) {
       super();
-      // data type conversion goes here
-      const errors = NewModel.validate(data);
-      if (errors) {
-        const error = new Error('Invalid data');
-        error.name = Model.InvalidDataError;
-        error.cause = errors; // TODO: replace with native https://v8.dev/features/error-cause;
-        throw error;
-      }
+      assemble(Model, data, schema, flags[0], this);
 
       const proxy = new Proxy(this, {
         get(...args) {
           const [target, prop] = args;
-          const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toString', 'constructor'];
+          const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
           if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
             throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
           }
@@ -43,7 +36,7 @@ const create = (Model, schema, flags) => {
      * @returns {Object} - an object representing validation errors
      */
     static validate(data) {
-      return assemble(data, schema, flags[0], Model);
+      return assemble(Model, data, schema, flags[0]);
     }
 
     // static toGraphQL() {}

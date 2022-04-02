@@ -180,6 +180,7 @@ describe('Model', () => {
         options: {
           flag: Boolean,
           settings: {
+            'optional?': String,
             param: Number,
             json: JSON,
           },
@@ -202,7 +203,10 @@ describe('Model', () => {
           },
         });
         expect(instance1).toBeInstanceOf(TestModel);
-        // expect(instance1.options).toBeInstanceOf(TestModel);
+        expect(instance1.options.settings.json.any.value).toEqual('is valid');
+        expect(JSON.stringify(instance1)).toEqual(
+          '{"title":"NestedModel","options":{"flag":true,"settings":{"param":123,"json":{"any":{"value":"is valid"}},"optional":null}}}'
+        );
       });
       test('incorrect value', () => {
         let error;
