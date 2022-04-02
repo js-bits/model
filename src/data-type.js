@@ -13,7 +13,9 @@ export default class DataType {
     return '[class DataType]';
   }
 
-  constructor(typeDef) {
+  constructor(config) {
+    let typeDef;
+
     class NewDataType extends DataType {
       // eslint-disable-next-line no-useless-constructor
       constructor() {
@@ -46,16 +48,16 @@ export default class DataType {
       }
     }
 
-    DataType.add(NewDataType, typeDef);
+    typeDef = DataType.add(NewDataType, config);
     return NewDataType;
   }
 
-  static add(type, typeDef) {
+  static add(type, config) {
     let validator;
-    if (typeof typeDef === 'function') {
-      validator = typeDef;
-    } else if (typeDef && typeof typeDef === 'object' && typeof typeDef.validate === 'function') {
-      validator = typeDef.validate;
+    if (typeof config === 'function') {
+      validator = config;
+    } else if (config && typeof config === 'object' && typeof config.validate === 'function') {
+      validator = config.validate;
     }
     if (!validator) {
       const error = new Error('Data type is invalid');
@@ -63,25 +65,38 @@ export default class DataType {
       throw error;
     }
 
-    if (typeof typeDef === 'object') {
-      if (Object.prototype.hasOwnProperty.call(typeDef, 'extends') && !DataType.exists(typeDef.extends)) {
-        const error = new Error('Base data type is invalid');
-        error.name = ERRORS.InvalidDataTypeError;
-        throw error;
+    const typeDef = {
+      validate: validator,
+    };
+
+    if (typeof config === 'object') {
+      if (Object.prototype.hasOwnProperty.call(config, 'extends')) {
+        if (!DataType.exists(config.extends)) {
+          const error = new Error('Base data type is invalid');
+          error.name = ERRORS.InvalidDataTypeError;
+          throw error;
+        }
+        typeDef.extends = config.extends;
       }
       if (
-        Object.prototype.hasOwnProperty.call(typeDef, 'fromJSON') ||
-        Object.prototype.hasOwnProperty.call(typeDef, 'toJSON')
+        Object.prototype.hasOwnProperty.call(config, 'fromJSON') ||
+        Object.prototype.hasOwnProperty.call(config, 'toJSON')
       ) {
-        if (typeof typeDef.fromJSON !== 'function' || typeof typeDef.toJSON !== 'function') {
+        if (typeof config.fromJSON !== 'function' || typeof config.toJSON !== 'function') {
           const error = new Error('Both "fromJSON" and "toJSON" must defined as functions');
           error.name = ERRORS.InvalidDataTypeError;
           throw error;
         }
+        typeDef.fromJSON = config.fromJSON;
+        typeDef.toJSON = config.toJSON;
       }
     }
 
+    Object.freeze(typeDef);
+
     DATA_TYPES.set(type, typeDef);
+
+    return typeDef;
   }
 
   static exists(type) {
@@ -113,7 +128,7 @@ export default class DataType {
 
     // if no error messages from a base validator
     if (!error) {
-      const validator = typeDef.validate || typeDef;
+      const validator = typeDef.validate;
       error = validator(value);
     }
 
