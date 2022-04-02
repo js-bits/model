@@ -10,7 +10,6 @@ describe('Custom data type', () => {
           return value !== 'valid' ? 'must have a valid value' : undefined;
         },
       });
-      // const NewType = new DataType(value => (value === 'valid' ? undefined : ));
       const NewModel = new Model({
         field: NewType,
       });
@@ -47,13 +46,11 @@ describe('Custom data type', () => {
       },
     });
     const PositiveInt = new DataType({
-      extend: Int,
+      extends: Int,
       validate(value) {
         return value <= 0 ? 'must be a positive integer' : undefined;
       },
     });
-    // const Int = new DataType(value => (Number.isInteger(value) ? undefined : 'must be an integer'), Number);
-    // const PositiveInt = new DataType(value => (value > 0 ? undefined : 'must be a positive integer'), Int);
     const TestModel1 = new Model({
       int: Int,
     });
@@ -93,7 +90,7 @@ describe('Custom data type', () => {
     });
 
     test('incorrect value', () => {
-      expect.assertions(6);
+      expect.assertions(8);
       try {
         new TestModel1({
           int: '123',
@@ -112,12 +109,49 @@ describe('Custom data type', () => {
       }
       try {
         new TestModel2({
+          int: 4.56,
+        });
+      } catch (error) {
+        expect(error).toEqual(new Error('Invalid data'));
+        expect(error.cause).toEqual({ int: 'must be an integer' });
+      }
+      try {
+        new TestModel2({
           int: -456,
         });
       } catch (error) {
         expect(error).toEqual(new Error('Invalid data'));
         expect(error.cause).toEqual({ int: 'must be a positive integer' });
       }
+    });
+
+    describe('#fromJSON', () => {
+      const isoDateRegExp = /^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)$/;
+      const ISODate = new DataType({
+        extends: String,
+        fromJSON: value => new Date(value),
+        toJSON: value => value.toISOString(),
+        validate: value => (value.match(isoDateRegExp) ? undefined : 'must be in ISO date format'),
+      });
+      const CustomModel = new Model({
+        int: Int,
+        options: {
+          date: ISODate,
+        },
+      });
+
+      test('should convert given JSON data into a type acceptable by a data model', () => {
+        const instance = new CustomModel({
+          int: 123,
+          options: {
+            date: '2000-01-01T05:00:00.000Z',
+          },
+        });
+        expect(instance).toBeInstanceOf(CustomModel);
+        expect(instance.options.date).toBeInstanceOf(Date);
+        expect(instance.options.date.getFullYear()).toEqual(2000);
+        expect(JSON.stringify(instance)).toEqual('{"int":123,"options":{"date":"2000-01-01T05:00:00.000Z"}}');
+      });
     });
   });
 });
