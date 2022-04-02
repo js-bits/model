@@ -21,9 +21,31 @@ export default class DataType {
       }
 
       // name // for GraphQL conversion
-      // fromJSON() {} // fromStorage() // parse() // encode // serialize
-      // toJSON() {} // toStore() // decode // deserialize
+
+      static fromJSON(inputValue) {
+        this.validate(inputValue, true);
+        if (typeDef.fromJSON) return typeDef.fromJSON(inputValue);
+        return inputValue;
+      }
+
+      static toJSON(value) {
+        let outputValue = value;
+        if (typeDef.toJSON) outputValue = typeDef.toJSON(value);
+        this.validate(outputValue, true);
+        return outputValue;
+      }
+
+      static validate(value, hardCheck) {
+        const result = DataType.validate(NewDataType, value);
+        if (result && hardCheck) {
+          const error = new Error('Data type is invalid');
+          error.name = ERRORS.InvalidDataTypeError;
+          throw error;
+        }
+        return result;
+      }
     }
+
     DataType.add(NewDataType, typeDef);
     return NewDataType;
   }
@@ -46,6 +68,16 @@ export default class DataType {
         const error = new Error('Base data type is invalid');
         error.name = ERRORS.InvalidDataTypeError;
         throw error;
+      }
+      if (
+        Object.prototype.hasOwnProperty.call(typeDef, 'fromJSON') ||
+        Object.prototype.hasOwnProperty.call(typeDef, 'toJSON')
+      ) {
+        if (typeof typeDef.fromJSON !== 'function' || typeof typeDef.toJSON !== 'function') {
+          const error = new Error('Both "fromJSON" and "toJSON" must defined as functions');
+          error.name = ERRORS.InvalidDataTypeError;
+          throw error;
+        }
       }
     }
 

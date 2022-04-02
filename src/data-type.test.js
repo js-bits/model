@@ -1,22 +1,5 @@
 import DataType from './data-type.js';
 
-// class ISODate extends String {
-//   constructor(input) {
-//     // super.validate(value);
-//     super(input);
-//     return new Date(input);
-//   }
-
-//   validate(value) {
-//     super.validate(value);
-//   }
-// }
-
-// ISODate.prototype.constructor.name // 'ISODate'
-// Object.getPrototypeOf(ISODate) // String
-// ISODate.prototype.constructor
-// ISODate.prototype.validate
-
 describe('DataType', () => {
   describe('#constructor', () => {
     test('conversion to string', () => {
@@ -204,8 +187,88 @@ describe('DataType', () => {
     test('should return undefined for a valid value of a given type', () => {
       expect(DataType.validate(CustomType, 'valid')).toBeUndefined();
     });
-    test('should return an array of error message for an invalid value of a given type', () => {
+    test('should return an error message for an invalid value of a given type', () => {
       expect(DataType.validate(CustomType, 'invalid')).toEqual('must have a valid value');
+    });
+  });
+
+  describe('#toJSON/#fromJSON', () => {
+    describe('if not defined explicitly', () => {
+      const CustomType = new DataType({
+        validate(value) {
+          return value !== 'valid' ? 'must have a valid value' : undefined;
+        },
+      });
+      describe('#fromJSON', () => {
+        test('should return given value without any conversion', () => {
+          expect(CustomType.fromJSON('valid')).toEqual('valid');
+        });
+      });
+      describe('#toJSON', () => {
+        test('should return given value without any conversion', () => {
+          expect(CustomType.toJSON('valid')).toEqual('valid');
+        });
+      });
+
+      describe('if value is incorrect', () => {
+        describe('#fromJSON', () => {
+          test('incorrect value', () => {
+            expect(() => {
+              CustomType.fromJSON('invalid');
+            }).toThrow('Data type is invalid');
+          });
+        });
+        describe('#toJSON', () => {
+          test('incorrect value', () => {
+            expect(() => {
+              CustomType.toJSON('invalid');
+            }).toThrow('Data type is invalid');
+          });
+        });
+      });
+    });
+
+    describe('if defined explicitly', () => {
+      describe('if defined incorrectly', () => {
+        test('wrong type', () => {
+          expect(() => {
+            new DataType({
+              fromJSON: () => {},
+              toJSON: {},
+              validate: () => {},
+            });
+          }).toThrow('Both "fromJSON" and "toJSON" must defined as functions');
+        });
+      });
+
+      const isoDateRegExp = /^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)$/;
+      const ISODate = new DataType({
+        extends: String,
+        fromJSON: value => new Date(value),
+        toJSON: (/** @type {Date} */ value) => value.toISOString(),
+        validate: value => (value.match(isoDateRegExp) ? undefined : 'must be in ISO date format'),
+      });
+      describe('ISODate data type validation', () => {
+        test('should return undefined for a valid value of a given type', () => {
+          expect(DataType.validate(ISODate, '2000-01-01T05:00:00.000Z')).toBeUndefined();
+        });
+        test('should return an error message for an invalid value of a given type', () => {
+          expect(DataType.validate(ISODate, 'invalid')).toEqual('must be in ISO date format');
+        });
+      });
+
+      describe('#fromJSON', () => {
+        test('should convert given JSON data into a type acceptable by a data model', () => {
+          const result = ISODate.fromJSON('2000-01-01T05:00:00.000Z');
+          expect(result).toBeInstanceOf(Date);
+          expect(result).toEqual(new Date('01/01/2000'));
+        });
+      });
+      describe('#toJSON', () => {
+        test('should return data converted into JSON compatible type', () => {
+          expect(ISODate.toJSON(new Date('01/01/2000'))).toEqual('2000-01-01T05:00:00.000Z');
+        });
+      });
     });
   });
 });
