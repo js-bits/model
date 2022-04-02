@@ -44,13 +44,12 @@ export default class Model {
       // MODELS.set(NewModel.ID, NewModel);
       MODELS.add(NewModel);
       // NewModel.ID = Symbol('Model ID'); // do I really need it?
-      // Object.freeze(NewModel);
+      // NewModel.validateOnInit = true; // by default
       return NewModel;
-    } // else prototype is created
+    } // else prototype is being created
   }
 
-  // parse() {}
-  // validate() {}
+  // fromJSON() {}
   // sync() {}
   static isModel(type) {
     return typeof type === 'function' && MODELS.has(type);
@@ -58,7 +57,6 @@ export default class Model {
 }
 
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
-
 
 Object.assign(Model, STATIC_PROPS);
 Object.assign(Model, ERRORS);
