@@ -1,9 +1,10 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { jest } from '@jest/globals';
 
-global.console = { log: jest.fn() };
-
-describe('Example 1', () => {
+describe('Examples', () => {
+  beforeEach(() => {
+    global.console = { log: jest.fn() };
+  });
   afterEach(() => {
     jest.resetModules();
   });
@@ -24,5 +25,10 @@ describe('Example 1', () => {
           '  '
         ),
       ]);
+    }));
+
+  test('Example 2', async () =>
+    import('./example2.js').then(() => {
+      expect(console.log).toHaveBeenCalledTimes(0);
     }));
 });
