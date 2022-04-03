@@ -8,7 +8,7 @@ describe('DataType', () => {
     test('invalid validator', () => {
       expect.assertions(6);
       expect(() => {
-        new DataType();
+        new DataType('');
       }).toThrowError('Data type is invalid');
       expect(() => {
         new DataType(undefined);
@@ -31,7 +31,7 @@ describe('DataType', () => {
       test('unexpected instantiation', () => {
         expect(() => {
           new CustomType(() => {});
-        }).toThrowError('Data type is invalid');
+        }).toThrowError('Data type instantiation is not allowed');
       });
       test('conversion to string', () => {
         expect(`${CustomType}`).toEqual('[class DataType]');

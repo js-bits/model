@@ -14,42 +14,47 @@ export default class DataType {
   }
 
   constructor(config) {
-    let typeDef;
+    if (arguments.length) {
+      let typeDef;
 
-    class NewDataType extends DataType {
-      // eslint-disable-next-line no-useless-constructor
-      constructor() {
-        super();
-      }
-
-      // name // for GraphQL conversion
-
-      static fromJSON(inputValue) {
-        this.validate(inputValue, true);
-        if (typeDef.fromJSON) return typeDef.fromJSON(inputValue);
-        return inputValue;
-      }
-
-      static toJSON(value) {
-        let outputValue = value;
-        if (typeDef.toJSON) outputValue = typeDef.toJSON(value);
-        this.validate(outputValue, true);
-        return outputValue;
-      }
-
-      static validate(value, hardCheck) {
-        const result = DataType.validate(NewDataType, value);
-        if (result && hardCheck) {
-          const error = new Error('Data type is invalid');
+      class NewDataType extends DataType {
+        constructor() {
+          const error = new Error('Data type instantiation is not allowed');
           error.name = ERRORS.InvalidDataTypeError;
           throw error;
         }
-        return result;
-      }
-    }
 
-    typeDef = DataType.add(NewDataType, config);
-    return NewDataType;
+        // name // for GraphQL conversion
+        // compare // for sorting
+
+        static fromJSON(inputValue) {
+          this.validate(inputValue, true);
+          if (typeDef.fromJSON) return typeDef.fromJSON(inputValue);
+          return inputValue;
+        }
+
+        static toJSON(value) {
+          let outputValue = value;
+          if (typeDef.toJSON) outputValue = typeDef.toJSON(value);
+          this.validate(outputValue, true);
+          return outputValue;
+        }
+
+        static validate(value, hardCheck) {
+          const result = DataType.validate(NewDataType, value);
+          if (result && hardCheck) {
+            const error = new Error('Data type is invalid');
+            error.name = ERRORS.InvalidDataTypeError;
+            throw error;
+          }
+          return result;
+        }
+      }
+
+      typeDef = DataType.add(NewDataType, config);
+      // eslint-disable-next-line no-constructor-return
+      return NewDataType;
+    } // else prototype is being created
   }
 
   static add(type, config) {
