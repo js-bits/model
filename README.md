@@ -9,7 +9,7 @@ const Profile = new Model({
   firstName: String,
   lastName: String,
   yearBorn: Number,
-  'active?': Boolean,
+  'verified?': Boolean,
 });
 
 const author = new Profile({
@@ -26,9 +26,11 @@ console.log(author);
 //   firstName: 'Trygve',
 //   lastName: 'Reenskaug',
 //   yearBorn: 1930,
-//   active: null
+//   verified: null
 // }
 ```
+
+[TBD]
 
 ## Installation
 
@@ -77,7 +79,7 @@ Well, immutability is not a dogma.
 - https://medium.com/dailyjs/the-state-of-immutability-169d2cd11310
 - https://stackoverflow.com/questions/1863515/pros-cons-of-immutability-vs-mutability
 
-But, anyway, you can still make your data deeply immutable with this package and other benefits of (like data validation) at the same time.
+But, anyway, you can still make your data deeply immutable with this package and other benefits (like data validation) at the same time.
 
 ```javascript
 // Object.freeze({}) vs new Model(immutable)
