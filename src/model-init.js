@@ -6,7 +6,7 @@ import create from './model-create.js';
  * This is just a part of Model extracted for convenience
  * @param {Class} Model
  * @param {Object} config
- * @returns
+ * @returns {Model}
  */
 const init = (Model, config) => {
   const schema = { ...config };

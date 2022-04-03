@@ -1,12 +1,16 @@
 {
   "name": "@js-bits/model",
   "version": "0.0.1",
-  "description": "Abstract Model",
+  "description": "Abstract data model",
   "keywords": [
     "javascript",
-    "mvc",
-    "abstract",
     "model",
+    "abstract",
+    "data",
+    "json",
+    "object",
+    "validation",
+    "mvc",
     "application",
     "architecture"
   ],
@@ -15,7 +19,8 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose",
     "test-coverage": "yarn test --coverage",
     "test-watch": "yarn test --watch",
-    "lint": "eslint '**/*.{js,jsx}'"
+    "lint": "eslint '**/*.{js,jsx}' --ignore-pattern jsdoc",
+    "jsdoc": "jsdoc ./src -d jsdoc"
   },
   "repository": {
     "type": "git",
