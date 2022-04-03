@@ -109,13 +109,13 @@ export default class DataType {
   }
 
   static get(type) {
-    const validator = DATA_TYPES.get(type);
-    if (!validator) {
+    const typeDef = DATA_TYPES.get(type);
+    if (!typeDef) {
       const error = new Error('Unknown data type');
       error.name = ERRORS.UnknownDataTypeError;
       throw error;
     }
-    return validator;
+    return typeDef;
   }
 
   /**
