@@ -45,6 +45,8 @@ export default class Model {
       MODELS.add(NewModel);
       // NewModel.ID = Symbol('Model ID'); // do I really need it?
       // NewModel.validateOnInit = true; // by default
+
+      // eslint-disable-next-line no-constructor-return
       return NewModel;
     } // else prototype is being created
   }

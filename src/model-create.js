@@ -28,6 +28,7 @@ const create = (Model, schema, flags) => {
         },
       });
 
+      // eslint-disable-next-line no-constructor-return
       return proxy;
     }
 
