@@ -4,7 +4,7 @@ const Profile = new Model({
   firstName: String,
   lastName: String,
   yearBorn: Number,
-  'verified?': Boolean,
+  'verified?': Boolean, // optional property
 });
 
 const author = new Profile({

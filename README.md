@@ -9,7 +9,7 @@ const Profile = new Model({
   firstName: String,
   lastName: String,
   yearBorn: Number,
-  'verified?': Boolean,
+  'verified?': Boolean, // optional property
 });
 
 const author = new Profile({
@@ -21,7 +21,7 @@ const author = new Profile({
 console.log(`${author}`);
 // [object Model]
 
-console.log(author);
+console.log(JSON.stringify(author, null, '  '));
 // {
 //   firstName: 'Trygve',
 //   lastName: 'Reenskaug',
