@@ -36,7 +36,7 @@
     "@js-bits/enumerate": "^0.7.0"
   },
   "devDependencies": {
-    "@js-bits/formalinter": "^0.1.2",
+    "@js-bits/formalinter": "^0.3.0",
     "@types/jest": "^26.0.23",
     "jest": "^27.0.6",
     "jsdoc": "^3.6.10"
