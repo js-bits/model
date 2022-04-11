@@ -19,8 +19,9 @@ describe('Model', () => {
       expect(`${instance}`).toEqual('[object Model]');
     });
 
-    test('invalid schema', () => {
-      expect.assertions(9);
+    describe('invalid schema', () => {
+      test('empty schema', () => {
+        expect.assertions(3);
       try {
         new Model({});
       } catch (error) {
@@ -28,6 +29,9 @@ describe('Model', () => {
         expect(error.name).toEqual(Model.InvalidModelSchemaError);
         expect(error.name).toEqual('InvalidModelSchemaError');
       }
+      });
+      test('wrong object type', () => {
+        expect.assertions(3);
       try {
         new Model(new Date());
       } catch (error) {
@@ -35,6 +39,9 @@ describe('Model', () => {
         expect(error.name).toEqual(Model.InvalidModelSchemaError);
         expect(error.name).toEqual('InvalidModelSchemaError');
       }
+      });
+      test('wrong schema parameter', () => {
+        expect.assertions(3);
       try {
         new Model({
           func: () => {},
@@ -44,6 +51,7 @@ describe('Model', () => {
         expect(error.name).toEqual(Model.InvalidModelSchemaError);
         expect(error.name).toEqual('InvalidModelSchemaError');
       }
+    });
     });
 
     test('data type', () => {
