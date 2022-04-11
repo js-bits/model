@@ -2,7 +2,7 @@
 
 Inspired by [Backbone.js](http://backbonejs.org/#Model). Reimagined and modernized.
 
-`Model` is a dynamic data structure, described by certain rules using a data schema.
+`Model` is a dynamic data structure, defined by certain rules using a data schema.
 
 ```javascript
 const Profile = new Model({
@@ -62,13 +62,23 @@ const { Model, DataType } = require('@js-bits/model');
 
 [TBD]
 
+More examples can be found in [examples](https://github.com/js-bits/model/tree/main/examples) folder
+
 ## How is this different from [JSON Schema](https://json-schema.org/)?
 
-JSON Schema serves more as a data format description while `Model` is much more functional and gives you more control over data.
+JSON Schema serves more as a data format description, while `Model` is much more functional and gives you more control over data.
 
 [TBD]
 
-## How about immutability?
+## Ok. But, what about TypeScript?
+
+Not every project is built with TypeScript. And not every project needs TypeScript.
+
+[TBD]
+
+You can also use [JSDoc](https://jsdoc.app/) to achieve similar result.
+
+## How about immutability, then?
 
 Well, immutability is not a dogma.
 
@@ -83,4 +93,5 @@ But, anyway, you can make your data deeply immutable with this package and still
 
 ```javascript
 // Object.freeze({}) vs new Model(immutable)
+// shallow freeze vs deep freeze
 ```
