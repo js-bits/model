@@ -1,5 +1,10 @@
 import Model from '../src/model.js';
 
+/**
+ * Example 1: simple usage
+ */
+
+// Define a data model
 const Profile = new Model({
   firstName: String,
   lastName: String,
@@ -7,6 +12,7 @@ const Profile = new Model({
   'verified?': Boolean, // optional property
 });
 
+// Create a data instance
 const author = new Profile({
   firstName: 'Trygve',
   lastName: 'Reenskaug',

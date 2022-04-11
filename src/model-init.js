@@ -63,7 +63,7 @@ const init = (Model, config) => {
   DataType.add(NewModel, {
     extends: Model,
     validate(value) {
-      return value instanceof NewModel ? undefined : 'must be a specified model';
+      return value instanceof NewModel ? undefined : 'invalid model type';
     },
   });
 

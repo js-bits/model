@@ -83,7 +83,7 @@ describe('Model', () => {
           error = e;
         }
         expect(error).toEqual(new Error('Invalid data'));
-        expect(error.cause).toEqual({ link: 'must be a specified model' });
+        expect(error.cause).toEqual({ link: 'invalid model type' });
       });
     });
 
@@ -126,7 +126,7 @@ describe('Model', () => {
           error = e;
         }
         expect(error).toEqual(new Error('Invalid data'));
-        expect(error.cause).toEqual({ parent: 'must be a specified model' });
+        expect(error.cause).toEqual({ parent: 'invalid model type' });
       });
     });
 

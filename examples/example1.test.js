@@ -9,7 +9,7 @@ describe('Examples', () => {
     jest.resetModules();
   });
 
-  test('Example 1', async () =>
+  test('Example 1', done => {
     import('./example1.js').then(() => {
       expect(console.log).toHaveBeenCalledTimes(2);
       expect(console.log.mock.calls[0]).toEqual(['[object Model]']);
@@ -25,10 +25,7 @@ describe('Examples', () => {
           '  '
         ),
       ]);
-    }));
-
-  test('Example 2', async () =>
-    import('./example2.js').then(() => {
-      expect(console.log).toHaveBeenCalledTimes(0);
-    }));
+      done();
+    });
+  });
 });
