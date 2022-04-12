@@ -2,7 +2,6 @@
 import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
 import init from './model-init.js';
-import assemble from './model-assemble.js';
 
 const MODELS = new WeakSet();
 
@@ -39,7 +38,7 @@ export default class Model {
         throw error;
       }
 
-      const NewModel = init(Model, config);
+      const NewModel = this.init(config);
 
       // Move this to StorageModel (extends Model)
       // MODELS.set(NewModel.ID, NewModel);
@@ -51,8 +50,8 @@ export default class Model {
       return NewModel;
     } // else prototype is being created
 
-  assemble(data, schema, required) {
-    assemble.call(this, Model, data, schema, required);
+  init(config) {
+    return init.call(this, Model, config);
   }
 
   // fromJSON() {}

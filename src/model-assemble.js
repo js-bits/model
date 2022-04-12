@@ -5,10 +5,9 @@ import DataType from './data-type.js';
  * @param {Class} Model
  * @param {Object} data
  * @param {Object} schema
- * @param {Array} required
  * @returns {Object}
  */
-function assemble(Model, data, schema, required) {
+function assemble(Model, data, schema) {
   if (!DataType.is(JSON, data)) {
     const error = new Error('Model data must be a plain object');
     error.name = Model.InvalidDataError;
@@ -21,7 +20,7 @@ function assemble(Model, data, schema, required) {
     const PropType = schema[propName];
     let propValue = data[propName];
     if (propValue === undefined || propValue === null) {
-      if (required.has(propName)) {
+      if (Model.isRequiredField(propName)) {
         validationResult[propName] = 'required property is not defined';
       } else {
         propValue = null; // intentionally set to null for both cases

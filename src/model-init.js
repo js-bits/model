@@ -1,6 +1,7 @@
 import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
 import create from './model-create.js';
+import ø from './protected.js';
 
 /**
  * This is just a part of Model extracted for convenience
@@ -15,7 +16,7 @@ const init = (Model, config) => {
   const optional = new Set();
   const flags = [required, optional];
 
-  const NewModel = create(Model, schema, flags);
+  const NewModel = create(Model, schema);
 
   let globalSpecifier;
   let reqIndex = 0;
@@ -59,6 +60,11 @@ const init = (Model, config) => {
       throw error;
     }
   }
+
+  const [requiredFields] = flags;
+  schema[ø.required] = requiredFields;
+
+  Object.freeze(schema);
 
   DataType.add(NewModel, {
     extends: Model,

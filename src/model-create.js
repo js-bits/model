@@ -1,18 +1,18 @@
 import assemble from './model-assemble.js';
+import ø from './protected.js';
 
 /**
  * This is just a part of Model extracted for convenience
  * @param {Class} Model
  * @param {Object} schema
- * @param {Array} flags
  * @returns {Class}
  */
-const create = (Model, schema, flags) => {
+const create = (Model, schema) => {
   // NOTE: encapsulated class definition makes it impossible to manipulate data schema from outside of the model
   class NewModel extends Model {
     constructor(data) {
       super();
-      this.assemble(data, schema, flags[0]);
+      this.assemble(data);
 
       const proxy = new Proxy(this, {
         get(...args) {
@@ -32,12 +32,20 @@ const create = (Model, schema, flags) => {
       return proxy;
     }
 
+    assemble(data) {
+      assemble.call(this, NewModel, data, schema);
+    }
+
     /**
      * @param {*} data
      * @returns {Object} - an object representing validation errors
      */
     static validate(data) {
-      return assemble(Model, data, schema, flags[0]);
+      return assemble(NewModel, data, schema);
+    }
+
+    static isRequiredField(name) {
+      return schema[ø.required].has(name);
     }
 
     // static toGraphQL() {}
