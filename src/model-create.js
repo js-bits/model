@@ -12,7 +12,7 @@ const create = (Model, schema, flags) => {
   class NewModel extends Model {
     constructor(data) {
       super();
-      assemble.call(this, Model, data, schema, flags[0]);
+      this.assemble(data, schema, flags[0]);
 
       const proxy = new Proxy(this, {
         get(...args) {

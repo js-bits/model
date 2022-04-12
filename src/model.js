@@ -2,6 +2,7 @@
 import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
 import init from './model-init.js';
+import assemble from './model-assemble.js';
 
 const MODELS = new WeakSet();
 
@@ -49,6 +50,9 @@ export default class Model {
       // eslint-disable-next-line no-constructor-return
       return NewModel;
     } // else prototype is being created
+
+  assemble(data, schema, required) {
+    assemble.call(this, Model, data, schema, required);
   }
 
   // fromJSON() {}
