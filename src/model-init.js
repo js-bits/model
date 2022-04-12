@@ -10,14 +10,14 @@ import ø from './protected.js';
  * @returns {Model}
  */
 const init = (Model, config) => {
-  const schema = { ...config };
-  const schemaEntries = Object.entries(schema);
-  const required = new Set();
-  const optional = new Set();
-  const flags = [required, optional];
+  const schema = {};
+  const schemaEntries = Object.entries(config);
 
   const NewModel = create(Model, schema);
 
+  const required = new Set();
+  const optional = new Set();
+  const flags = [required, optional];
   let globalSpecifier;
   let reqIndex = 0;
   let optIndex = 1;
@@ -38,9 +38,8 @@ const init = (Model, config) => {
         optIndex = 0;
       }
       globalSpecifier = specifier;
-      schema[propName] = schema[key];
-      delete schema[key];
     }
+    schema[propName] = type;
     flags[specifier ? optIndex : reqIndex].add(propName);
 
     if (type === Model.SAME) {

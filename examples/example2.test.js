@@ -45,9 +45,9 @@ describe('Examples', () => {
       expect(console.log.mock.calls[7]).toEqual([
         JSON.stringify(
           {
+            title: 'Food',
             parent: null,
             exclude: null,
-            title: 'Food',
           },
           null,
           '  '
