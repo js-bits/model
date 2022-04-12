@@ -14,6 +14,7 @@ function assemble(Model, data, schema) {
     throw error;
   }
 
+  const shouldInstantiate = !!this;
   const validationResult = {};
   const properties = new Set([...Object.keys(schema), ...Object.keys(data)]);
   for (const propName of properties) {
@@ -26,24 +27,24 @@ function assemble(Model, data, schema) {
         propValue = null; // intentionally set to null for both cases
       }
     } else if (PropType) {
-      let result;
+      let errors;
       if (Model.isModel(PropType) && DataType.is(JSON, propValue)) {
-        result = PropType.validate(propValue);
-        if (!result && this) propValue = new PropType(propValue);
+        errors = PropType.validate(propValue);
+        if (!errors && shouldInstantiate) propValue = new PropType(propValue);
       } else {
-        result = DataType.validate(PropType, propValue);
-        if (!result && this && DataType.is(DataType, PropType)) propValue = PropType.fromJSON(propValue);
+        errors = DataType.validate(PropType, propValue);
+        if (!errors && shouldInstantiate && DataType.is(DataType, PropType)) propValue = PropType.fromJSON(propValue);
       }
-      if (result) validationResult[propName] = result;
+      if (errors) validationResult[propName] = errors;
     } else {
       validationResult[propName] = 'property is not defined in schema';
     }
 
-    if (this && !validationResult[propName]) this[propName] = propValue;
+    if (shouldInstantiate && !validationResult[propName]) this[propName] = propValue;
   }
 
   const hasErrors = Object.keys(validationResult).length;
-  if (this) {
+  if (shouldInstantiate) {
     if (hasErrors) {
       const error = new Error('Invalid data');
       error.name = Model.InvalidDataError;
