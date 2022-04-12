@@ -1,7 +1,7 @@
 import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
 import create from './model-create.js';
-import ø from './protected.js';
+import { processKey } from './schema.js';
 
 /**
  * This is just a part of Model extracted for convenience
@@ -9,38 +9,13 @@ import ø from './protected.js';
  * @param {Object} config
  * @returns {Model}
  */
-const init = (Model, config) => {
+function init(Model, config) {
   const schema = {};
-  const schemaEntries = Object.entries(config);
-
   const NewModel = create(Model, schema);
 
-  const required = new Set();
-  const optional = new Set();
-  const flags = [required, optional];
-  let globalSpecifier;
-  let reqIndex = 0;
-  let optIndex = 1;
-  for (const [key, type] of schemaEntries) {
-    let specifier;
-    let propName = key;
-    const match = key.match(/^(.+)([?!])$/);
-    if (match) {
-      [, propName, specifier] = match;
-      if (globalSpecifier && specifier !== globalSpecifier) {
-        const error = new Error('Model schema is invalid. Must contain either ? or ! specifiers');
-        error.name = Model.InvalidModelSchemaError;
-        throw error;
-      }
-      if (!globalSpecifier && specifier === '!') {
-        flags.reverse();
-        reqIndex = 1;
-        optIndex = 0;
-      }
-      globalSpecifier = specifier;
-    }
+  for (const [key, type] of Object.entries(config)) {
+    const propName = processKey.call(null, Model, schema, key);
     schema[propName] = type;
-    flags[specifier ? optIndex : reqIndex].add(propName);
 
     if (type === Model.SAME) {
       schema[propName] = NewModel;
@@ -50,6 +25,8 @@ const init = (Model, config) => {
         const list = allowedValues.map(item => String(item)).join(',');
         return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
       });
+    } else if (Array.isArray(type)) {
+      schema[propName] = []; // new Model(type)
     } else if (DataType.is(JSON, type)) {
       // nested schema
       schema[propName] = new Model(type);
@@ -59,9 +36,6 @@ const init = (Model, config) => {
       throw error;
     }
   }
-
-  const [requiredFields] = flags;
-  schema[ø.required] = requiredFields;
 
   Object.freeze(schema);
 
@@ -73,6 +47,6 @@ const init = (Model, config) => {
   });
 
   return NewModel;
-};
+}
 
 export default init;

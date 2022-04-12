@@ -45,7 +45,7 @@ const create = (Model, schema) => {
     }
 
     static isRequiredField(name) {
-      return schema[ø.required].has(name);
+      return schema[ø.isRequired](name);
     }
 
     // static toGraphQL() {}
