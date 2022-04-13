@@ -110,7 +110,7 @@ Schema.addTerm(propType => {
  * Adds support of enum data type
  */
 Schema.addTerm(propType => {
-  if (enumerate.isEnum(propType)) {
+  if (enumerate.isEnum(propType) && !DataType.exists(propType)) {
     DataType.add(propType, value => {
       const allowedValues = Object.values(propType);
       const list = allowedValues.map(item => String(item)).join(',');
