@@ -1,7 +1,8 @@
 /* eslint-disable max-classes-per-file */
 import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
-import init from './model-init.js';
+import Schema from './schema.js';
+import create from './model-create.js';
 
 const MODELS = new WeakSet();
 
@@ -10,7 +11,6 @@ const STATIC_PROPS = enumerate`
 `;
 
 const ERRORS = enumerate(String)`
-InvalidModelSchemaError
 InvalidDataError
 `;
 
@@ -26,19 +26,31 @@ export default class Model {
 
   constructor(config) {
     if (arguments.length) {
-      if (!DataType.is(JSON, config)) {
-        const error = new Error('Model schema is invalid');
-        error.name = ERRORS.InvalidModelSchemaError;
-        throw error;
-      }
+      const NewModel = create(Model, new Schema(config));
 
-      if (Object.keys(config).length === 0) {
-        const error = new Error('Model schema is empty');
-        error.name = ERRORS.InvalidModelSchemaError;
-        throw error;
-      }
+      DataType.add(NewModel, {
+        extends: Model,
+        validate(value) {
+          return value instanceof NewModel ? undefined : 'invalid model type';
+        },
+      });
 
-      const NewModel = this.init(config);
+      // const DataTypeRef = super({
+      //   extends: Model,
+      //   validate(value) {
+      //     return value instanceof NewModel ? undefined : 'must be a specified model';
+      //   },
+      //   // fromJSON: inputValue => {
+      //   //   if (Model.isModel(inputValue) ? DataType.is(JSON, propValue)
+      //   //   return new NewModel(inputValue)
+      //   // },
+      // });
+
+      // NewModel.fromJSON = DataTypeRef.fromJSON;
+
+      // console.log('NewModel.fromJSON', NewModel.fromJSON, DataTypeRef.fromJSON);
+
+      // DataType.add(NewModel, DataType.get(DataTypeRef));
 
       // Move this to StorageModel (extends Model)
       // MODELS.set(NewModel.ID, NewModel);
@@ -49,9 +61,7 @@ export default class Model {
       // eslint-disable-next-line no-constructor-return
       return NewModel;
     } // else prototype is being created
-
-  init(config) {
-    return init.call(this, Model, config);
+    // super();
   }
 
   // fromJSON() {}
@@ -60,6 +70,14 @@ export default class Model {
     return typeof type === 'function' && MODELS.has(type);
   }
 }
+
+/**
+ * Adds support of nested model schemas
+ */
+Schema.addTerm(propType => {
+  if (propType === Model.SAME) return Model.SAME;
+  if (DataType.is(JSON, propType)) return new Model(propType);
+});
 
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
 

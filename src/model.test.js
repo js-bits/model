@@ -1,5 +1,6 @@
 import DataType from './data-type.js';
 import Model from './model.js';
+import Schema from './schema.js';
 
 describe('Model', () => {
   describe('#constructor', () => {
@@ -26,7 +27,7 @@ describe('Model', () => {
         new Model({});
       } catch (error) {
         expect(error.message).toEqual('Model schema is empty');
-        expect(error.name).toEqual(Model.InvalidModelSchemaError);
+          expect(error.name).toEqual(Schema.InvalidModelSchemaError);
         expect(error.name).toEqual('InvalidModelSchemaError');
       }
       });
@@ -36,7 +37,7 @@ describe('Model', () => {
         new Model(new Date());
       } catch (error) {
         expect(error.message).toEqual('Model schema is invalid');
-        expect(error.name).toEqual(Model.InvalidModelSchemaError);
+          expect(error.name).toEqual(Schema.InvalidModelSchemaError);
         expect(error.name).toEqual('InvalidModelSchemaError');
       }
       });
@@ -48,7 +49,7 @@ describe('Model', () => {
         });
       } catch (error) {
         expect(error.message).toEqual('Model schema is invalid: data type of "func" property is invalid');
-        expect(error.name).toEqual(Model.InvalidModelSchemaError);
+          expect(error.name).toEqual(Schema.InvalidModelSchemaError);
         expect(error.name).toEqual('InvalidModelSchemaError');
       }
     });
