@@ -96,8 +96,19 @@ class Schema {
     return this[ø.required][name] === !this[ø.requiredFlag];
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  validate(propType, propValue) {
+    return DataType.validate(propType, propValue);
+  }
+
   transformType(name) {
     return this[name];
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  transformValue(propType, propValue) {
+    if (DataType.is(DataType, propType)) return propType.fromJSON(propValue);
+    return propValue;
   }
 }
 

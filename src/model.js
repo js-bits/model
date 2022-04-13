@@ -95,6 +95,16 @@ class ModelSchema extends BaseSchema {
     // }
     return super.processType(propType);
   }
+
+  validate(propType, propValue) {
+    if (Model.isModel(propType) && DataType.is(JSON, propValue)) return propType.validate(propValue);
+    return super.validate(propType, propValue);
+  }
+
+  transformValue(PropType, propValue) {
+    if (Model.isModel(PropType) && DataType.is(JSON, propValue)) return new PropType(propValue);
+    return super.transformValue(PropType, propValue);
+  }
 }
 
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));

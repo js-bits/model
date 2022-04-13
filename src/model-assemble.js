@@ -27,15 +27,12 @@ function assemble(Model, data, schema) {
         propValue = null; // intentionally set to null for both cases
       }
     } else if (PropType) {
-      let errors;
-      if (Model.isModel(PropType) && DataType.is(JSON, propValue)) {
-        errors = PropType.validate(propValue);
-        if (!errors && shouldInstantiate) propValue = new PropType(propValue);
-      } else {
-        errors = DataType.validate(PropType, propValue);
-        if (!errors && shouldInstantiate && DataType.is(DataType, PropType)) propValue = PropType.fromJSON(propValue);
+      const errors = schema.validate(PropType, propValue);
+      if (errors) {
+        validationResult[propName] = errors;
+      } else if (shouldInstantiate) {
+        propValue = schema.transformValue(PropType, propValue);
       }
-      if (errors) validationResult[propName] = errors;
     } else {
       validationResult[propName] = 'property is not defined in schema';
     }
