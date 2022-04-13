@@ -157,7 +157,7 @@ describe('Model', () => {
             options: {
               param: 123,
               flag: '',
-              unknown: '',
+              unknown: null,
             },
           });
         } catch (e) {
