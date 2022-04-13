@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
-import Schema from './schema.js';
+import BaseSchema from './schema.js';
 import create from './model-create.js';
 
 const MODELS = new WeakSet();
@@ -26,6 +26,7 @@ export default class Model {
 
   constructor(config) {
     if (arguments.length) {
+      // eslint-disable-next-line no-use-before-define
       const NewModel = create(Model, new Schema(config));
 
       DataType.add(NewModel, {
@@ -71,15 +72,16 @@ export default class Model {
   }
 }
 
-/**
- * Adds support of nested model schemas
- */
-Schema.addTerm({
-  init(propType) {
+class Schema extends BaseSchema {
+  processType(propType) {
   if (propType === Model.SAME) return Model.SAME;
   if (DataType.is(JSON, propType)) return new Model(propType);
-  },
-});
+    // if (Model.isModel(propType) && !DataType.exists(propType)) {
+    //   return propType;
+    // }
+    return super.processType(propType);
+  }
+}
 
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
 

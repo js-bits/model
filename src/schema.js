@@ -1,8 +1,6 @@
 import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
 
-const TERMS = new Set();
-
 const ERRORS = enumerate(String)`
 InvalidModelSchemaError
 `;
@@ -45,12 +43,7 @@ class Schema {
 
   processEntry(key, type) {
     const propName = this.processKey(key);
-    let propType;
-
-    for (const term of TERMS) {
-      propType = term.init(type);
-      if (propType) break;
-    }
+    const propType = this.processType(type);
 
     if (!propType) {
       const error = new Error(`Model schema is invalid: data type of "${propName}" property is invalid`);
@@ -58,6 +51,21 @@ class Schema {
       throw error;
     }
     this[propName] = propType;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  processType(propType) {
+    if (DataType.exists(propType)) {
+      return propType;
+    }
+    if (enumerate.isEnum(propType) && !DataType.exists(propType)) {
+      DataType.add(propType, value => {
+        const allowedValues = Object.values(propType);
+        const list = allowedValues.map(item => String(item)).join(',');
+        return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
+      });
+      return propType;
+    }
   }
 
   processKey(key) {
@@ -88,38 +96,11 @@ class Schema {
     return this[ø.required][name] === !this[ø.requiredFlag];
   }
 
-  static addTerm(term) {
-    TERMS.add(term);
+  getType(name) {
+    return this[name];
   }
 }
 
 Object.assign(Schema, ERRORS);
 
 export default Schema;
-
-/**
- * Adds support of primitive data types
- */
-Schema.addTerm({
-  init(propType) {
-    if (DataType.exists(propType)) {
-      return propType;
-    }
-  },
-});
-
-/**
- * Adds support of enum data type
- */
-Schema.addTerm({
-  init(propType) {
-    if (enumerate.isEnum(propType) && !DataType.exists(propType)) {
-      DataType.add(propType, value => {
-        const allowedValues = Object.values(propType);
-        const list = allowedValues.map(item => String(item)).join(',');
-        return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
-      });
-      return propType;
-    }
-  },
-});
