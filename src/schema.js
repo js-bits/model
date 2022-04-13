@@ -47,8 +47,8 @@ class Schema {
     const propName = this.processKey(key);
     let propType;
 
-    for (const transform of TERMS) {
-      propType = transform(type);
+    for (const term of TERMS) {
+      propType = term.init(type);
       if (propType) break;
     }
 
@@ -100,22 +100,26 @@ export default Schema;
 /**
  * Adds support of primitive data types
  */
-Schema.addTerm(propType => {
-  if (DataType.exists(propType)) {
-    return propType;
-  }
+Schema.addTerm({
+  init(propType) {
+    if (DataType.exists(propType)) {
+      return propType;
+    }
+  },
 });
 
 /**
  * Adds support of enum data type
  */
-Schema.addTerm(propType => {
-  if (enumerate.isEnum(propType) && !DataType.exists(propType)) {
-    DataType.add(propType, value => {
-      const allowedValues = Object.values(propType);
-      const list = allowedValues.map(item => String(item)).join(',');
-      return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
-    });
-    return propType;
-  }
+Schema.addTerm({
+  init(propType) {
+    if (enumerate.isEnum(propType) && !DataType.exists(propType)) {
+      DataType.add(propType, value => {
+        const allowedValues = Object.values(propType);
+        const list = allowedValues.map(item => String(item)).join(',');
+        return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
+      });
+      return propType;
+    }
+  },
 });

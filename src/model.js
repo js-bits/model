@@ -74,9 +74,11 @@ export default class Model {
 /**
  * Adds support of nested model schemas
  */
-Schema.addTerm(propType => {
+Schema.addTerm({
+  init(propType) {
   if (propType === Model.SAME) return Model.SAME;
   if (DataType.is(JSON, propType)) return new Model(propType);
+  },
 });
 
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
