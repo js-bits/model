@@ -1,8 +1,8 @@
-# Abstract data model
+# Multi-purpose data model
 
 Inspired by [Backbone.js](http://backbonejs.org/#Model). Reimagined and modernized.
 
-`Model` is a dynamic data structure, defined by certain rules using a data schema.
+`Model` is a static data structure, defined by certain rules using a data schema.
 
 ```javascript
 const Profile = new Model({
@@ -29,6 +29,12 @@ console.log(JSON.stringify(author, null, '  '));
 //   verified: null
 // }
 ```
+
+Features:
+
+- Strict data schema
+- Runtime data validation
+- ...
 
 [TBD]
 
