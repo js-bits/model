@@ -96,7 +96,7 @@ class Schema {
     return this[ø.required][name] === !this[ø.requiredFlag];
   }
 
-  getType(name) {
+  transformType(name) {
     return this[name];
   }
 }

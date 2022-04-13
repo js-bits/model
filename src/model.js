@@ -35,8 +35,8 @@ export default class Model {
           return super.processType(propType);
         }
 
-        getType(propName) {
-          const propType = super.getType(propName);
+        transformType(propName) {
+          const propType = super.transformType(propName);
           if (propType === Model.SAME) return NewModel;
           return propType;
         }

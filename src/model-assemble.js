@@ -18,7 +18,7 @@ function assemble(Model, data, schema) {
   const validationResult = {};
   const properties = new Set([...Object.keys(schema), ...Object.keys(data)]);
   for (const propName of properties) {
-    const PropType = schema.getType(propName);
+    const PropType = schema.transformType(propName);
     let propValue = data[propName];
     if (propValue === undefined || propValue === null) {
       if (schema.isRequired(propName)) {
