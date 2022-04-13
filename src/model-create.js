@@ -1,5 +1,4 @@
 import assemble from './model-assemble.js';
-import ø from './protected.js';
 
 /**
  * This is just a part of Model extracted for convenience
@@ -42,10 +41,6 @@ const create = (Model, schema) => {
      */
     static validate(data) {
       return assemble(NewModel, data, schema);
-    }
-
-    static isRequiredField(name) {
-      return schema[ø.isRequired](name);
     }
 
     // static toGraphQL() {}

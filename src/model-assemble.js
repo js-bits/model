@@ -21,7 +21,7 @@ function assemble(Model, data, schema) {
     let PropType = schema[propName];
     let propValue = data[propName];
     if (propValue === undefined || propValue === null) {
-      if (Model.isRequiredField(propName)) {
+      if (schema.isRequired(propName)) {
         validationResult[propName] = 'required property is not defined';
       } else {
         propValue = null; // intentionally set to null for both cases
