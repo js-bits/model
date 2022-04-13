@@ -19,24 +19,22 @@ function assemble(Model, data, schema) {
   const properties = new Set([...Object.keys(schema), ...Object.keys(data)]);
   for (const propName of properties) {
     const propType = schema.transformType(propName);
-    const propValue = data[propName];
-    let returnValue = null; // intentionally set to null for both cases (undefined and null)
-    if (!propType) {
-      validationResult[propName] = 'property is not defined in schema';
-    } else if (propValue === undefined || propValue === null) {
-      if (schema.isRequired(propName)) {
+    if (propType) {
+      const propValue = data[propName];
+      const isDefined = !(propValue === undefined || propValue === null);
+      if (isDefined) {
+        const errors = schema.validate(propType, propValue);
+        if (errors) validationResult[propName] = errors;
+      } else if (schema.isRequired(propName)) {
         validationResult[propName] = 'required property is not defined';
       }
-    } else {
-      const errors = schema.validate(propType, propValue);
-      if (errors) {
-        validationResult[propName] = errors;
-      } else if (shouldInstantiate) {
-        returnValue = schema.transformValue(propType, propValue);
-      }
-    }
 
-    if (shouldInstantiate && !validationResult[propName]) this[propName] = returnValue;
+      if (shouldInstantiate && !validationResult[propName])
+        // intentionally set to null for both cases (undefined and null)
+        this[propName] = isDefined ? schema.transformValue(propType, propValue) : null;
+    } else {
+      validationResult[propName] = 'property is not defined in schema';
+    }
   }
 
   const hasErrors = Object.keys(validationResult).length;
