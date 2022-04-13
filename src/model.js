@@ -26,8 +26,23 @@ export default class Model {
 
   constructor(config) {
     if (arguments.length) {
+      let NewModel;
+
       // eslint-disable-next-line no-use-before-define
-      const NewModel = create(Model, new Schema(config));
+      class Schema extends ModelSchema {
+        processType(propType) {
+          if (propType === Model.SAME) return Model.SAME;
+          return super.processType(propType);
+        }
+
+        getType(propName) {
+          const propType = super.getType(propName);
+          if (propType === Model.SAME) return NewModel;
+          return propType;
+        }
+      }
+
+      NewModel = create(Model, new Schema(config));
 
       DataType.add(NewModel, {
         extends: Model,
@@ -72,9 +87,8 @@ export default class Model {
   }
 }
 
-class Schema extends BaseSchema {
+class ModelSchema extends BaseSchema {
   processType(propType) {
-  if (propType === Model.SAME) return Model.SAME;
   if (DataType.is(JSON, propType)) return new Model(propType);
     // if (Model.isModel(propType) && !DataType.exists(propType)) {
     //   return propType;

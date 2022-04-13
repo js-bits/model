@@ -18,7 +18,7 @@ function assemble(Model, data, schema) {
   const validationResult = {};
   const properties = new Set([...Object.keys(schema), ...Object.keys(data)]);
   for (const propName of properties) {
-    let PropType = schema[propName];
+    const PropType = schema.getType(propName);
     let propValue = data[propName];
     if (propValue === undefined || propValue === null) {
       if (schema.isRequired(propName)) {
@@ -28,7 +28,6 @@ function assemble(Model, data, schema) {
       }
     } else if (PropType) {
       let errors;
-      if (PropType === Model.SAME) PropType = Model;
       if (Model.isModel(PropType) && DataType.is(JSON, propValue)) {
         errors = PropType.validate(propValue);
         if (!errors && shouldInstantiate) propValue = new PropType(propValue);
