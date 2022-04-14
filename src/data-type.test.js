@@ -158,6 +158,7 @@ describe('DataType', () => {
         expect(DataType.validate(JSON, undefined)).toEqual('must be a plain object');
         expect(DataType.validate(JSON, null)).toEqual('must be a plain object');
         expect(DataType.validate(JSON, new Date())).toEqual('must be a plain object');
+        expect(DataType.validate(JSON, [])).toEqual('must be a plain object');
       });
       test('valid value', () => {
         expect(DataType.validate(JSON, {})).toBeUndefined();
