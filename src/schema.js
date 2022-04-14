@@ -110,8 +110,19 @@ class Schema {
     if (DataType.is(DataType, propType)) return propType.fromJSON(propValue);
     return propValue;
   }
+
+  static setGlobalSchema(GlobalSchema) {
+    globalSchema = GlobalSchema;
+  }
+
+  static getGlobalSchema() {
+    return globalSchema;
+  }
 }
 
+let globalSchema = Schema;
+
 Object.assign(Schema, ERRORS);
+Object.freeze(Schema);
 
 export default Schema;

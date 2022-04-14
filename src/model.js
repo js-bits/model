@@ -29,7 +29,7 @@ export default class Model {
       let NewModel;
 
       // eslint-disable-next-line no-use-before-define
-      class Schema extends ModelSchema {
+      class Schema extends BaseSchema.getGlobalSchema() {
         initType(propType) {
           if (propType === Model.SAME) return Model.SAME;
           return super.initType(propType);
@@ -87,7 +87,7 @@ export default class Model {
   }
 }
 
-class ModelSchema extends BaseSchema {
+export class Schema extends BaseSchema {
   initType(propType) {
   if (DataType.is(JSON, propType)) return new Model(propType);
     // if (Model.isModel(propType) && !DataType.exists(propType)) {
@@ -106,6 +106,8 @@ class ModelSchema extends BaseSchema {
     return super.transformValue(PropType, propValue);
   }
 }
+
+BaseSchema.setGlobalSchema(Schema);
 
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
 
