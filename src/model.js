@@ -30,9 +30,9 @@ export default class Model {
 
       // eslint-disable-next-line no-use-before-define
       class Schema extends ModelSchema {
-        processType(propType) {
+        initType(propType) {
           if (propType === Model.SAME) return Model.SAME;
-          return super.processType(propType);
+          return super.initType(propType);
         }
 
         transformType(propName) {
@@ -88,12 +88,12 @@ export default class Model {
 }
 
 class ModelSchema extends BaseSchema {
-  processType(propType) {
+  initType(propType) {
   if (DataType.is(JSON, propType)) return new Model(propType);
     // if (Model.isModel(propType) && !DataType.exists(propType)) {
     //   return propType;
     // }
-    return super.processType(propType);
+    return super.initType(propType);
   }
 
   validate(propType, propValue) {

@@ -42,8 +42,8 @@ class Schema {
   }
 
   processEntry(key, type) {
-    const propName = this.processKey(key);
-    const propType = this.processType(type);
+    const propName = this.initKey(key);
+    const propType = this.initType(type);
 
     if (!propType) {
       const error = new Error(`Model schema is invalid: data type of "${propName}" property is invalid`);
@@ -54,7 +54,7 @@ class Schema {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  processType(propType) {
+  initType(propType) {
     if (DataType.exists(propType)) {
       return propType;
     }
@@ -68,7 +68,7 @@ class Schema {
     }
   }
 
-  processKey(key) {
+  initKey(key) {
     let specifier;
     let propName = key;
     const globalFlag = this[ø.requiredFlag];
