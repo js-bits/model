@@ -10,9 +10,8 @@ const STATIC_PROPS = enumerate`
   SAME
 `;
 
-const ERRORS = enumerate(String)`
-InvalidDataError
-`;
+// const ERRORS = enumerate(String)`
+// `;
 
 export default class Model {
   static toString() {
@@ -112,5 +111,5 @@ BaseSchema.setGlobalSchema(Schema);
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
 
 Object.assign(Model, STATIC_PROPS);
-Object.assign(Model, ERRORS);
+Object.assign(Model, BaseSchema.ERRORS);
 Object.freeze(Model);

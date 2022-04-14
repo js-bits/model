@@ -3,6 +3,7 @@ import DataType from './data-type.js';
 
 const ERRORS = enumerate(String)`
 InvalidModelSchemaError
+InvalidDataError
 `;
 
 const REQUIRED_FIELD_SPECIFIER = '!';
@@ -90,6 +91,15 @@ class Schema {
     this[ø.required][propName] = !specifier;
 
     return propName;
+  }
+
+  getKeys(data) {
+    if (!DataType.is(JSON, data)) {
+      const error = new Error('Model data must be a plain object');
+      error.name = ERRORS.InvalidDataError;
+      throw error;
+    }
+    return new Set([...Object.keys(this), ...Object.keys(data)]);
   }
 
   isRequired(name) {

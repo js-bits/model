@@ -1,5 +1,3 @@
-import DataType from './data-type.js';
-
 /**
  * This is just a part of Model extracted for convenience
  * @param {Class} Model
@@ -8,16 +6,9 @@ import DataType from './data-type.js';
  * @returns {Object}
  */
 function assemble(Model, data, schema) {
-  if (!DataType.is(JSON, data)) {
-    const error = new Error('Model data must be a plain object');
-    error.name = Model.InvalidDataError;
-    throw error;
-  }
-
   const shouldInstantiate = !!this;
   const validationResult = {};
-  const properties = new Set([...Object.keys(schema), ...Object.keys(data)]);
-  for (const propName of properties) {
+  for (const propName of schema.getKeys(data)) {
     const propType = schema.transformType(propName);
     if (propType) {
       const propValue = data[propName];
