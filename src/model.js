@@ -89,7 +89,7 @@ export default class Model {
 
 export class Schema extends BaseSchema {
   initType(propType) {
-  if (DataType.is(JSON, propType)) return new Model(propType);
+    if (DataType.is(JSON, propType)) return new Model(propType);
     // if (Model.isModel(propType) && !DataType.exists(propType)) {
     //   return propType;
     // }
