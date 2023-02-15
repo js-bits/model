@@ -8,7 +8,7 @@ import assemble from './model-assemble.js';
  */
 const create = (Model, schema) => {
   // NOTE: encapsulated class definition makes it impossible to manipulate data schema from outside of the model
-  class NewModel extends Model {
+  class _Model_ extends Model {
     constructor(data) {
       super();
       this.assemble(data);
@@ -32,7 +32,7 @@ const create = (Model, schema) => {
     }
 
     assemble(data) {
-      assemble.call(this, NewModel, data, schema);
+      assemble.call(this, _Model_, data, schema);
     }
 
     /**
@@ -40,15 +40,15 @@ const create = (Model, schema) => {
      * @returns {Object} - an object representing validation errors
      */
     static validate(data) {
-      return assemble(NewModel, data, schema);
+      return assemble(_Model_, data, schema);
     }
 
     // static toGraphQL() {}
   }
 
-  Object.freeze(NewModel);
+  Object.freeze(_Model_);
 
-  return NewModel;
+  return _Model_;
 };
 
 export default create;

@@ -17,7 +17,7 @@ export default class DataType {
     if (arguments.length) {
       let typeDef;
 
-      class NewDataType extends DataType {
+      class _DataType_ extends DataType {
         constructor() {
           const error = new Error('Data type instantiation is not allowed');
           error.name = ERRORS.InvalidDataTypeError;
@@ -41,7 +41,7 @@ export default class DataType {
         }
 
         static validate(value, hardCheck) {
-          const result = DataType.validate(NewDataType, value);
+          const result = DataType.validate(_DataType_, value);
           if (result && hardCheck) {
             const error = new Error('Data type is invalid');
             error.name = ERRORS.InvalidDataTypeError;
@@ -51,9 +51,9 @@ export default class DataType {
         }
       }
 
-      typeDef = DataType.add(NewDataType, config);
+      typeDef = DataType.add(_DataType_, config);
       // eslint-disable-next-line no-constructor-return
-      return NewDataType;
+      return _DataType_;
     } // else prototype is being created
   }
 
