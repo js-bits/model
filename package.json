@@ -15,7 +15,16 @@
     "architecture"
   ],
   "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./index.js",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "default": "./index.js"
+    }
+  },
   "scripts": {
+    "build": "rollup ./index.js --format cjs --file dist/index.cjs --exports named",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose",
     "test-coverage": "yarn test --coverage",
     "test-watch": "yarn test --watch",
@@ -32,14 +41,18 @@
   "eslintConfig": {
     "extends": "@js-bits/eslint-config/.eslintrc.json"
   },
+  "engines": {
+    "node": ">=12"
+  },
   "dependencies": {
-    "@js-bits/enumerate": "^0.7.0"
+    "@js-bits/enumerate": "^0.8.1"
   },
   "devDependencies": {
-    "@js-bits/formalinter": "^0.3.0",
-    "@types/jest": "^26.0.23",
-    "jest": "^27.0.6",
-    "jsdoc": "^3.6.10"
+    "@js-bits/formalinter": "^0.3.1",
+    "@types/jest": "^29.4.0",
+    "jest": "^27.5.1",
+    "jsdoc": "^3.6.10",
+    "rollup": "^3.15.0"
   },
   "jest": {
     "projects": [
