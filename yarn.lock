@@ -656,10 +656,10 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
-"@js-bits/enumerate@^0.8.1":
-  version "0.8.1"
-  resolved "https://registry.yarnpkg.com/@js-bits/enumerate/-/enumerate-0.8.1.tgz#493487374a7ec452139ff7964ca14465a41e1fca"
-  integrity sha512-e1XDflq3YqxXPkEPtSnGaFNYrC48ZRXBJOHVukENDOIRzmt4IQv/6G+CXgPvfi4o9fz+NQ6T2rNpclAVyMX7Iw==
+"@js-bits/enumerate@^0.8.2":
+  version "0.8.2"
+  resolved "https://registry.yarnpkg.com/@js-bits/enumerate/-/enumerate-0.8.2.tgz#bb85f3cb0bd5061afe79fb55e67fd92ac172d605"
+  integrity sha512-8ClUgfWOllLY3zj25JBxDOQYcQxMmmK/4zQ+OyFHBtmn2+0ym8ybih4DIK2sHXmjgLY+21bSjXxzI67hpJHUFg==
 
 "@js-bits/eslint-config@^0.2.0":
   version "0.2.0"
