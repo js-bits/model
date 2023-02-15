@@ -20,7 +20,7 @@ class DataType {
     if (arguments.length) {
       let typeDef;
 
-      class NewDataType extends DataType {
+      class _DataType_ extends DataType {
         constructor() {
           const error = new Error('Data type instantiation is not allowed');
           error.name = ERRORS$2.InvalidDataTypeError;
@@ -44,7 +44,7 @@ class DataType {
         }
 
         static validate(value, hardCheck) {
-          const result = DataType.validate(NewDataType, value);
+          const result = DataType.validate(_DataType_, value);
           if (result && hardCheck) {
             const error = new Error('Data type is invalid');
             error.name = ERRORS$2.InvalidDataTypeError;
@@ -54,9 +54,9 @@ class DataType {
         }
       }
 
-      typeDef = DataType.add(NewDataType, config);
+      typeDef = DataType.add(_DataType_, config);
       // eslint-disable-next-line no-constructor-return
-      return NewDataType;
+      return _DataType_;
     } // else prototype is being created
   }
 
@@ -256,7 +256,6 @@ let Schema$1 = class Schema {
   }
 
   getKeys(data) {
-    console.log('getKeys', data);
     if (!DataType.is(JSON, data)) {
       const error = new Error('Model data must be a plain object');
       error.name = ERRORS$1.InvalidDataError;
@@ -280,7 +279,6 @@ let Schema$1 = class Schema {
 
   // eslint-disable-next-line class-methods-use-this
   transformValue(propType, propValue) {
-    console.log('transformValue3', propType, propValue);
     if (DataType.is(DataType, propType)) return propType.fromJSON(propValue);
     return propValue;
   }
@@ -309,11 +307,8 @@ Object.freeze(Schema$1);
 function assemble(Model, data, schema) {
   const shouldInstantiate = !!this;
   const validationResult = {};
-  console.log('assemble', data);
   for (const propName of schema.getKeys(data)) {
-    console.log('propName', propName);
     const propType = schema.transformType(propName);
-    console.log('propType', propType);
     if (propType) {
       const propValue = data[propName];
       const isDefined = !(propValue === undefined || propValue === null);
@@ -354,7 +349,7 @@ function assemble(Model, data, schema) {
  */
 const create = (Model, schema) => {
   // NOTE: encapsulated class definition makes it impossible to manipulate data schema from outside of the model
-  class NewModel extends Model {
+  class _Model_ extends Model {
     constructor(data) {
       super();
       this.assemble(data);
@@ -378,7 +373,7 @@ const create = (Model, schema) => {
     }
 
     assemble(data) {
-      assemble.call(this, NewModel, data, schema);
+      assemble.call(this, _Model_, data, schema);
     }
 
     /**
@@ -386,15 +381,15 @@ const create = (Model, schema) => {
      * @returns {Object} - an object representing validation errors
      */
     static validate(data) {
-      return assemble(NewModel, data, schema);
+      return assemble(_Model_, data, schema);
     }
 
     // static toGraphQL() {}
   }
 
-  Object.freeze(NewModel);
+  Object.freeze(_Model_);
 
-  return NewModel;
+  return _Model_;
 };
 
 /* eslint-disable max-classes-per-file */
@@ -409,7 +404,7 @@ const ERRORS = enumerate(String)`
 InvalidDataError
 `;
 
-class Model /* extends DataType */ {
+class Model {
   static toString() {
     return '[class Model]';
   }
@@ -437,16 +432,10 @@ class Model /* extends DataType */ {
         }
       }
 
-      NewModel = create(this.constructor, new Schema(config));
+      NewModel = create(Model, new Schema(config));
 
       DataType.add(NewModel, {
         extends: Model,
-        // fromJSON(value) {
-        //   return new NewModel(value);
-        // },
-        // toJSON(value) {
-        //   return value.toJSON;
-        // },
         validate(value) {
           return value instanceof NewModel ? undefined : 'invalid model type';
         },
@@ -490,7 +479,7 @@ class Model /* extends DataType */ {
 
 class Schema extends Schema$1 {
   initType(propType) {
-    if (DataType.is(JSON, propType)) return new Model(propType);
+  if (DataType.is(JSON, propType)) return new Model(propType);
     // if (Model.isModel(propType) && !DataType.exists(propType)) {
     //   return propType;
     // }
@@ -503,7 +492,6 @@ class Schema extends Schema$1 {
   }
 
   transformValue(PropType, propValue) {
-    console.log('transformValue2', PropType, propValue);
     if (Model.isModel(PropType) && DataType.is(JSON, propValue)) return new PropType(propValue);
     return super.transformValue(PropType, propValue);
   }
@@ -517,4 +505,5 @@ Object.assign(Model, STATIC_PROPS);
 Object.assign(Model, ERRORS);
 Object.freeze(Model);
 
+exports.DataType = DataType;
 exports.Model = Model;
