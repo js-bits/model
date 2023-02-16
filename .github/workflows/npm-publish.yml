@@ -8,6 +8,14 @@ on:
       - v*
 
 jobs:
+  check-tags:
+    name: Check New Tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Is Tag
+        if: github.ref_type != 'tag'
+        - run: exit 1
+
   build:
     runs-on: ubuntu-latest
     steps:
