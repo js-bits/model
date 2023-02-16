@@ -12,12 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: [check-tags]
     steps:
+      - name: Check New Tag
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - name: Check New Tag
         if: github.ref_type == 'tag'
         run: yarn install --frozen-lockfile
         run: yarn build
