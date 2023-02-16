@@ -1,6 +1,6 @@
 # Multi-purpose data model
 
-Inspired by [Backbone.js](http://backbonejs.org/#Model). Reimagined and modernized.
+Inspired by [Backbone.Model](http://backbonejs.org/#Model). Re-imagined and modernized.
 
 `Model` is a static data structure, defined by certain rules using a data schema.
 
@@ -30,10 +30,12 @@ console.log(JSON.stringify(author, null, '  '));
 // }
 ```
 
-Features:
+Key features:
 
 - Strict data schema
-- Runtime data validation
+- Runtime validation
+- Configurable data types
+- Deep objects immutability
 - ...
 
 [TBD]
@@ -68,7 +70,7 @@ const { Model, DataType } = require('@js-bits/model');
 
 [TBD]
 
-More examples can be found in [examples](https://github.com/js-bits/model/tree/main/examples) folder
+More examples can be found in [examples](https://github.com/js-bits/model/tree/main/examples) folder.
 
 ## How is this different from [JSON Schema](https://json-schema.org/)?
 
@@ -78,11 +80,11 @@ JSON Schema serves more as a data format description, while `Model` is much more
 
 ## Ok. But, what about TypeScript?
 
-Not every project is built with TypeScript. And not every project needs TypeScript.
+Code written in TypeScript is only checked for errors before it is executed, during compile time. Moreover, not every project is built with TypeScript. And not every project needs TypeScript.
 
 [TBD]
 
-You can also use [JSDoc](https://jsdoc.app/) to achieve similar result.
+As for IDE's code-completion capabilities, you can achieve similar result with [JSDoc](https://jsdoc.app/) annotations.
 
 ## How about immutability, then?
 
@@ -98,6 +100,7 @@ Well, immutability is not a dogma.
 But, anyway, you can make your data deeply immutable with this package and still use other benefits (like data validation) at the same time.
 
 ```javascript
-// Object.freeze({}) vs new Model(immutable)
-// shallow freeze vs deep freeze
+Object.freeze(object); // shallow freeze
+// versus
+new CustomModel(object); // deep freeze
 ```
