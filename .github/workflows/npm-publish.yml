@@ -8,13 +8,6 @@ on:
       - v*
 
 jobs:
-  check-tags:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check New Tag
-        if: github.ref_type != 'tag'
-        run: exit 0
-
   publish-npm:
     runs-on: ubuntu-latest
     needs: [check-tags]
@@ -24,8 +17,11 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - run: yarn install --frozen-lockfile
-      - run: yarn test
-      - run: npm publish
+      - name: Check New Tag
+        if: github.ref_type == 'tag'
+        run: yarn install --frozen-lockfile
+        run: yarn build
+        run: yarn test
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
