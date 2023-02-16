@@ -86,6 +86,13 @@ Code written in TypeScript is only checked for errors before it is executed, dur
 
 As for IDE's code-completion capabilities, you can achieve similar result with [JSDoc](https://jsdoc.app/) annotations.
 
+## GraphQL?
+
+GraphQL queries tend to grow over time and you have to carry unnecessary data even though you don't use it.
+`Model` allows you to control what data exactly you need to operate.
+
+[TBD]
+
 ## How about immutability, then?
 
 Well, immutability is not a dogma.
