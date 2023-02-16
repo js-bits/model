@@ -1,4 +1,4 @@
-# Multi-purpose data model
+# [WORK IN PROGRESS] Multi-purpose data model
 
 Inspired by [Backbone.Model](http://backbonejs.org/#Model). Re-imagined and modernized.
 
