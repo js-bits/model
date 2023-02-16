@@ -23,36 +23,36 @@ describe('Model', () => {
     describe('invalid schema', () => {
       test('empty schema', () => {
         expect.assertions(3);
-      try {
-        new Model({});
-      } catch (error) {
-        expect(error.message).toEqual('Model schema is empty');
+        try {
+          new Model({});
+        } catch (error) {
+          expect(error.message).toEqual('Model schema is empty');
           expect(error.name).toEqual(Schema.InvalidModelSchemaError);
-        expect(error.name).toEqual('InvalidModelSchemaError');
-      }
+          expect(error.name).toEqual('InvalidModelSchemaError');
+        }
       });
       test('wrong object type', () => {
         expect.assertions(3);
-      try {
-        new Model(new Date());
-      } catch (error) {
-        expect(error.message).toEqual('Model schema is invalid');
+        try {
+          new Model(new Date());
+        } catch (error) {
+          expect(error.message).toEqual('Model schema is invalid');
           expect(error.name).toEqual(Schema.InvalidModelSchemaError);
-        expect(error.name).toEqual('InvalidModelSchemaError');
-      }
+          expect(error.name).toEqual('InvalidModelSchemaError');
+        }
       });
       test('wrong schema parameter', () => {
         expect.assertions(3);
-      try {
-        new Model({
-          func: () => {},
-        });
-      } catch (error) {
-        expect(error.message).toEqual('Model schema is invalid: data type of "func" property is invalid');
+        try {
+          new Model({
+            func: () => {},
+          });
+        } catch (error) {
+          expect(error.message).toEqual('Model schema is invalid: data type of "func" property is invalid');
           expect(error.name).toEqual(Schema.InvalidModelSchemaError);
-        expect(error.name).toEqual('InvalidModelSchemaError');
-      }
-    });
+          expect(error.name).toEqual('InvalidModelSchemaError');
+        }
+      });
     });
 
     test('data type', () => {
