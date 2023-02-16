@@ -9,12 +9,11 @@ on:
 
 jobs:
   check-tags:
-    name: Check New Tag
     runs-on: ubuntu-latest
     steps:
-      - name: Is Tag
+      - name: Check New Tag
         if: github.ref_type != 'tag'
-        - run: exit 1
+        run: exit 1
 
   build:
     runs-on: ubuntu-latest
