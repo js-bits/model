@@ -74,6 +74,14 @@ export default class Model {
           if (DataType.is(JSON, value)) return CustomModel.validate(value);
           return value instanceof CustomModel ? undefined : 'invalid model type';
         },
+        fromJSON(data) {
+          if (DataType.is(JSON, data)) return new CustomModel(data);
+          // if (data instanceof CustomModel)
+          return data;
+        },
+        toJSON() {
+          return {};
+        },
       });
 
       class Schema extends BaseSchema.getGlobalSchema() {
@@ -123,11 +131,6 @@ export class Schema extends BaseSchema {
   initType(type) {
     if (DataType.is(JSON, type)) return new Model(type);
     return super.initType(type);
-  }
-
-  transformValue(Type, value) {
-    if (Model.isModel(Type) && DataType.is(JSON, value)) return new Type(value);
-    return super.transformValue(Type, value);
   }
 }
 

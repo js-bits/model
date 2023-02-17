@@ -149,6 +149,16 @@ export default class DataType {
     return error;
   }
 
+  static fromJSON(type, value) {
+    if (this.validate(type, value)) {
+      throw new Error('Invalid');
+    }
+
+    // if (!enumerate.isEnum(propType) && propType.fromJSON)
+    const typeDef = DataType.get(type);
+    return typeDef.fromJSON ? typeDef.fromJSON(value) : value;
+  }
+
   static is(type, value) {
     return !DataType.validate(type, value);
   }

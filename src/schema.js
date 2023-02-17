@@ -89,17 +89,6 @@ class Schema {
     return this[ø.required][name] === !this[ø.requiredFlag];
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  validateEntry(propType, propValue) {
-    return DataType.validate(propType, propValue);
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  transformValue(propType, propValue) {
-    if (DataType.is(DataType, propType)) return propType.fromJSON(propValue);
-    return propValue;
-  }
-
   static setGlobalSchema(GlobalSchema) {
     globalSchema = GlobalSchema;
   }

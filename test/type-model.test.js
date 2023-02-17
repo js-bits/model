@@ -204,6 +204,7 @@ describe('Model', () => {
         });
         expect(instance1).toBeInstanceOf(TestModel);
         expect(instance1.options.settings.json.any.value).toEqual('is valid');
+        expect(instance1.options.settings.optional).toBeNull();
         expect(JSON.stringify(instance1)).toEqual(
           '{"title":"NestedModel","options":{"flag":true,"settings":{"optional":null,"param":123,"json":{"any":{"value":"is valid"}}}}}'
         );

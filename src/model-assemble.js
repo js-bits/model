@@ -23,7 +23,7 @@ function assemble(Model, data, schema) {
       const propValue = data[propName];
       const isDefined = !(propValue === undefined || propValue === null);
       if (isDefined) {
-        const errors = schema.validateEntry(propType, propValue);
+        const errors = DataType.validate(propType, propValue);
         if (errors) validationResult[propName] = errors;
       } else if (schema.isRequired(propName)) {
         validationResult[propName] = 'required property is not defined';
@@ -31,7 +31,7 @@ function assemble(Model, data, schema) {
 
       if (shouldInstantiate && !validationResult[propName])
         // intentionally set to null for both cases (undefined and null)
-        this[propName] = isDefined ? schema.transformValue(propType, propValue) : null;
+        this[propName] = isDefined ? DataType.fromJSON(propType, propValue) : null;
     } else {
       validationResult[propName] = 'property is not defined in schema';
     }

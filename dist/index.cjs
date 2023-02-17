@@ -152,6 +152,16 @@ class DataType {
     return error;
   }
 
+  static fromJSON(type, value) {
+    if (this.validate(type, value)) {
+      throw new Error('Invalid');
+    }
+
+    // if (!enumerate.isEnum(propType) && propType.fromJSON)
+    const typeDef = DataType.get(type);
+    return typeDef.fromJSON ? typeDef.fromJSON(value) : value;
+  }
+
   static is(type, value) {
     return !DataType.validate(type, value);
   }
@@ -260,17 +270,6 @@ let Schema$2 = class Schema {
     return this[ø.required][name] === !this[ø.requiredFlag];
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  validateEntry(propType, propValue) {
-    return DataType.validate(propType, propValue);
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  transformValue(propType, propValue) {
-    if (!enumerate.isEnum(propType) && propType.fromJSON) return propType.fromJSON(propValue);
-    return propValue;
-  }
-
   static setGlobalSchema(GlobalSchema) {
     globalSchema = GlobalSchema;
   }
@@ -308,7 +307,7 @@ function assemble(Model, data, schema) {
       const propValue = data[propName];
       const isDefined = !(propValue === undefined || propValue === null);
       if (isDefined) {
-        const errors = schema.validateEntry(propType, propValue);
+        const errors = DataType.validate(propType, propValue);
         if (errors) validationResult[propName] = errors;
       } else if (schema.isRequired(propName)) {
         validationResult[propName] = 'required property is not defined';
@@ -316,7 +315,7 @@ function assemble(Model, data, schema) {
 
       if (shouldInstantiate && !validationResult[propName])
         // intentionally set to null for both cases (undefined and null)
-        this[propName] = isDefined ? schema.transformValue(propType, propValue) : null;
+        this[propName] = isDefined ? DataType.fromJSON(propType, propValue) : null;
     } else {
       validationResult[propName] = 'property is not defined in schema';
     }
@@ -408,12 +407,14 @@ class Model {
           if (DataType.is(JSON, value)) return CustomModel.validate(value);
           return value instanceof CustomModel ? undefined : 'invalid model type';
         },
-        // fromJSON(data) {
-        //   return new CustomModel(data);
-        // },
-        // toJSON() {
-        //   return {};
-        // },
+        fromJSON(data) {
+          if (DataType.is(JSON, data)) return new CustomModel(data);
+          // if (data instanceof CustomModel)
+          return data;
+        },
+        toJSON() {
+          return {};
+        },
       });
 
       class Schema extends Schema$2.getGlobalSchema() {
@@ -464,11 +465,6 @@ let Schema$1 = class Schema extends Schema$2 {
   initType(type) {
     if (DataType.is(JSON, type)) return new Model(type);
     return super.initType(type);
-  }
-
-  transformValue(Type, value) {
-    if (Model.isModel(Type) && DataType.is(JSON, value)) return new Type(value);
-    return super.transformValue(Type, value);
   }
 };
 
@@ -607,16 +603,28 @@ const Field = new Model({
   'field?': Model.SAME,
 });
 
-new Model({
+const Card = new Model({
   title: String,
+  'optional?': String,
   field: Field,
 });
 
+// console.log(
+//   new Field({
+//     name: 'String',
+//     type: 'String',
+//     value: 'String',
+//     field: {
+//       name: 'String',
+//       type: 'String',
+//       value: 'String',
+//     },
+//   })
+// );
+
 console.log(
-  new Field({
-    name: 'String',
-    type: 'String',
-    value: 'String',
+  new Card({
+    title: '123',
     field: {
       name: 'String',
       type: 'String',
@@ -625,16 +633,16 @@ console.log(
   })
 );
 
-// console.log(
-//   new Card({
-//     title: '123',
-//     field: new Field({
-//       name: 'String',
-//       type: 'String',
-//       value: 'String',
-//     }),
-//   })
-// );
+console.log(
+  new Card({
+    title: '123',
+    field: new Field({
+      name: 'String',
+      type: 'String',
+      value: 'String',
+    }),
+  })
+);
 
 // console.log(
 //   new Card({
