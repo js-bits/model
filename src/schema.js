@@ -36,13 +36,13 @@ class Schema {
 
     this[ø.required] = {};
     for (const [key, type] of Object.entries(config)) {
-      this.processEntry(key, type);
+      this.initEntry(key, type);
     }
 
     Object.freeze(this);
   }
 
-  processEntry(key, type) {
+  initEntry(key, type) {
     const propName = this.initKey(key);
     const propType = this.initType(type);
 

@@ -198,13 +198,13 @@ let Schema$1 = class Schema {
 
     this[ø.required] = {};
     for (const [key, type] of Object.entries(config)) {
-      this.processEntry(key, type);
+      this.initEntry(key, type);
     }
 
     Object.freeze(this);
   }
 
-  processEntry(key, type) {
+  initEntry(key, type) {
     const propName = this.initKey(key);
     const propType = this.initType(type);
 
@@ -255,15 +255,6 @@ let Schema$1 = class Schema {
     return propName;
   }
 
-  getKeys(data) {
-    if (!DataType.is(JSON, data)) {
-      const error = new Error('Model data must be a plain object');
-      error.name = ERRORS$1.InvalidDataError;
-      throw error;
-    }
-    return new Set([...Object.keys(this), ...Object.keys(data)]);
-  }
-
   isRequired(name) {
     return this[ø.required][name] === !this[ø.requiredFlag];
   }
@@ -305,9 +296,16 @@ Object.freeze(Schema$1);
  * @returns {Object}
  */
 function assemble(Model, data, schema) {
+  if (!DataType.is(JSON, data)) {
+    const error = new Error('Model data must be a plain object');
+    error.name = Model.InvalidDataError;
+    throw error;
+  }
+
   const shouldInstantiate = !!this;
   const validationResult = {};
-  for (const propName of schema.getKeys(data)) {
+  const keys = new Set([...Object.keys(schema), ...Object.keys(data)]);
+  for (const propName of keys) {
     const propType = schema.transformType(propName);
     if (propType) {
       const propValue = data[propName];
@@ -404,7 +402,7 @@ const ERRORS = enumerate(String)`
 InvalidDataError
 `;
 
-class Model /* extends DataType */ {
+class Model {
   static toString() {
     return '[class Model]';
   }
@@ -420,12 +418,6 @@ class Model /* extends DataType */ {
 
       DataType.add(CustomModel, {
         extends: Model,
-        // fromJSON(value) {
-        //   return new CustomModel(value);
-        // },
-        // toJSON(value) {
-        //   return value.toJSON;
-        // },
         validate(value) {
           return value instanceof CustomModel ? undefined : 'invalid model type';
         },
@@ -471,7 +463,7 @@ class Model /* extends DataType */ {
       }
     }
 
-    CustomModel = create(this.constructor, new Schema(config));
+    CustomModel = create(Model, new Schema(config));
     return CustomModel;
   }
 
@@ -549,6 +541,7 @@ class Collection extends Model {
     super({
       type: ContentType,
     });
+
     // if (Model.isModel(Type)) {
     //   this.Model = Type;
     // } else {
@@ -556,11 +549,33 @@ class Collection extends Model {
     // }
     // this[ø.data] = new Map();
     /* this[ø.options] = */ new Options(options);
+
+    const proxy = new Proxy(this, {
+      get(...args) {
+        const [target, prop] = args;
+        const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
+        if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
+          throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
+        }
+        return Reflect.get(...args);
+      },
+      set(target, prop) {
+        throw new Error(`Property assignment is not supported for "${String(prop)}"`);
+      },
+    });
+
+    // eslint-disable-next-line no-constructor-return
+    return proxy;
   }
 
-  construct(config) {
-    return super.construct(config);
-  }
+  // construct(config) {
+  //   let CustomModel;
+  //   const Schema = BaseSchema.getGlobalSchema();
+
+  //   CustomModel = create(this.constructor, new Schema(config));
+
+  //   return CustomModel;
+  // }
 
   // add(item) {
   //   if (item instanceof this.Model) {
@@ -599,20 +614,6 @@ class CollectionSchema extends Schema {
     }
     return super.initType(propType);
   }
-
-  // eslint-disable-next-line class-methods-use-this
-  validate(propType, propValue) {}
-
-  transformValue(PropType, propValue) {
-    // console.log(
-    //   'transformValue',
-    //   Object.getPrototypeOf(PropType) === Collection && Array.isArray(propValue),
-    //   PropType,
-    //   propValue
-    // );
-    if (Object.getPrototypeOf(PropType) === Collection && Array.isArray(propValue)) return new PropType(propValue);
-    return super.transformValue(PropType, propValue);
-  }
 }
 
 Schema.setGlobalSchema(CollectionSchema);
@@ -630,14 +631,30 @@ const Card = new Model({
   fields: [Field],
 });
 
-console.log('Card', Card);
-
 console.log(
   new Card({
     title: '123',
-    fields: [{}],
+    fields: [],
   })
 );
+
+new Model({
+  // eslint-disable-next-line no-sparse-arrays
+  fields: [Field, , , ,], // TODO
+});
+
+new Model({
+  // eslint-disable-next-line no-sparse-arrays
+  fields: [
+    Field,
+    {
+      min: 1,
+      max: 2,
+      // id: 'UUID',
+      // key: 'UUID',
+    },
+  ],
+});
 
 exports.Collection = Collection;
 exports.DataType = DataType;
