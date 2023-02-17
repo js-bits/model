@@ -18,7 +18,7 @@ function assemble(Model, data, schema) {
   const validationResult = {};
   const keys = new Set([...Object.keys(schema), ...Object.keys(data)]);
   for (const propName of keys) {
-    const propType = schema.transformType(propName);
+    const propType = schema[propName];
     if (propType) {
       const propValue = data[propName];
       const isDefined = !(propValue === undefined || propValue === null);

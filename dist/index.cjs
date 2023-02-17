@@ -264,10 +264,6 @@ let Schema$1 = class Schema {
     return DataType.validate(propType, propValue);
   }
 
-  transformType(name) {
-    return this[name];
-  }
-
   // eslint-disable-next-line class-methods-use-this
   transformValue(propType, propValue) {
     if (DataType.is(DataType, propType)) return propType.fromJSON(propValue);
@@ -306,7 +302,7 @@ function assemble(Model, data, schema) {
   const validationResult = {};
   const keys = new Set([...Object.keys(schema), ...Object.keys(data)]);
   for (const propName of keys) {
-    const propType = schema.transformType(propName);
+    const propType = schema[propName];
     if (propType) {
       const propValue = data[propName];
       const isDefined = !(propValue === undefined || propValue === null);
@@ -456,10 +452,17 @@ class Model {
     let CustomModel;
     // eslint-disable-next-line no-use-before-define
     class Schema extends Schema$1.getGlobalSchema() {
-      transformType(propName) {
-        const propType = super.transformType(propName);
-        if (propType === Model.SAME) return CustomModel;
-        return propType;
+      initType(propType) {
+        if (propType === Model.SAME) return Model.SAME;
+        return super.initType(propType);
+      }
+
+      validateEntry(type, value) {
+        return super.validateEntry(type === Model.SAME ? CustomModel : type, value);
+      }
+
+      transformValue(type, value) {
+        return super.transformValue(type === Model.SAME ? CustomModel : type, value);
       }
     }
 
@@ -475,20 +478,19 @@ class Model {
 }
 
 class Schema extends Schema$1 {
-  initType(propType) {
-    if (propType === Model.SAME) return Model.SAME;
-    if (DataType.is(JSON, propType)) return new Model(propType);
-    return super.initType(propType);
+  initType(type) {
+    if (DataType.is(JSON, type)) return new Model(type);
+    return super.initType(type);
   }
 
-  validateEntry(propType, propValue) {
-    if (Model.isModel(propType) && DataType.is(JSON, propValue)) return propType.validate(propValue);
-    return super.validateEntry(propType, propValue);
+  validateEntry(Type, value) {
+    if (Model.isModel(Type) && DataType.is(JSON, value)) return Type.validate(value);
+    return super.validateEntry(Type, value);
   }
 
-  transformValue(PropType, propValue) {
-    if (Model.isModel(PropType) && DataType.is(JSON, propValue)) return new PropType(propValue);
-    return super.transformValue(PropType, propValue);
+  transformValue(Type, value) {
+    if (Model.isModel(Type) && DataType.is(JSON, value)) return new Type(value);
+    return super.transformValue(Type, value);
   }
 }
 
@@ -615,7 +617,7 @@ class CollectionSchema extends Schema {
 
 Schema.setGlobalSchema(CollectionSchema);
 
-new Collection(Number);
+// new Collection(Number);
 
 const Field = new Model({
   name: String,
@@ -627,6 +629,14 @@ const Card = new Model({
   title: String,
   fields: [Field],
 });
+
+// console.log(
+//   new Field({
+//     name: 'String',
+//     type: 'String',
+//     value: 'String',
+//   })
+// );
 
 console.log(
   new Card({
