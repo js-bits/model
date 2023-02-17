@@ -414,8 +414,8 @@ class Model {
       const CustomModel = this.construct(config);
 
       DataType.add(CustomModel, {
-        extends: Model,
         validate(value) {
+          if (DataType.is(JSON, value)) return CustomModel.validate(value);
           return value instanceof CustomModel ? undefined : 'invalid model type';
         },
         // fromJSON(data) {
@@ -489,11 +489,6 @@ let Schema$1 = class Schema extends Schema$2 {
   initType(type) {
     if (DataType.is(JSON, type)) return new Model(type);
     return super.initType(type);
-  }
-
-  validateEntry(Type, value) {
-    if (Model.isModel(Type) && DataType.is(JSON, value)) return Type.validate(value);
-    return super.validateEntry(Type, value);
   }
 
   transformValue(Type, value) {
@@ -636,21 +631,36 @@ const Field = new Model({
 
 const Card = new Model({
   title: String,
-  fields: [Field],
+  field: Field,
 });
 
-// console.log(
-//   new Field({
-//     name: 'String',
-//     type: 'String',
-//     value: 'String',
-//   })
-// );
+console.log(
+  new Field({
+    name: 'String',
+    type: 'String',
+    value: 'String',
+  })
+);
 
 console.log(
   new Card({
     title: '123',
-    fields: [],
+    field: new Field({
+      name: 'String',
+      type: 'String',
+      value: 'String',
+    }),
+  })
+);
+
+console.log(
+  new Card({
+    title: '123',
+    field: {
+      name: 'String',
+      type: 'String',
+      value: 'String',
+    },
   })
 );
 

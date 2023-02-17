@@ -29,8 +29,8 @@ export default class Model {
       const CustomModel = this.construct(config);
 
       DataType.add(CustomModel, {
-        extends: Model,
         validate(value) {
+          if (DataType.is(JSON, value)) return CustomModel.validate(value);
           return value instanceof CustomModel ? undefined : 'invalid model type';
         },
       });
@@ -97,11 +97,6 @@ export class Schema extends BaseSchema {
   initType(type) {
     if (DataType.is(JSON, type)) return new Model(type);
     return super.initType(type);
-  }
-
-  validateEntry(Type, value) {
-    if (Model.isModel(Type) && DataType.is(JSON, value)) return Type.validate(value);
-    return super.validateEntry(Type, value);
   }
 
   transformValue(Type, value) {
