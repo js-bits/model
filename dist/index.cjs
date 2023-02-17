@@ -256,7 +256,7 @@ let Schema$1 = class Schema {
   }
 
   getKeys(data) {
-    console.log('getKeys', data);
+    // console.log('getKeys', data);
     if (!DataType.is(JSON, data)) {
       const error = new Error('Model data must be a plain object');
       error.name = ERRORS$1.InvalidDataError;
@@ -280,7 +280,7 @@ let Schema$1 = class Schema {
 
   // eslint-disable-next-line class-methods-use-this
   transformValue(propType, propValue) {
-    console.log('transformValue3', propType, propValue);
+    // console.log('transformValue3', propType, propValue);
     if (DataType.is(DataType, propType)) return propType.fromJSON(propValue);
     return propValue;
   }
@@ -309,11 +309,11 @@ Object.freeze(Schema$1);
 function assemble(Model, data, schema) {
   const shouldInstantiate = !!this;
   const validationResult = {};
-  console.log('assemble', data, schema);
+  // console.log('assemble', data, schema);
   for (const propName of schema.getKeys(data)) {
-    console.log('propName', propName);
+    // console.log('propName', propName);
     const propType = schema.transformType(propName);
-    console.log('propType', propType);
+    // console.log('propType', propType);
     if (propType) {
       const propValue = data[propName];
       const isDefined = !(propValue === undefined || propValue === null);
@@ -499,7 +499,7 @@ class Schema extends Schema$1 {
   }
 
   transformValue(PropType, propValue) {
-    console.log('transformValue2', PropType, propValue);
+    // console.log('transformValue2', PropType, propValue);
     if (Model.isModel(PropType) && DataType.is(JSON, propValue)) return new PropType(propValue);
     return super.transformValue(PropType, propValue);
   }
@@ -557,7 +557,7 @@ class Collection extends Model {
     //   this.Model = new Model(Type);
     // }
     // this[ø.data] = new Map();
-    console.log('assemble Options ===============');
+    // console.log('assemble Options ===============');
     /* this[ø.options] = */ new Options(options);
     // console.log(this, options);
   }
@@ -581,9 +581,9 @@ class Collection extends Model {
 
 class CollectionSchema extends Schema {
   getKeys(data) {
-    console.log('CollectionSchema.getKeys');
+    // console.log('CollectionSchema.getKeys');
     const keys = super.getKeys(data);
-    console.log('CollectionSchema.getKeys keys', keys);
+    // console.log('CollectionSchema.getKeys keys', keys);
     return keys;
   }
 
@@ -611,12 +611,12 @@ class CollectionSchema extends Schema {
   validate(propType, propValue) {}
 
   transformValue(PropType, propValue) {
-    console.log(
-      'transformValue',
-      Object.getPrototypeOf(PropType) === Collection && Array.isArray(propValue),
-      PropType,
-      propValue
-    );
+    // console.log(
+    //   'transformValue',
+    //   Object.getPrototypeOf(PropType) === Collection && Array.isArray(propValue),
+    //   PropType,
+    //   propValue
+    // );
     if (Object.getPrototypeOf(PropType) === Collection && Array.isArray(propValue)) return new PropType(propValue);
     return super.transformValue(PropType, propValue);
   }
