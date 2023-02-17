@@ -26,18 +26,7 @@ export default class Model {
 
   constructor(config) {
     if (arguments.length) {
-      let CustomModel;
-
-      // eslint-disable-next-line no-use-before-define
-      class Schema extends BaseSchema.getGlobalSchema() {
-        transformType(propName) {
-          const propType = super.transformType(propName);
-          if (propType === Model.SAME) return CustomModel;
-          return propType;
-        }
-      }
-
-      CustomModel = create(this.constructor, new Schema(config));
+      const CustomModel = this.construct(config);
 
       DataType.add(CustomModel, {
         extends: Model,
@@ -73,6 +62,21 @@ export default class Model {
       return CustomModel;
     } // else prototype is being created
     // super();
+  }
+
+  construct(config) {
+    let CustomModel;
+    // eslint-disable-next-line no-use-before-define
+    class Schema extends BaseSchema.getGlobalSchema() {
+      transformType(propName) {
+        const propType = super.transformType(propName);
+        if (propType === Model.SAME) return CustomModel;
+        return propType;
+      }
+    }
+
+    CustomModel = create(this.constructor, new Schema(config));
+    return CustomModel;
   }
 
   // fromJSON() {}

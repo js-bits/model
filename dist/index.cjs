@@ -256,7 +256,6 @@ let Schema$1 = class Schema {
   }
 
   getKeys(data) {
-    // console.log('getKeys', data);
     if (!DataType.is(JSON, data)) {
       const error = new Error('Model data must be a plain object');
       error.name = ERRORS$1.InvalidDataError;
@@ -280,7 +279,6 @@ let Schema$1 = class Schema {
 
   // eslint-disable-next-line class-methods-use-this
   transformValue(propType, propValue) {
-    // console.log('transformValue3', propType, propValue);
     if (DataType.is(DataType, propType)) return propType.fromJSON(propValue);
     return propValue;
   }
@@ -309,11 +307,8 @@ Object.freeze(Schema$1);
 function assemble(Model, data, schema) {
   const shouldInstantiate = !!this;
   const validationResult = {};
-  // console.log('assemble', data, schema);
   for (const propName of schema.getKeys(data)) {
-    // console.log('propName', propName);
     const propType = schema.transformType(propName);
-    // console.log('propType', propType);
     if (propType) {
       const propValue = data[propName];
       const isDefined = !(propValue === undefined || propValue === null);
@@ -421,23 +416,12 @@ class Model /* extends DataType */ {
 
   constructor(config) {
     if (arguments.length) {
-      let CustomModel;
-
-      // eslint-disable-next-line no-use-before-define
-      class Schema extends Schema$1.getGlobalSchema() {
-        transformType(propName) {
-          const propType = super.transformType(propName);
-          if (propType === Model.SAME) return CustomModel;
-          return propType;
-        }
-      }
-
-      CustomModel = create(this.constructor, new Schema(config));
+      const CustomModel = this.construct(config);
 
       DataType.add(CustomModel, {
         extends: Model,
         // fromJSON(value) {
-        //   return new NewModel(value);
+        //   return new CustomModel(value);
         // },
         // toJSON(value) {
         //   return value.toJSON;
@@ -476,6 +460,21 @@ class Model /* extends DataType */ {
     // super();
   }
 
+  construct(config) {
+    let CustomModel;
+    // eslint-disable-next-line no-use-before-define
+    class Schema extends Schema$1.getGlobalSchema() {
+      transformType(propName) {
+        const propType = super.transformType(propName);
+        if (propType === Model.SAME) return CustomModel;
+        return propType;
+      }
+    }
+
+    CustomModel = create(this.constructor, new Schema(config));
+    return CustomModel;
+  }
+
   // fromJSON() {}
   // sync() {}
   static isModel(type) {
@@ -499,7 +498,6 @@ class Schema extends Schema$1 {
   }
 
   transformValue(PropType, propValue) {
-    // console.log('transformValue2', PropType, propValue);
     if (Model.isModel(PropType) && DataType.is(JSON, propValue)) return new PropType(propValue);
     return super.transformValue(PropType, propValue);
   }
@@ -557,9 +555,11 @@ class Collection extends Model {
     //   this.Model = new Model(Type);
     // }
     // this[ø.data] = new Map();
-    // console.log('assemble Options ===============');
     /* this[ø.options] = */ new Options(options);
-    // console.log(this, options);
+  }
+
+  construct(config) {
+    return super.construct(config);
   }
 
   // add(item) {
@@ -580,13 +580,6 @@ class Collection extends Model {
 }
 
 class CollectionSchema extends Schema {
-  getKeys(data) {
-    // console.log('CollectionSchema.getKeys');
-    const keys = super.getKeys(data);
-    // console.log('CollectionSchema.getKeys keys', keys);
-    return keys;
-  }
-
   initType(propType) {
     if (Array.isArray(propType)) {
       const [contentType, ...rest] = propType;
@@ -624,7 +617,7 @@ class CollectionSchema extends Schema {
 
 Schema.setGlobalSchema(CollectionSchema);
 
-// new Collection(Number);
+new Collection(Number);
 
 const Field = new Model({
   name: String,

@@ -47,7 +47,10 @@ class Collection extends Model {
     // }
     // this[ø.data] = new Map();
     /* this[ø.options] = */ new Options(options);
-    console.log(this, options);
+  }
+
+  construct(config) {
+    return super.construct(config);
   }
 
   // add(item) {
@@ -69,7 +72,6 @@ class Collection extends Model {
 
 class CollectionSchema extends BaseSchema {
   initType(propType) {
-    console.log('CollectonSchema');
     if (Array.isArray(propType)) {
       const [contentType, ...rest] = propType;
       let options;
@@ -100,14 +102,14 @@ const Field = new Model({
   value: String,
 });
 
-new Model({
-  // eslint-disable-next-line no-sparse-arrays
+const Card = new Model({
+  title: String,
   fields: [Field],
 });
 
 new Model({
   // eslint-disable-next-line no-sparse-arrays
-  fields: [Field, , , ,],
+  fields: [Field, , , ,], // TODO
 });
 
 new Model({
@@ -118,6 +120,7 @@ new Model({
       min: 1,
       max: 2,
       // id: 'UUID',
+      // key: 'UUID',
     },
   ],
 });
