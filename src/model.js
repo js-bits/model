@@ -2,7 +2,7 @@
 import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
 import BaseSchema from './schema.js';
-import create from './model-create.js';
+import assemble from './model-assemble.js';
 
 const MODELS = new WeakSet();
 
@@ -26,7 +26,48 @@ export default class Model {
 
   constructor(config) {
     if (arguments.length) {
-      const CustomModel = this.construct(config);
+      // NOTE: encapsulated class definition makes it impossible to manipulate data schema from outside of the model
+      let schema;
+
+      class CustomModel extends Model {
+        constructor(data) {
+          super();
+          this.assemble(data);
+
+          const proxy = new Proxy(this, {
+            get(...args) {
+              const [target, prop] = args;
+              const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
+              if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
+                throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
+              }
+              return Reflect.get(...args);
+            },
+            set(target, prop) {
+              throw new Error(`Property assignment is not supported for "${String(prop)}"`);
+            },
+          });
+
+          // eslint-disable-next-line no-constructor-return
+          return proxy;
+        }
+
+        assemble(data) {
+          assemble.call(this, CustomModel, data, schema);
+        }
+
+        /**
+         * @param {*} data
+         * @returns {Object} - an object representing validation errors
+         */
+        static validate(data) {
+          return assemble(CustomModel, data, schema);
+        }
+
+        // static toGraphQL() {}
+      }
+
+      Object.freeze(CustomModel);
 
       DataType.add(CustomModel, {
         validate(value) {
@@ -34,6 +75,13 @@ export default class Model {
           return value instanceof CustomModel ? undefined : 'invalid model type';
         },
       });
+
+      class Schema extends BaseSchema.getGlobalSchema() {
+        initEntry(key, type) {
+          return super.initEntry(key, type === Model.SAME ? CustomModel : type);
+        }
+      }
+      schema = new Schema(config);
 
       // const DataTypeRef = super({
       //   extends: Model,
@@ -64,28 +112,6 @@ export default class Model {
     // super();
   }
 
-  construct(config) {
-    let CustomModel;
-    // eslint-disable-next-line no-use-before-define
-    class Schema extends BaseSchema.getGlobalSchema() {
-      initType(propType) {
-        if (propType === Model.SAME) return Model.SAME;
-        return super.initType(propType);
-      }
-
-      validateEntry(type, value) {
-        return super.validateEntry(type === Model.SAME ? CustomModel : type, value);
-      }
-
-      transformValue(type, value) {
-        return super.transformValue(type === Model.SAME ? CustomModel : type, value);
-      }
-    }
-
-    CustomModel = create(Model, new Schema(config));
-    return CustomModel;
-  }
-
   // fromJSON() {}
   // sync() {}
   static isModel(type) {
@@ -110,5 +136,7 @@ BaseSchema.setGlobalSchema(Schema);
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
 
 Object.assign(Model, STATIC_PROPS);
+DataType.add(Model.SAME, () => 'must not be use directly');
+
 Object.assign(Model, ERRORS);
 Object.freeze(Model);

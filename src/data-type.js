@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import enumerate from '@js-bits/enumerate';
 
-const DATA_TYPES = new WeakMap();
+const DATA_TYPES = new Map();
 
 const ERRORS = enumerate(String)`
 InvalidDataTypeError

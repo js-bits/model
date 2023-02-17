@@ -4,7 +4,7 @@ var enumerate = require('@js-bits/enumerate');
 
 /* eslint-disable max-classes-per-file */
 
-const DATA_TYPES = new WeakMap();
+const DATA_TYPES = new Map();
 
 const ERRORS$2 = enumerate(String)`
 InvalidDataTypeError
@@ -336,57 +336,6 @@ function assemble(Model, data, schema) {
   return hasErrors ? validationResult : undefined;
 }
 
-/**
- * This is just a part of Model extracted for convenience
- * @param {Class} Model
- * @param {Object} schema
- * @returns {Class}
- */
-const create = (Model, schema) => {
-  // NOTE: encapsulated class definition makes it impossible to manipulate data schema from outside of the model
-  class CustomModel extends Model {
-    constructor(data) {
-      super();
-      this.assemble(data);
-
-      const proxy = new Proxy(this, {
-        get(...args) {
-          const [target, prop] = args;
-          const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
-          if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
-            throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
-          }
-          return Reflect.get(...args);
-        },
-        set(target, prop) {
-          throw new Error(`Property assignment is not supported for "${String(prop)}"`);
-        },
-      });
-
-      // eslint-disable-next-line no-constructor-return
-      return proxy;
-    }
-
-    assemble(data) {
-      assemble.call(this, CustomModel, data, schema);
-    }
-
-    /**
-     * @param {*} data
-     * @returns {Object} - an object representing validation errors
-     */
-    static validate(data) {
-      return assemble(CustomModel, data, schema);
-    }
-
-    // static toGraphQL() {}
-  }
-
-  Object.freeze(CustomModel);
-
-  return CustomModel;
-};
-
 /* eslint-disable max-classes-per-file */
 
 const MODELS = new WeakSet();
@@ -411,7 +360,48 @@ class Model {
 
   constructor(config) {
     if (arguments.length) {
-      const CustomModel = this.construct(config);
+      // NOTE: encapsulated class definition makes it impossible to manipulate data schema from outside of the model
+      let schema;
+
+      class CustomModel extends Model {
+        constructor(data) {
+          super();
+          this.assemble(data);
+
+          const proxy = new Proxy(this, {
+            get(...args) {
+              const [target, prop] = args;
+              const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
+              if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
+                throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
+              }
+              return Reflect.get(...args);
+            },
+            set(target, prop) {
+              throw new Error(`Property assignment is not supported for "${String(prop)}"`);
+            },
+          });
+
+          // eslint-disable-next-line no-constructor-return
+          return proxy;
+        }
+
+        assemble(data) {
+          assemble.call(this, CustomModel, data, schema);
+        }
+
+        /**
+         * @param {*} data
+         * @returns {Object} - an object representing validation errors
+         */
+        static validate(data) {
+          return assemble(CustomModel, data, schema);
+        }
+
+        // static toGraphQL() {}
+      }
+
+      Object.freeze(CustomModel);
 
       DataType.add(CustomModel, {
         validate(value) {
@@ -425,6 +415,13 @@ class Model {
         //   return {};
         // },
       });
+
+      class Schema extends Schema$2.getGlobalSchema() {
+        initEntry(key, type) {
+          return super.initEntry(key, type === Model.SAME ? CustomModel : type);
+        }
+      }
+      schema = new Schema(config);
 
       // const DataTypeRef = super({
       //   extends: Model,
@@ -455,28 +452,6 @@ class Model {
     // super();
   }
 
-  construct(config) {
-    let CustomModel;
-    // eslint-disable-next-line no-use-before-define
-    class Schema extends Schema$2.getGlobalSchema() {
-      initType(propType) {
-        if (propType === Model.SAME) return Model.SAME;
-        return super.initType(propType);
-      }
-
-      validateEntry(type, value) {
-        return super.validateEntry(type === Model.SAME ? CustomModel : type, value);
-      }
-
-      transformValue(type, value) {
-        return super.transformValue(type === Model.SAME ? CustomModel : type, value);
-      }
-    }
-
-    CustomModel = create(Model, new Schema(config));
-    return CustomModel;
-  }
-
   // fromJSON() {}
   // sync() {}
   static isModel(type) {
@@ -502,6 +477,8 @@ Schema$2.setGlobalSchema(Schema$1);
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
 
 Object.assign(Model, STATIC_PROPS);
+DataType.add(Model.SAME, () => 'must not be use directly');
+
 Object.assign(Model, ERRORS);
 Object.freeze(Model);
 
@@ -627,9 +604,10 @@ const Field = new Model({
   name: String,
   type: String,
   value: String,
+  'field?': Model.SAME,
 });
 
-const Card = new Model({
+new Model({
   title: String,
   field: Field,
 });
@@ -639,23 +617,6 @@ console.log(
     name: 'String',
     type: 'String',
     value: 'String',
-  })
-);
-
-console.log(
-  new Card({
-    title: '123',
-    field: new Field({
-      name: 'String',
-      type: 'String',
-      value: 'String',
-    }),
-  })
-);
-
-console.log(
-  new Card({
-    title: '123',
     field: {
       name: 'String',
       type: 'String',
@@ -663,6 +624,28 @@ console.log(
     },
   })
 );
+
+// console.log(
+//   new Card({
+//     title: '123',
+//     field: new Field({
+//       name: 'String',
+//       type: 'String',
+//       value: 'String',
+//     }),
+//   })
+// );
+
+// console.log(
+//   new Card({
+//     title: '123',
+//     field: {
+//       name: 'String',
+//       type: 'String',
+//       value: 'String',
+//     },
+//   })
+// );
 
 new Model({
   // eslint-disable-next-line no-sparse-arrays
