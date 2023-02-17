@@ -260,7 +260,7 @@ let Schema$1 = class Schema {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  validate(propType, propValue) {
+  validateEntry(propType, propValue) {
     return DataType.validate(propType, propValue);
   }
 
@@ -311,7 +311,7 @@ function assemble(Model, data, schema) {
       const propValue = data[propName];
       const isDefined = !(propValue === undefined || propValue === null);
       if (isDefined) {
-        const errors = schema.validate(propType, propValue);
+        const errors = schema.validateEntry(propType, propValue);
         if (errors) validationResult[propName] = errors;
       } else if (schema.isRequired(propName)) {
         validationResult[propName] = 'required property is not defined';
@@ -478,15 +478,12 @@ class Schema extends Schema$1 {
   initType(propType) {
     if (propType === Model.SAME) return Model.SAME;
     if (DataType.is(JSON, propType)) return new Model(propType);
-    // if (Model.isModel(propType) && !DataType.exists(propType)) {
-    //   return propType;
-    // }
     return super.initType(propType);
   }
 
-  validate(propType, propValue) {
+  validateEntry(propType, propValue) {
     if (Model.isModel(propType) && DataType.is(JSON, propValue)) return propType.validate(propValue);
-    return super.validate(propType, propValue);
+    return super.validateEntry(propType, propValue);
   }
 
   transformValue(PropType, propValue) {

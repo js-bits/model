@@ -93,21 +93,12 @@ class Schema {
     return propName;
   }
 
-  getKeys(data) {
-    if (!DataType.is(JSON, data)) {
-      const error = new Error('Model data must be a plain object');
-      error.name = ERRORS.InvalidDataError;
-      throw error;
-    }
-    return new Set([...Object.keys(this), ...Object.keys(data)]);
-  }
-
   isRequired(name) {
     return this[ø.required][name] === !this[ø.requiredFlag];
   }
 
   // eslint-disable-next-line class-methods-use-this
-  validate(propType, propValue) {
+  validateEntry(propType, propValue) {
     return DataType.validate(propType, propValue);
   }
 

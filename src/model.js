@@ -96,9 +96,9 @@ export class Schema extends BaseSchema {
     return super.initType(propType);
   }
 
-  validate(propType, propValue) {
+  validateEntry(propType, propValue) {
     if (Model.isModel(propType) && DataType.is(JSON, propValue)) return propType.validate(propValue);
-    return super.validate(propType, propValue);
+    return super.validateEntry(propType, propValue);
   }
 
   transformValue(PropType, propValue) {
