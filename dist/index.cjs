@@ -256,6 +256,7 @@ let Schema$1 = class Schema {
   }
 
   getKeys(data) {
+    console.log('getKeys', data);
     if (!DataType.is(JSON, data)) {
       const error = new Error('Model data must be a plain object');
       error.name = ERRORS$1.InvalidDataError;
@@ -279,6 +280,7 @@ let Schema$1 = class Schema {
 
   // eslint-disable-next-line class-methods-use-this
   transformValue(propType, propValue) {
+    console.log('transformValue3', propType, propValue);
     if (DataType.is(DataType, propType)) return propType.fromJSON(propValue);
     return propValue;
   }
@@ -307,8 +309,11 @@ Object.freeze(Schema$1);
 function assemble(Model, data, schema) {
   const shouldInstantiate = !!this;
   const validationResult = {};
+  console.log('assemble', data, schema);
   for (const propName of schema.getKeys(data)) {
+    console.log('propName', propName);
     const propType = schema.transformType(propName);
+    console.log('propType', propType);
     if (propType) {
       const propValue = data[propName];
       const isDefined = !(propValue === undefined || propValue === null);
@@ -349,7 +354,7 @@ function assemble(Model, data, schema) {
  */
 const create = (Model, schema) => {
   // NOTE: encapsulated class definition makes it impossible to manipulate data schema from outside of the model
-  class _Model_ extends Model {
+  class CustomModel extends Model {
     constructor(data) {
       super();
       this.assemble(data);
@@ -373,7 +378,7 @@ const create = (Model, schema) => {
     }
 
     assemble(data) {
-      assemble.call(this, _Model_, data, schema);
+      assemble.call(this, CustomModel, data, schema);
     }
 
     /**
@@ -381,15 +386,15 @@ const create = (Model, schema) => {
      * @returns {Object} - an object representing validation errors
      */
     static validate(data) {
-      return assemble(_Model_, data, schema);
+      return assemble(CustomModel, data, schema);
     }
 
     // static toGraphQL() {}
   }
 
-  Object.freeze(_Model_);
+  Object.freeze(CustomModel);
 
-  return _Model_;
+  return CustomModel;
 };
 
 /* eslint-disable max-classes-per-file */
@@ -404,7 +409,7 @@ const ERRORS = enumerate(String)`
 InvalidDataError
 `;
 
-class Model {
+class Model /* extends DataType */ {
   static toString() {
     return '[class Model]';
   }
@@ -416,28 +421,29 @@ class Model {
 
   constructor(config) {
     if (arguments.length) {
-      let NewModel;
+      let CustomModel;
 
       // eslint-disable-next-line no-use-before-define
       class Schema extends Schema$1.getGlobalSchema() {
-        initType(propType) {
-          if (propType === Model.SAME) return Model.SAME;
-          return super.initType(propType);
-        }
-
         transformType(propName) {
           const propType = super.transformType(propName);
-          if (propType === Model.SAME) return NewModel;
+          if (propType === Model.SAME) return CustomModel;
           return propType;
         }
       }
 
-      NewModel = create(Model, new Schema(config));
+      CustomModel = create(this.constructor, new Schema(config));
 
-      DataType.add(NewModel, {
+      DataType.add(CustomModel, {
         extends: Model,
+        // fromJSON(value) {
+        //   return new NewModel(value);
+        // },
+        // toJSON(value) {
+        //   return value.toJSON;
+        // },
         validate(value) {
-          return value instanceof NewModel ? undefined : 'invalid model type';
+          return value instanceof CustomModel ? undefined : 'invalid model type';
         },
       });
 
@@ -460,12 +466,12 @@ class Model {
 
       // Move this to StorageModel (extends Model)
       // MODELS.set(NewModel.ID, NewModel);
-      MODELS.add(NewModel);
+      MODELS.add(CustomModel);
       // NewModel.ID = Symbol('Model ID'); // do I really need it?
       // NewModel.validateOnInit = true; // by default
 
       // eslint-disable-next-line no-constructor-return
-      return NewModel;
+      return CustomModel;
     } // else prototype is being created
     // super();
   }
@@ -479,6 +485,7 @@ class Model {
 
 class Schema extends Schema$1 {
   initType(propType) {
+    if (propType === Model.SAME) return Model.SAME;
     if (DataType.is(JSON, propType)) return new Model(propType);
     // if (Model.isModel(propType) && !DataType.exists(propType)) {
     //   return propType;
@@ -492,6 +499,7 @@ class Schema extends Schema$1 {
   }
 
   transformValue(PropType, propValue) {
+    console.log('transformValue2', PropType, propValue);
     if (Model.isModel(PropType) && DataType.is(JSON, propValue)) return new PropType(propValue);
     return super.transformValue(PropType, propValue);
   }
@@ -549,8 +557,9 @@ class Collection extends Model {
     //   this.Model = new Model(Type);
     // }
     // this[ø.data] = new Map();
+    console.log('assemble Options ===============');
     /* this[ø.options] = */ new Options(options);
-    console.log(this, options);
+    // console.log(this, options);
   }
 
   // add(item) {
@@ -571,8 +580,14 @@ class Collection extends Model {
 }
 
 class CollectionSchema extends Schema {
+  getKeys(data) {
+    console.log('CollectionSchema.getKeys');
+    const keys = super.getKeys(data);
+    console.log('CollectionSchema.getKeys keys', keys);
+    return keys;
+  }
+
   initType(propType) {
-    console.log('CollectonSchema');
     if (Array.isArray(propType)) {
       const [contentType, ...rest] = propType;
       let options;
@@ -591,11 +606,25 @@ class CollectionSchema extends Schema {
     }
     return super.initType(propType);
   }
+
+  // eslint-disable-next-line class-methods-use-this
+  validate(propType, propValue) {}
+
+  transformValue(PropType, propValue) {
+    console.log(
+      'transformValue',
+      Object.getPrototypeOf(PropType) === Collection && Array.isArray(propValue),
+      PropType,
+      propValue
+    );
+    if (Object.getPrototypeOf(PropType) === Collection && Array.isArray(propValue)) return new PropType(propValue);
+    return super.transformValue(PropType, propValue);
+  }
 }
 
 Schema.setGlobalSchema(CollectionSchema);
 
-new Collection(Number);
+// new Collection(Number);
 
 const Field = new Model({
   name: String,
@@ -603,27 +632,19 @@ const Field = new Model({
   value: String,
 });
 
-new Model({
-  // eslint-disable-next-line no-sparse-arrays
+const Card = new Model({
+  title: String,
   fields: [Field],
 });
 
-new Model({
-  // eslint-disable-next-line no-sparse-arrays
-  fields: [Field, , , ,],
-});
+console.log('Card', Card);
 
-new Model({
-  // eslint-disable-next-line no-sparse-arrays
-  fields: [
-    Field,
-    {
-      min: 1,
-      max: 2,
-      // id: 'UUID',
-    },
-  ],
-});
+console.log(
+  new Card({
+    title: '123',
+    fields: [{}],
+  })
+);
 
 exports.Collection = Collection;
 exports.DataType = DataType;

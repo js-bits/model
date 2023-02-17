@@ -26,28 +26,23 @@ export default class Model {
 
   constructor(config) {
     if (arguments.length) {
-      let NewModel;
+      let CustomModel;
 
       // eslint-disable-next-line no-use-before-define
       class Schema extends BaseSchema.getGlobalSchema() {
-        initType(propType) {
-          if (propType === Model.SAME) return Model.SAME;
-          return super.initType(propType);
-        }
-
         transformType(propName) {
           const propType = super.transformType(propName);
-          if (propType === Model.SAME) return NewModel;
+          if (propType === Model.SAME) return CustomModel;
           return propType;
         }
       }
 
-      NewModel = create(Model, new Schema(config));
+      CustomModel = create(this.constructor, new Schema(config));
 
-      DataType.add(NewModel, {
+      DataType.add(CustomModel, {
         extends: Model,
         validate(value) {
-          return value instanceof NewModel ? undefined : 'invalid model type';
+          return value instanceof CustomModel ? undefined : 'invalid model type';
         },
       });
 
@@ -70,12 +65,12 @@ export default class Model {
 
       // Move this to StorageModel (extends Model)
       // MODELS.set(NewModel.ID, NewModel);
-      MODELS.add(NewModel);
+      MODELS.add(CustomModel);
       // NewModel.ID = Symbol('Model ID'); // do I really need it?
       // NewModel.validateOnInit = true; // by default
 
       // eslint-disable-next-line no-constructor-return
-      return NewModel;
+      return CustomModel;
     } // else prototype is being created
     // super();
   }
@@ -89,6 +84,7 @@ export default class Model {
 
 export class Schema extends BaseSchema {
   initType(propType) {
+    if (propType === Model.SAME) return Model.SAME;
     if (DataType.is(JSON, propType)) return new Model(propType);
     // if (Model.isModel(propType) && !DataType.exists(propType)) {
     //   return propType;
