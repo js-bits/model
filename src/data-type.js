@@ -105,7 +105,16 @@ export default class DataType {
   }
 
   static exists(type) {
-    return DATA_TYPES.has(type);
+    if (DATA_TYPES.has(type)) return true;
+    if (enumerate.isEnum(type)) {
+      DataType.add(type, value => {
+        const allowedValues = Object.values(type);
+        const list = allowedValues.map(item => String(item)).join(',');
+        return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
+      });
+      return true;
+    }
+    return false;
   }
 
   static get(type) {

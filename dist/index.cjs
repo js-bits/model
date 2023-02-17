@@ -108,7 +108,16 @@ class DataType {
   }
 
   static exists(type) {
-    return DATA_TYPES.has(type);
+    if (DATA_TYPES.has(type)) return true;
+    if (enumerate.isEnum(type)) {
+      DataType.add(type, value => {
+        const allowedValues = Object.values(type);
+        const list = allowedValues.map(item => String(item)).join(',');
+        return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
+      });
+      return true;
+    }
+    return false;
   }
 
   static get(type) {
@@ -182,7 +191,7 @@ requiredFlag
 /**
  * Supports only primitive data types (defined with DataType class) by default
  */
-let Schema$1 = class Schema {
+let Schema$2 = class Schema {
   constructor(config) {
     if (!DataType.is(JSON, config)) {
       const error = new Error('Model schema is invalid');
@@ -219,14 +228,6 @@ let Schema$1 = class Schema {
   // eslint-disable-next-line class-methods-use-this
   initType(propType) {
     if (DataType.exists(propType)) {
-      return propType;
-    }
-    if (enumerate.isEnum(propType) && !DataType.exists(propType)) {
-      DataType.add(propType, value => {
-        const allowedValues = Object.values(propType);
-        const list = allowedValues.map(item => String(item)).join(',');
-        return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
-      });
       return propType;
     }
   }
@@ -266,7 +267,7 @@ let Schema$1 = class Schema {
 
   // eslint-disable-next-line class-methods-use-this
   transformValue(propType, propValue) {
-    if (DataType.is(DataType, propType)) return propType.fromJSON(propValue);
+    if (!enumerate.isEnum(propType) && propType.fromJSON) return propType.fromJSON(propValue);
     return propValue;
   }
 
@@ -279,10 +280,10 @@ let Schema$1 = class Schema {
   }
 };
 
-let globalSchema = Schema$1;
+let globalSchema = Schema$2;
 
-Object.assign(Schema$1, ERRORS$1);
-Object.freeze(Schema$1);
+Object.assign(Schema$2, ERRORS$1);
+Object.freeze(Schema$2);
 
 /**
  * This is just a part of Model extracted for convenience
@@ -417,6 +418,12 @@ class Model {
         validate(value) {
           return value instanceof CustomModel ? undefined : 'invalid model type';
         },
+        // fromJSON(data) {
+        //   return new CustomModel(data);
+        // },
+        // toJSON() {
+        //   return {};
+        // },
       });
 
       // const DataTypeRef = super({
@@ -451,7 +458,7 @@ class Model {
   construct(config) {
     let CustomModel;
     // eslint-disable-next-line no-use-before-define
-    class Schema extends Schema$1.getGlobalSchema() {
+    class Schema extends Schema$2.getGlobalSchema() {
       initType(propType) {
         if (propType === Model.SAME) return Model.SAME;
         return super.initType(propType);
@@ -477,7 +484,8 @@ class Model {
   }
 }
 
-class Schema extends Schema$1 {
+// enhance global schema with Models support
+let Schema$1 = class Schema extends Schema$2 {
   initType(type) {
     if (DataType.is(JSON, type)) return new Model(type);
     return super.initType(type);
@@ -492,9 +500,9 @@ class Schema extends Schema$1 {
     if (Model.isModel(Type) && DataType.is(JSON, value)) return new Type(value);
     return super.transformValue(Type, value);
   }
-}
+};
 
-Schema$1.setGlobalSchema(Schema);
+Schema$2.setGlobalSchema(Schema$1);
 
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
 
@@ -593,7 +601,8 @@ class Collection extends Model {
   // }
 }
 
-class CollectionSchema extends Schema {
+// enhance global schema with Collection support
+class Schema extends Schema$1 {
   initType(propType) {
     if (Array.isArray(propType)) {
       const [contentType, ...rest] = propType;
@@ -615,7 +624,7 @@ class CollectionSchema extends Schema {
   }
 }
 
-Schema.setGlobalSchema(CollectionSchema);
+Schema$1.setGlobalSchema(Schema);
 
 // new Collection(Number);
 

@@ -59,14 +59,6 @@ class Schema {
     if (DataType.exists(propType)) {
       return propType;
     }
-    if (enumerate.isEnum(propType) && !DataType.exists(propType)) {
-      DataType.add(propType, value => {
-        const allowedValues = Object.values(propType);
-        const list = allowedValues.map(item => String(item)).join(',');
-        return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
-      });
-      return propType;
-    }
   }
 
   initKey(key) {
