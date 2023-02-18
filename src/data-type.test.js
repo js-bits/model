@@ -38,7 +38,7 @@ describe('DataType', () => {
       const DerivedDataType = new DataType(() => {});
       expect(DerivedDataType).toBeInstanceOf(Object);
       expect(DerivedDataType).toEqual(expect.any(Function));
-      expect(`${DerivedDataType}`).toEqual('[class DataType]');
+      expect(`${DerivedDataType}`).toEqual('[class DataTypeDefinition]');
     });
 
     describe('simple data type with a function-based validator', () => {
@@ -49,7 +49,7 @@ describe('DataType', () => {
         }).toThrowError('Data type instantiation is not allowed');
       });
       test('conversion to string', () => {
-        expect(`${CustomType}`).toEqual('[class DataType]');
+        expect(`${CustomType}`).toEqual('[class DataTypeDefinition]');
       });
       test('invalid value', () => {
         expect(DataType.validate(CustomType, 123)).toEqual('must have a valid value');
@@ -258,7 +258,17 @@ describe('DataType', () => {
       });
       describe('#toJSON', () => {
         test('should return given value without any conversion', () => {
-          expect(CustomType.toJSON('valid')).toEqual('valid');
+          expect(CustomType.fromJSON('valid')).toEqual('valid');
+        });
+      });
+      describe('DataType.fromJSON', () => {
+        test('should convert given JSON data into a type acceptable by a data model', () => {
+          expect(DataType.fromJSON(CustomType, 'valid')).toEqual('valid');
+        });
+      });
+      describe('DataType.toJSON', () => {
+        test('should return data converted into JSON compatible type', () => {
+          expect(DataType.toJSON(CustomType, 'valid')).toEqual('valid');
         });
       });
 
@@ -267,14 +277,14 @@ describe('DataType', () => {
           test('incorrect value', () => {
             expect(() => {
               CustomType.fromJSON('invalid');
-            }).toThrow('Data type is invalid');
+            }).toThrow('Data is invalid');
           });
         });
         describe('#toJSON', () => {
           test('incorrect value', () => {
             expect(() => {
               CustomType.toJSON('invalid');
-            }).toThrow('Data type is invalid');
+            }).toThrow('Data is invalid');
           });
         });
       });
@@ -319,6 +329,19 @@ describe('DataType', () => {
       describe('#toJSON', () => {
         test('should return data converted into JSON compatible type', () => {
           expect(ISODate.toJSON(new Date('01/01/2000 UTC'))).toEqual('2000-01-01T00:00:00.000Z');
+        });
+      });
+
+      describe('DataType.fromJSON', () => {
+        test('should convert given JSON data into a type acceptable by a data model', () => {
+          const result = DataType.fromJSON(ISODate, '2000-01-01T00:00:00.000Z');
+          expect(result).toBeInstanceOf(Date);
+          expect(result).toEqual(new Date('01/01/2000 UTC'));
+        });
+      });
+      describe('DataType.toJSON', () => {
+        test('should return data converted into JSON compatible type', () => {
+          expect(DataType.toJSON(ISODate, new Date('01/01/2000 UTC'))).toEqual('2000-01-01T00:00:00.000Z');
         });
       });
     });
