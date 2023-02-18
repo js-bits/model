@@ -4,8 +4,7 @@ import enumerate from '@js-bits/enumerate';
 const DATA_TYPES = new Map();
 
 const ERRORS = enumerate('DataType|')`
-InvalidDataTypeError
-UnknownDataTypeError
+  InvalidDataTypeError
 `;
 
 export default class DataType {
@@ -121,7 +120,7 @@ export default class DataType {
     const typeDef = DATA_TYPES.get(type);
     if (!typeDef) {
       const error = new Error('Unknown data type');
-      error.name = ERRORS.UnknownDataTypeError;
+      error.name = ERRORS.InvalidDataTypeError;
       throw error;
     }
     return typeDef;
