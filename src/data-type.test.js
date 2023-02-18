@@ -233,9 +233,11 @@ describe('DataType', () => {
     const CustomType = new DataType(value => (value !== 'valid' ? 'must have a valid value' : undefined));
     test('should return undefined for a valid value of a given type', () => {
       expect(DataType.validate(CustomType, 'valid')).toBeUndefined();
+      expect(CustomType.validate('valid')).toBeUndefined();
     });
     test('should return an error message for an invalid value of a given type', () => {
       expect(DataType.validate(CustomType, 'invalid')).toEqual('must have a valid value');
+      expect(CustomType.validate('invalid')).toEqual('must have a valid value');
     });
     test('should throw an error message for an invalid type', () => {
       expect(() => {

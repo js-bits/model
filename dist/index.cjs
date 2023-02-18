@@ -116,27 +116,16 @@ class DataType {
 
     class CustomDataType extends DataTypeDefinition {
       constructor() {
+        super();
         const error = new Error('Data type instantiation is not allowed');
         error.name = ERRORS$2.InvalidDataTypeError;
         throw error;
       }
-
-      static validate(value) {
-        return DataType.validate(CustomDataType, value);
-      }
-
-      static fromJSON(value) {
-        return DataType.fromJSON(CustomDataType, value);
-      }
-
-      static toJSON(value) {
-        return DataType.toJSON(CustomDataType, value);
-      }
-
-      static is(value) {
-        return !DataType.is(CustomDataType, value);
-      }
     }
+    // expose useful methods
+    ['validate', 'fromJSON', 'toJSON', 'is'].forEach(method => {
+      CustomDataType[method] = value => DataType[method](CustomDataType, value);
+    });
     DATA_TYPES.set(CustomDataType, new DataTypeDefinition(config));
     // eslint-disable-next-line no-constructor-return
     return CustomDataType;
