@@ -4,6 +4,12 @@ var enumerate = require('@js-bits/enumerate');
 
 /* eslint-disable max-classes-per-file */
 
+// pseudo-private properties emulation in order to avoid source code transpiling
+// TODO: replace with #privateField syntax when it gains wide support
+const ø$1 = enumerate`
+  typeDef
+`;
+
 const ERRORS$2 = enumerate('DataType|')`
   InvalidDataTypeError
 `;
@@ -13,9 +19,13 @@ const DATA_TYPES = new Map();
 const hasOwn = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
 
 class DataTypeDefinition {
+  static toString() {
+    return '[class DataTypeDefinition]';
+  }
+
   constructor(config) {
     // eslint-disable-next-line no-constructor-return
-    if (!arguments.length) return this;
+    if (!arguments.length) return this; // prototype is being created
 
     let validator;
     if (typeof config === 'function') {
@@ -35,7 +45,7 @@ class DataTypeDefinition {
 
     if (typeof config === 'object') {
       if (hasOwn(config, 'extends')) {
-        if (!DataTypeDefinition.exists(config.extends)) {
+        if (!DATA_TYPES.has(config.extends)) {
           const error = new Error('Base data type is invalid');
           error.name = ERRORS$2.InvalidDataTypeError;
           throw error;
@@ -55,62 +65,98 @@ class DataTypeDefinition {
 
     Object.freeze(typeDef);
 
-    class _DataType_ {
-      static toString() {
-        return '[class DataTypeDefinition]';
-      }
+    this[ø$1.typeDef] = typeDef;
 
+    // name // for GraphQL conversion
+    // compare // for sorting
+  }
+
+  fromJSON(inputValue) {
+    this.assert(inputValue);
+    if (hasOwn(this[ø$1.typeDef], 'fromJSON')) return this[ø$1.typeDef].fromJSON(inputValue);
+    return inputValue;
+  }
+
+  toJSON(value) {
+    let outputValue = value;
+    if (hasOwn(this[ø$1.typeDef], 'toJSON')) outputValue = this[ø$1.typeDef].toJSON(value);
+    this.assert(outputValue);
+    return outputValue;
+  }
+
+  validate(value) {
+    if (hasOwn(this[ø$1.typeDef], 'extends')) {
+      const error = DATA_TYPES.get(this[ø$1.typeDef].extends).validate(value);
+      if (error) return error;
+    }
+    // if no error messages from a base validator
+    return this[ø$1.typeDef].validate(value);
+  }
+
+  assert(value) {
+    const result = this.validate(value);
+    if (result) {
+      const error = new Error('Data is invalid');
+      error.name = ERRORS$2.InvalidDataTypeError;
+      throw error;
+    }
+  }
+}
+
+/* eslint-disable max-classes-per-file */
+
+class DataType {
+  static toString() {
+    return '[class DataType]';
+  }
+
+  constructor(config) {
+    // eslint-disable-next-line no-constructor-return, constructor-super
+    if (!arguments.length) return this; // prototype is being created
+
+    class CustomDataType extends DataTypeDefinition {
       constructor() {
         const error = new Error('Data type instantiation is not allowed');
         error.name = ERRORS$2.InvalidDataTypeError;
         throw error;
       }
 
-      // name // for GraphQL conversion
-      // compare // for sorting
+      static validate(value) {
+        return DataType.validate(CustomDataType, value);
+      }
 
-      static fromJSON(inputValue) {
-        this.assert(inputValue);
-        if (hasOwn(typeDef, 'fromJSON')) return typeDef.fromJSON(inputValue);
-        return inputValue;
+      static fromJSON(value) {
+        return DataType.fromJSON(CustomDataType, value);
       }
 
       static toJSON(value) {
-        let outputValue = value;
-        if (hasOwn(typeDef, 'toJSON')) outputValue = typeDef.toJSON(value);
-        this.assert(outputValue);
-        return outputValue;
+        return DataType.toJSON(CustomDataType, value);
       }
 
-      static validate(value) {
-        if (hasOwn(typeDef, 'extends')) {
-          const error = DATA_TYPES.get(typeDef.extends).validate(value);
-          if (error) return error;
-        }
-        // if no error messages from a base validator
-        return typeDef.validate(value);
-      }
-
-      static assert(value) {
-        const result = this.validate(value);
-        if (result) {
-          const error = new Error('Data is invalid');
-          error.name = ERRORS$2.InvalidDataTypeError;
-          throw error;
-        }
+      static is(value) {
+        return !DataType.is(CustomDataType, value);
       }
     }
-
+    DATA_TYPES.set(CustomDataType, new DataTypeDefinition(config));
     // eslint-disable-next-line no-constructor-return
-    return _DataType_;
+    return CustomDataType;
   }
 
-  static add(type, typeDef) {
-    DATA_TYPES.set(type, typeDef);
+  static add(type, config) {
+    DATA_TYPES.set(type, new DataTypeDefinition(config));
   }
 
   static exists(type) {
-    return DATA_TYPES.has(type);
+    if (DATA_TYPES.has(type)) return true;
+    if (enumerate.isEnum(type)) {
+      DataType.add(type, value => {
+        const allowedValues = Object.values(type);
+        const list = allowedValues.map(item => String(item)).join(',');
+        return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
+      });
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -126,12 +172,6 @@ class DataTypeDefinition {
     }
   }
 
-  /**
-   * Validates a value against given type and returns error messages
-   * @param {Object} type
-   * @param {*} value
-   * @returns {Array}
-   */
   static validate(type, value) {
     this.assert(type);
     return DATA_TYPES.get(type).validate(value);
@@ -149,42 +189,6 @@ class DataTypeDefinition {
 
   static is(type, value) {
     return !this.validate(type, value);
-  }
-}
-
-/* eslint-disable max-classes-per-file */
-
-class DataType extends DataTypeDefinition {
-  static toString() {
-    return '[class DataType]';
-  }
-
-  constructor(config) {
-    // eslint-disable-next-line no-constructor-return, constructor-super
-    if (!arguments.length) return super(); // prototype is being created
-
-    const CustomDataType = super(config);
-    // const CustomDataType = new ;
-    DataTypeDefinition.add(CustomDataType, CustomDataType);
-    // eslint-disable-next-line no-constructor-return
-    return CustomDataType;
-  }
-
-  static add(type, config) {
-    DataTypeDefinition.add(type, new DataTypeDefinition(config));
-  }
-
-  static exists(type) {
-    if (DataTypeDefinition.exists(type)) return true;
-    if (enumerate.isEnum(type)) {
-      DataType.add(type, value => {
-        const allowedValues = Object.values(type);
-        const list = allowedValues.map(item => String(item)).join(',');
-        return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
-      });
-      return true;
-    }
-    return false;
   }
 }
 
