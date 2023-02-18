@@ -177,7 +177,7 @@ DataType.add(Boolean, value => (typeof value === 'boolean' ? undefined : 'must b
 DataType.add(Date, value => (value instanceof Date ? undefined : 'must be a date'));
 DataType.add(Array, value => (Array.isArray(value) ? undefined : 'must be an array'));
 DataType.add(DataType, value =>
-  typeof value === 'function' && Object.getPrototypeOf(value) === DataType ? undefined : 'must be a data type'
+  typeof value === 'function' && DataType.exists(DataType) ? undefined : 'must be a data type'
 );
 DataType.add(JSON, value =>
   !enumerate.isEnum(value) && value !== JSON && value instanceof Object && value.constructor === Object
@@ -471,6 +471,37 @@ DataType.add(Model.SAME, () => 'must not be use directly');
 Object.assign(Model, ERRORS);
 Object.freeze(Model);
 
+var shortcut = array => {
+  const [contentType, ...rest] = array;
+  let options;
+  if (array.length > 1) {
+    [options] = rest;
+    const isOptionsObjectValid = array.length === 2 && DataType.is(JSON, options) && options !== contentType;
+    if (!isOptionsObjectValid || array.length > 2) {
+      const max = rest.reduce((count, item) => count + (item === undefined ? 1 : 0), 1);
+      const min = rest.reduce((count, item) => count + (item === contentType ? 1 : 0), 1);
+      if (max === array.length) {
+        options = {
+          max: array.length,
+        };
+      } else if (min === array.length) {
+        options = {
+          min,
+          max: array.length,
+        };
+      } else {
+        const error = new Error('Invalid collection shortcut');
+        error.name = DataType.InvalidDataTypeError;
+        throw error;
+      }
+    }
+  }
+  return {
+    type: contentType,
+    ...options,
+  };
+};
+
 /* eslint-disable max-classes-per-file */
 
 // pseudo-private properties emulation in order to avoid source code transpiling
@@ -481,18 +512,14 @@ enumerate`
   options
 `;
 
-const Options = new Model({
+const CollectionModel = new Model({
+  type: DataType,
   'min?': Number,
   'max?': Number,
 });
 
 // const Model1 = new Model({
-//   numbers: [Number], // auto create new Collection(Number) // { min: undefined, max: undefined }
-//   // eslint-disable-next-line no-sparse-arrays
-//   numbers2: [Number, { min: 1, max: 10 }], // new Collection(Number, { min: 1, max: 10 })
-//   // eslint-disable-next-line no-sparse-arrays
-//   numbers5: [Number, , , ,], // new Collection(Number, { min: undefined, max: 4 })
-//   values: [Number, String, null], // multiple types
+//   values: [new Union(Number, String, null)], // multiple types ( Number | String | null )
 // });
 
 class Collection extends Model {
@@ -505,10 +532,8 @@ class Collection extends Model {
     return 'Collection';
   }
 
-  constructor(ContentType, options = {}) {
-    super({
-      type: ContentType,
-    });
+  constructor(ContentType, options) {
+    super();
 
     // if (Model.isModel(Type)) {
     //   this.Model = Type;
@@ -516,7 +541,11 @@ class Collection extends Model {
     //   this.Model = new Model(Type);
     // }
     // this[ø.data] = new Map();
-    /* this[ø.options] = */ new Options(options);
+    /* this[ø.options] = */
+    new CollectionModel({
+      type: ContentType,
+      ...options,
+    });
 
     const proxy = new Proxy(this, {
       get(...args) {
@@ -536,15 +565,6 @@ class Collection extends Model {
     return proxy;
   }
 
-  // construct(config) {
-  //   let CustomModel;
-  //   const Schema = Schema.getGlobalSchema();
-
-  //   CustomModel = create(this.constructor, new Schema(config));
-
-  //   return CustomModel;
-  // }
-
   // add(item) {
   //   if (item instanceof this.Model) {
   //     // test
@@ -563,19 +583,7 @@ class Collection extends Model {
 }
 
 Schema.add(Array, rawType => {
-  const [contentType, ...rest] = rawType;
-  let options;
-  if (rawType.length > 1) {
-    [options] = rest;
-    if (options === undefined) {
-      if (rest.every(item => item === undefined)) {
-        options = {
-          max: rawType.length,
-        };
-      }
-    }
-  }
-
+  const { contentType, ...options } = shortcut(rawType);
   return new Collection(contentType, options);
 });
 
@@ -583,82 +591,11 @@ new Collection(Number);
 
 const EN = enumerate`123`;
 
-const Field = new Model({
+new Model({
   name: String,
   type: EN,
   value: String,
   'field?': Model.SAME,
-});
-
-const Card = new Model({
-  title: String,
-  'optional?': String,
-  field: Field,
-  fields: [Number],
-});
-
-// console.log(
-//   new Field({
-//     name: 'String',
-//     type: 'String',
-//     value: 'String',
-//     field: {
-//       name: 'String',
-//       type: 'String',
-//       value: 'String',
-//     },
-//   })
-// );
-
-console.log(
-  new Card({
-    title: '123',
-    field: {
-      name: 'String',
-      type: EN['123'],
-      value: 'String',
-    },
-  })
-);
-
-console.log(
-  new Card({
-    title: '123',
-    field: new Field({
-      name: 'String',
-      type: EN['123'],
-      value: 'String',
-    }),
-  })
-);
-
-// console.log(
-//   new Card({
-//     title: '123',
-//     field: {
-//       name: 'String',
-//       type: 'String',
-//       value: 'String',
-//     },
-//   })
-// );
-
-new Model({
-  // eslint-disable-next-line no-sparse-arrays
-  fields: [Field, , , ,], // TODO
-});
-
-new Model({
-  // eslint-disable-next-line no-sparse-arrays
-  fields: [
-    Field,
-    {
-      min: 1,
-      max: 2,
-      // id: 'UUID',
-      // key: 'UUID',
-    },
-  ],
 });
 
 exports.Collection = Collection;
