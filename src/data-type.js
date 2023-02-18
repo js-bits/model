@@ -1,7 +1,8 @@
 /* eslint-disable max-classes-per-file */
 import enumerate from '@js-bits/enumerate';
 
-const DATA_TYPES = new Map();
+const STATIC_TYPES = new Map();
+const DYNAMIC_TYPES = new Set();
 
 const ERRORS = enumerate(String)`
 InvalidDataTypeError
@@ -99,26 +100,32 @@ export default class DataType {
 
     Object.freeze(typeDef);
 
-    DATA_TYPES.set(type, typeDef);
+    STATIC_TYPES.set(type, typeDef);
 
     return typeDef;
   }
 
+  static addDynamic(handler) {
+    DYNAMIC_TYPES.add(handler);
+  }
+
   static exists(type) {
-    if (DATA_TYPES.has(type)) return true;
-    if (enumerate.isEnum(type)) {
-      DataType.add(type, value => {
-        const allowedValues = Object.values(type);
-        const list = allowedValues.map(item => String(item)).join(',');
-        return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
-      });
-      return true;
-    }
+    if (STATIC_TYPES.has(type)) return true;
     return false;
   }
 
+  static init(type) {
+    if (this.exists(type)) return type;
+    let dynamicType;
+    [...DYNAMIC_TYPES].find(handler => {
+      dynamicType = handler(type);
+      return !!dynamicType;
+    });
+    return dynamicType;
+  }
+
   static get(type) {
-    const typeDef = DATA_TYPES.get(type);
+    const typeDef = STATIC_TYPES.get(type);
     if (!typeDef) {
       const error = new Error('Unknown data type');
       error.name = ERRORS.UnknownDataTypeError;
@@ -176,5 +183,15 @@ DataType.add(JSON, value =>
     ? undefined
     : 'must be a plain object'
 );
+DataType.addDynamic(type => {
+  if (enumerate.isEnum(type)) {
+    DataType.add(type, value => {
+      const allowedValues = Object.values(type);
+      const list = allowedValues.map(item => String(item)).join(',');
+      return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
+    });
+    return type;
+  }
+});
 
 Object.assign(DataType, ERRORS);

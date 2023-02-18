@@ -4,7 +4,8 @@ var enumerate = require('@js-bits/enumerate');
 
 /* eslint-disable max-classes-per-file */
 
-const DATA_TYPES = new Map();
+const STATIC_TYPES = new Map();
+const DYNAMIC_TYPES = new Set();
 
 const ERRORS$2 = enumerate(String)`
 InvalidDataTypeError
@@ -102,26 +103,32 @@ class DataType {
 
     Object.freeze(typeDef);
 
-    DATA_TYPES.set(type, typeDef);
+    STATIC_TYPES.set(type, typeDef);
 
     return typeDef;
   }
 
+  static addDynamic(handler) {
+    DYNAMIC_TYPES.add(handler);
+  }
+
   static exists(type) {
-    if (DATA_TYPES.has(type)) return true;
-    if (enumerate.isEnum(type)) {
-      DataType.add(type, value => {
-        const allowedValues = Object.values(type);
-        const list = allowedValues.map(item => String(item)).join(',');
-        return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
-      });
-      return true;
-    }
+    if (STATIC_TYPES.has(type)) return true;
     return false;
   }
 
+  static init(type) {
+    if (this.exists(type)) return type;
+    let dynamicType;
+    [...DYNAMIC_TYPES].find(handler => {
+      dynamicType = handler(type);
+      return !!dynamicType;
+    });
+    return dynamicType;
+  }
+
   static get(type) {
-    const typeDef = DATA_TYPES.get(type);
+    const typeDef = STATIC_TYPES.get(type);
     if (!typeDef) {
       const error = new Error('Unknown data type');
       error.name = ERRORS$2.UnknownDataTypeError;
@@ -179,6 +186,16 @@ DataType.add(JSON, value =>
     ? undefined
     : 'must be a plain object'
 );
+DataType.addDynamic(type => {
+  if (enumerate.isEnum(type)) {
+    DataType.add(type, value => {
+      const allowedValues = Object.values(type);
+      const list = allowedValues.map(item => String(item)).join(',');
+      return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
+    });
+    return type;
+  }
+});
 
 Object.assign(DataType, ERRORS$2);
 
@@ -237,9 +254,7 @@ let Schema$2 = class Schema {
 
   // eslint-disable-next-line class-methods-use-this
   initType(propType) {
-    if (DataType.exists(propType)) {
-      return propType;
-    }
+    return DataType.init(propType);
   }
 
   initKey(key) {
@@ -596,9 +611,11 @@ Schema$1.setGlobalSchema(Schema);
 
 // new Collection(Number);
 
+const EN = enumerate`123`;
+
 const Field = new Model({
   name: String,
-  type: String,
+  type: EN,
   value: String,
   'field?': Model.SAME,
 });
@@ -627,7 +644,7 @@ console.log(
     title: '123',
     field: {
       name: 'String',
-      type: 'String',
+      type: EN['123'],
       value: 'String',
     },
   })
@@ -638,7 +655,7 @@ console.log(
     title: '123',
     field: new Field({
       name: 'String',
-      type: 'String',
+      type: EN['123'],
       value: 'String',
     }),
   })

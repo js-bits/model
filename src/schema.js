@@ -56,9 +56,7 @@ class Schema {
 
   // eslint-disable-next-line class-methods-use-this
   initType(propType) {
-    if (DataType.exists(propType)) {
-      return propType;
-    }
+    return DataType.init(propType);
   }
 
   initKey(key) {
