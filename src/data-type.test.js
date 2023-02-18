@@ -1,3 +1,4 @@
+import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
 
 describe('DataType', () => {
@@ -24,6 +25,20 @@ describe('DataType', () => {
         expect(error.name).toEqual(DataType.InvalidDataTypeError);
         expect(error.name).toEqual('DataType|InvalidDataTypeError');
       }
+    });
+
+    test('as a prototype', () => {
+      const proto = new DataType();
+      expect(proto).toEqual(expect.any(Object));
+      expect(proto).toBeInstanceOf(Object);
+      expect(proto).toBeInstanceOf(DataType);
+    });
+
+    test('inheritance', () => {
+      const DerivedDataType = new DataType(() => {});
+      expect(DerivedDataType).toBeInstanceOf(Object);
+      expect(DerivedDataType).toEqual(expect.any(Function));
+      expect(`${DerivedDataType}`).toEqual('[class DataType]');
     });
 
     describe('simple data type with a function-based validator', () => {
@@ -164,13 +179,44 @@ describe('DataType', () => {
         expect(DataType.validate(JSON, {})).toBeUndefined();
       });
     });
+    describe('Array', () => {
+      test('invalid value', () => {
+        expect(DataType.validate(Array, undefined)).toEqual('must be an array');
+        expect(DataType.validate(Array, null)).toEqual('must be an array');
+        expect(DataType.validate(Array, new Date())).toEqual('must be an array');
+        expect(DataType.validate(Array, {})).toEqual('must be an array');
+      });
+      test('valid value', () => {
+        expect(DataType.validate(Array, [])).toBeUndefined();
+      });
+    });
+    describe('DataType', () => {
+      test('invalid value', () => {
+        expect(DataType.validate(DataType, undefined)).toEqual('must be a data type');
+        expect(DataType.validate(DataType, null)).toEqual('must be a data type');
+        expect(DataType.validate(DataType, new Date())).toEqual('must be a data type');
+        expect(DataType.validate(DataType, {})).toEqual('must be a data type');
+      });
+      test('valid value', () => {
+        expect(DataType.validate(DataType, Number)).toBeUndefined();
+        expect(DataType.validate(DataType, JSON)).toBeUndefined();
+      });
+    });
   });
 
-  describe('.get', () => {
+  describe('.exists', () => {
+    test('known data type', () => {
+      expect(DataType.exists(String)).toBe(true);
+      expect(DataType.exists(JSON)).toBe(true);
+    });
     test('unknown data type', () => {
-      expect(() => {
-        DataType.get(Promise);
-      }).toThrowError('Unknown data type');
+      expect(DataType.exists(Promise)).toBe(false);
+    });
+    test('new enum', () => {
+      const Enum = enumerate`aa bb cc`;
+      expect(DataType.exists(Enum)).toBe(true);
+      expect(DataType.is(Enum, Enum.bb)).toBe(true);
+      expect(DataType.is(Enum, 'bb')).toBe(false);
     });
   });
 

@@ -106,8 +106,6 @@ export default class Model {
 
       // console.log('NewModel.fromJSON', NewModel.fromJSON, DataTypeRef.fromJSON);
 
-      // DataType.add(NewModel, DataType.get(DataTypeRef));
-
       // Move this to StorageModel (extends Model)
       // MODELS.set(NewModel.ID, NewModel);
       MODELS.add(CustomModel);
