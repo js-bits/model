@@ -84,7 +84,7 @@ export default class Model {
         },
       });
 
-      class Schema extends BaseSchema.getGlobalSchema() {
+      class Schema extends BaseSchema {
         initEntry(key, type) {
           return super.initEntry(key, type === Model.SAME ? CustomModel : type);
         }
@@ -127,14 +127,7 @@ export default class Model {
   }
 }
 
-export class Schema extends BaseSchema {
-  initType(type) {
-    if (DataType.is(JSON, type)) return new Model(type);
-    return super.initType(type);
-  }
-}
-
-BaseSchema.setGlobalSchema(Schema);
+BaseSchema.add(JSON, rawType => new Model(rawType));
 
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
 

@@ -17,6 +17,8 @@ required
 requiredFlag
 `;
 
+const DYNAMIC_SCHEMAS = new Map();
+
 /**
  * Supports only primitive data types (defined with DataType class) by default
  */
@@ -56,6 +58,8 @@ class Schema {
 
   // eslint-disable-next-line class-methods-use-this
   initType(propType) {
+    const dynamicSchema = [...DYNAMIC_SCHEMAS.keys()].find(schemaType => DataType.is(schemaType, propType));
+    if (dynamicSchema) return DYNAMIC_SCHEMAS.get(dynamicSchema)(propType);
     return DataType.init(propType);
   }
 
@@ -87,16 +91,10 @@ class Schema {
     return this[ø.required][name] === !this[ø.requiredFlag];
   }
 
-  static setGlobalSchema(GlobalSchema) {
-    globalSchema = GlobalSchema;
-  }
-
-  static getGlobalSchema() {
-    return globalSchema;
+  static add(type, typeDef) {
+    DYNAMIC_SCHEMAS.set(type, typeDef);
   }
 }
-
-let globalSchema = Schema;
 
 Object.assign(Schema, ERRORS);
 Object.freeze(Schema);

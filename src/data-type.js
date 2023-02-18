@@ -172,6 +172,7 @@ DataType.add(String, value => (typeof value === 'string' ? undefined : 'must be 
 DataType.add(Number, value => (typeof value === 'number' ? undefined : 'must be a number'));
 DataType.add(Boolean, value => (typeof value === 'boolean' ? undefined : 'must be a boolean'));
 DataType.add(Date, value => (value instanceof Date ? undefined : 'must be a date'));
+DataType.add(Array, value => (Array.isArray(value) ? undefined : 'must be an array'));
 DataType.add(DataType, value =>
   typeof value === 'function' && Object.getPrototypeOf(value) === DataType ? undefined : 'must be a data type'
 );

@@ -175,6 +175,7 @@ DataType.add(String, value => (typeof value === 'string' ? undefined : 'must be 
 DataType.add(Number, value => (typeof value === 'number' ? undefined : 'must be a number'));
 DataType.add(Boolean, value => (typeof value === 'boolean' ? undefined : 'must be a boolean'));
 DataType.add(Date, value => (value instanceof Date ? undefined : 'must be a date'));
+DataType.add(Array, value => (Array.isArray(value) ? undefined : 'must be an array'));
 DataType.add(DataType, value =>
   typeof value === 'function' && Object.getPrototypeOf(value) === DataType ? undefined : 'must be a data type'
 );
@@ -201,6 +202,8 @@ const ø = enumerate`
 required
 requiredFlag
 `;
+
+const DYNAMIC_SCHEMAS = new Map();
 
 /**
  * Supports only primitive data types (defined with DataType class) by default
@@ -241,6 +244,8 @@ let Schema$1 = class Schema {
 
   // eslint-disable-next-line class-methods-use-this
   initType(propType) {
+    const dynamicSchema = [...DYNAMIC_SCHEMAS.keys()].find(schemaType => DataType.is(schemaType, propType));
+    if (dynamicSchema) return DYNAMIC_SCHEMAS.get(dynamicSchema)(propType);
     return DataType.init(propType);
   }
 
@@ -272,16 +277,10 @@ let Schema$1 = class Schema {
     return this[ø.required][name] === !this[ø.requiredFlag];
   }
 
-  static setGlobalSchema(GlobalSchema) {
-    globalSchema = GlobalSchema;
-  }
-
-  static getGlobalSchema() {
-    return globalSchema;
+  static add(type, typeDef) {
+    DYNAMIC_SCHEMAS.set(type, typeDef);
   }
 };
-
-let globalSchema = Schema$1;
 
 Object.assign(Schema$1, ERRORS$1);
 Object.freeze(Schema$1);
@@ -419,7 +418,7 @@ class Model {
         },
       });
 
-      class Schema extends Model.getSchema() {
+      class Schema extends Schema$1 {
         initEntry(key, type) {
           return super.initEntry(key, type === Model.SAME ? CustomModel : type);
         }
@@ -460,17 +459,9 @@ class Model {
   static isModel(type) {
     return typeof type === 'function' && MODELS.has(type);
   }
-
-  static getSchema() {
-    class Schema extends Schema$1 {
-      initEntry(key, rawType) {
-        const type = DataType.is(JSON, rawType) ? new Model(rawType) : rawType;
-        return super.initEntry(key, type);
-      }
-    }
-    return Schema;
-  }
 }
+
+Schema$1.add(JSON, rawType => new Model(rawType));
 
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
 
@@ -569,33 +560,24 @@ class Collection extends Model {
   //   this[ø.data].delete(id);
   //   return this;
   // }
+}
 
-  static getSchema() {
-    class Schema extends Model.getSchema() {
-      initEntry(key, rawType) {
-        let type = rawType;
-        if (Array.isArray(rawType)) {
-          const [contentType, ...rest] = rawType;
-          let options;
-          if (rawType.length > 1) {
-            [options] = rest;
-            if (options === undefined) {
-              if (rest.every(item => item === undefined)) {
-                options = {
-                  max: rawType.length,
-                };
-              }
-            }
-          }
-
-          type = new Collection(contentType, options);
-        }
-        return super.initEntry(key, type);
+Schema$1.add(Array, rawType => {
+  const [contentType, ...rest] = rawType;
+  let options;
+  if (rawType.length > 1) {
+    [options] = rest;
+    if (options === undefined) {
+      if (rest.every(item => item === undefined)) {
+        options = {
+          max: rawType.length,
+        };
       }
     }
-    return Schema;
   }
-}
+
+  return new Collection(contentType, options);
+});
 
 new Collection(Number);
 
