@@ -4,8 +4,7 @@ var enumerate = require('@js-bits/enumerate');
 
 /* eslint-disable max-classes-per-file */
 
-const STATIC_TYPES = new Map();
-const DYNAMIC_TYPES = new Set();
+const DATA_TYPES = new Map();
 
 const ERRORS$2 = enumerate(String)`
 InvalidDataTypeError
@@ -103,32 +102,30 @@ class DataType {
 
     Object.freeze(typeDef);
 
-    STATIC_TYPES.set(type, typeDef);
+    DATA_TYPES.set(type, typeDef);
 
     return typeDef;
   }
 
-  static addDynamic(handler) {
-    DYNAMIC_TYPES.add(handler);
-  }
-
   static exists(type) {
-    if (STATIC_TYPES.has(type)) return true;
+    if (DATA_TYPES.has(type)) return true;
     return false;
   }
 
   static init(type) {
     if (this.exists(type)) return type;
-    let dynamicType;
-    [...DYNAMIC_TYPES].find(handler => {
-      dynamicType = handler(type);
-      return !!dynamicType;
-    });
-    return dynamicType;
+    if (enumerate.isEnum(type)) {
+      DataType.add(type, value => {
+        const allowedValues = Object.values(type);
+        const list = allowedValues.map(item => String(item)).join(',');
+        return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
+      });
+      return type;
+    }
   }
 
   static get(type) {
-    const typeDef = STATIC_TYPES.get(type);
+    const typeDef = DATA_TYPES.get(type);
     if (!typeDef) {
       const error = new Error('Unknown data type');
       error.name = ERRORS$2.UnknownDataTypeError;
@@ -186,16 +183,6 @@ DataType.add(JSON, value =>
     ? undefined
     : 'must be a plain object'
 );
-DataType.addDynamic(type => {
-  if (enumerate.isEnum(type)) {
-    DataType.add(type, value => {
-      const allowedValues = Object.values(type);
-      const list = allowedValues.map(item => String(item)).join(',');
-      return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
-    });
-    return type;
-  }
-});
 
 Object.assign(DataType, ERRORS$2);
 
@@ -218,7 +205,7 @@ requiredFlag
 /**
  * Supports only primitive data types (defined with DataType class) by default
  */
-let Schema$2 = class Schema {
+let Schema$1 = class Schema {
   constructor(config) {
     if (!DataType.is(JSON, config)) {
       const error = new Error('Model schema is invalid');
@@ -294,10 +281,10 @@ let Schema$2 = class Schema {
   }
 };
 
-let globalSchema = Schema$2;
+let globalSchema = Schema$1;
 
-Object.assign(Schema$2, ERRORS$1);
-Object.freeze(Schema$2);
+Object.assign(Schema$1, ERRORS$1);
+Object.freeze(Schema$1);
 
 /**
  * This is just a part of Model extracted for convenience
@@ -432,7 +419,7 @@ class Model {
         },
       });
 
-      class Schema extends Schema$2.getGlobalSchema() {
+      class Schema extends Model.getSchema() {
         initEntry(key, type) {
           return super.initEntry(key, type === Model.SAME ? CustomModel : type);
         }
@@ -473,17 +460,17 @@ class Model {
   static isModel(type) {
     return typeof type === 'function' && MODELS.has(type);
   }
-}
 
-// enhance global schema with Models support
-let Schema$1 = class Schema extends Schema$2 {
-  initType(type) {
-    if (DataType.is(JSON, type)) return new Model(type);
-    return super.initType(type);
+  static getSchema() {
+    class Schema extends Schema$1 {
+      initEntry(key, rawType) {
+        const type = DataType.is(JSON, rawType) ? new Model(rawType) : rawType;
+        return super.initEntry(key, type);
+      }
+    }
+    return Schema;
   }
-};
-
-Schema$2.setGlobalSchema(Schema$1);
+}
 
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
 
@@ -582,34 +569,35 @@ class Collection extends Model {
   //   this[ø.data].delete(id);
   //   return this;
   // }
-}
 
-// enhance global schema with Collection support
-class Schema extends Schema$1 {
-  initType(propType) {
-    if (Array.isArray(propType)) {
-      const [contentType, ...rest] = propType;
-      let options;
-      if (propType.length > 1) {
-        [options] = rest;
-        if (options === undefined) {
-          if (rest.every(item => item === undefined)) {
-            options = {
-              max: propType.length,
-            };
+  static getSchema() {
+    class Schema extends Model.getSchema() {
+      initEntry(key, rawType) {
+        let type = rawType;
+        if (Array.isArray(rawType)) {
+          const [contentType, ...rest] = rawType;
+          let options;
+          if (rawType.length > 1) {
+            [options] = rest;
+            if (options === undefined) {
+              if (rest.every(item => item === undefined)) {
+                options = {
+                  max: rawType.length,
+                };
+              }
+            }
           }
-        }
-      }
 
-      return new Collection(contentType, options);
+          type = new Collection(contentType, options);
+        }
+        return super.initEntry(key, type);
+      }
     }
-    return super.initType(propType);
+    return Schema;
   }
 }
 
-Schema$1.setGlobalSchema(Schema);
-
-// new Collection(Number);
+new Collection(Number);
 
 const EN = enumerate`123`;
 
@@ -624,6 +612,7 @@ const Card = new Model({
   title: String,
   'optional?': String,
   field: Field,
+  fields: [Number],
 });
 
 // console.log(
