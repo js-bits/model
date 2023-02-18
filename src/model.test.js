@@ -28,7 +28,7 @@ describe('Model', () => {
         } catch (error) {
           expect(error.message).toEqual('Model schema is empty');
           expect(error.name).toEqual(Schema.InvalidModelSchemaError);
-          expect(error.name).toEqual('InvalidModelSchemaError');
+          expect(error.name).toEqual('Schema|InvalidModelSchemaError');
         }
       });
       test('wrong object type', () => {
@@ -38,7 +38,7 @@ describe('Model', () => {
         } catch (error) {
           expect(error.message).toEqual('Model schema is invalid');
           expect(error.name).toEqual(Schema.InvalidModelSchemaError);
-          expect(error.name).toEqual('InvalidModelSchemaError');
+          expect(error.name).toEqual('Schema|InvalidModelSchemaError');
         }
       });
       test('wrong schema parameter', () => {
@@ -50,7 +50,7 @@ describe('Model', () => {
         } catch (error) {
           expect(error.message).toEqual('Model schema is invalid: data type of "func" property is invalid');
           expect(error.name).toEqual(Schema.InvalidModelSchemaError);
-          expect(error.name).toEqual('InvalidModelSchemaError');
+          expect(error.name).toEqual('Schema|InvalidModelSchemaError');
         }
       });
     });
@@ -147,9 +147,14 @@ describe('Model', () => {
     });
 
     test('incorrect data', () => {
-      expect(() => {
+      expect.assertions(3);
+      try {
         DerivedModel.validate('');
-      }).toThrow('Model data must be a plain object');
+      } catch (error) {
+        expect(error.message).toEqual('Model data must be a plain object');
+        expect(error.name).toEqual(Model.InvalidDataError);
+        expect(error.name).toEqual('Model|InvalidDataError');
+      }
     });
 
     test('incorrect values', () => {

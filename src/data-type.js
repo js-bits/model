@@ -3,7 +3,7 @@ import enumerate from '@js-bits/enumerate';
 
 const DATA_TYPES = new Map();
 
-const ERRORS = enumerate(String)`
+const ERRORS = enumerate('DataType|')`
 InvalidDataTypeError
 UnknownDataTypeError
 `;

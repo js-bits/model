@@ -1,7 +1,7 @@
 import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
 
-const ERRORS = enumerate(String)`
+const ERRORS = enumerate('Schema|')`
 InvalidModelSchemaError
 InvalidDataError
 `;

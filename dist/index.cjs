@@ -6,7 +6,7 @@ var enumerate = require('@js-bits/enumerate');
 
 const DATA_TYPES = new Map();
 
-const ERRORS$2 = enumerate(String)`
+const ERRORS$2 = enumerate('DataType|')`
 InvalidDataTypeError
 UnknownDataTypeError
 `;
@@ -187,7 +187,7 @@ DataType.add(JSON, value =>
 
 Object.assign(DataType, ERRORS$2);
 
-const ERRORS$1 = enumerate(String)`
+const ERRORS$1 = enumerate('Schema|')`
 InvalidModelSchemaError
 InvalidDataError
 `;
@@ -344,7 +344,7 @@ const STATIC_PROPS = enumerate`
   SAME
 `;
 
-const ERRORS = enumerate(String)`
+const ERRORS = enumerate('Model|')`
 InvalidDataError
 `;
 

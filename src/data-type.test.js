@@ -22,7 +22,7 @@ describe('DataType', () => {
       } catch (error) {
         expect(error.message).toEqual('Data type is invalid');
         expect(error.name).toEqual(DataType.InvalidDataTypeError);
-        expect(error.name).toEqual('InvalidDataTypeError');
+        expect(error.name).toEqual('DataType|InvalidDataTypeError');
       }
     });
 
