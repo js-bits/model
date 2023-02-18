@@ -60,7 +60,7 @@ class Schema {
   initType(propType) {
     const dynamicSchema = [...DYNAMIC_SCHEMAS.keys()].find(schemaType => DataType.is(schemaType, propType));
     if (dynamicSchema) return DYNAMIC_SCHEMAS.get(dynamicSchema)(propType);
-    return DataType.init(propType);
+    return DataType.exists(propType) ? propType : undefined;
   }
 
   initKey(key) {

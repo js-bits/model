@@ -7,8 +7,7 @@ var enumerate = require('@js-bits/enumerate');
 const DATA_TYPES = new Map();
 
 const ERRORS$2 = enumerate('DataType|')`
-InvalidDataTypeError
-UnknownDataTypeError
+  InvalidDataTypeError
 `;
 
 class DataType {
@@ -109,26 +108,22 @@ class DataType {
 
   static exists(type) {
     if (DATA_TYPES.has(type)) return true;
-    return false;
-  }
-
-  static init(type) {
-    if (this.exists(type)) return type;
     if (enumerate.isEnum(type)) {
       DataType.add(type, value => {
         const allowedValues = Object.values(type);
         const list = allowedValues.map(item => String(item)).join(',');
         return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
       });
-      return type;
+      return true;
     }
+    return false;
   }
 
   static get(type) {
     const typeDef = DATA_TYPES.get(type);
     if (!typeDef) {
       const error = new Error('Unknown data type');
-      error.name = ERRORS$2.UnknownDataTypeError;
+      error.name = ERRORS$2.InvalidDataTypeError;
       throw error;
     }
     return typeDef;
@@ -176,9 +171,7 @@ DataType.add(Number, value => (typeof value === 'number' ? undefined : 'must be 
 DataType.add(Boolean, value => (typeof value === 'boolean' ? undefined : 'must be a boolean'));
 DataType.add(Date, value => (value instanceof Date ? undefined : 'must be a date'));
 DataType.add(Array, value => (Array.isArray(value) ? undefined : 'must be an array'));
-DataType.add(DataType, value =>
-  typeof value === 'function' && DataType.exists(DataType) ? undefined : 'must be a data type'
-);
+DataType.add(DataType, value => (DataType.exists(value) ? undefined : 'must be a data type'));
 DataType.add(JSON, value =>
   !enumerate.isEnum(value) && value !== JSON && value instanceof Object && value.constructor === Object
     ? undefined
@@ -246,7 +239,7 @@ class Schema {
   initType(propType) {
     const dynamicSchema = [...DYNAMIC_SCHEMAS.keys()].find(schemaType => DataType.is(schemaType, propType));
     if (dynamicSchema) return DYNAMIC_SCHEMAS.get(dynamicSchema)(propType);
-    return DataType.init(propType);
+    return DataType.exists(propType) ? propType : undefined;
   }
 
   initKey(key) {
