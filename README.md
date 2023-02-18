@@ -89,8 +89,11 @@ As for IDE's code-completion capabilities, you can achieve similar result with [
 
 ## Hmm... But we already have [Zod](https://zod.dev/)
 
-Sure. `Model` does something similar to what [Zod](https://zod.dev/) does, but `Model` uses more natural syntax.
-Also, while [Zod](https://zod.dev/) is "a schema declaration and validation library", `Model` goes further and is aimed to serve more like a data store.
+Sure. `Model` does something similar to what [Zod](https://zod.dev/) does,
+but while [Zod](https://zod.dev/) is "a schema declaration and validation library",
+`Model` goes further and is aimed to serve more like a data store.
+Also, `Model` uses more natural syntax.
+
 [TBD]
 
 ## GraphQL?
