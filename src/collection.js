@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import enumerate from '@js-bits/enumerate';
 import Model from './model.js';
-import BaseSchema from './schema.js';
+import Schema from './schema.js';
 
 // pseudo-private properties emulation in order to avoid source code transpiling
 // TODO: replace with #privateField syntax when it gains wide support
@@ -71,7 +71,7 @@ class Collection extends Model {
   // }
 }
 
-BaseSchema.add(Array, rawType => {
+Schema.add(Array, rawType => {
   const [contentType, ...rest] = rawType;
   let options;
   if (rawType.length > 1) {

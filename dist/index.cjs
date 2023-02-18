@@ -208,7 +208,7 @@ const DYNAMIC_SCHEMAS = new Map();
 /**
  * Supports only primitive data types (defined with DataType class) by default
  */
-let Schema$1 = class Schema {
+class Schema {
   constructor(config) {
     if (!DataType.is(JSON, config)) {
       const error = new Error('Model schema is invalid');
@@ -280,10 +280,10 @@ let Schema$1 = class Schema {
   static add(type, typeDef) {
     DYNAMIC_SCHEMAS.set(type, typeDef);
   }
-};
+}
 
-Object.assign(Schema$1, ERRORS$1);
-Object.freeze(Schema$1);
+Object.assign(Schema, ERRORS$1);
+Object.freeze(Schema);
 
 /**
  * This is just a part of Model extracted for convenience
@@ -418,12 +418,12 @@ class Model {
         },
       });
 
-      class Schema extends Schema$1 {
+      class CustomSchema extends Schema {
         initEntry(key, type) {
           return super.initEntry(key, type === Model.SAME ? CustomModel : type);
         }
       }
-      schema = new Schema(config);
+      schema = new CustomSchema(config);
 
       // const DataTypeRef = super({
       //   extends: Model,
@@ -461,7 +461,7 @@ class Model {
   }
 }
 
-Schema$1.add(JSON, rawType => new Model(rawType));
+Schema.add(JSON, rawType => new Model(rawType));
 
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
 
@@ -538,7 +538,7 @@ class Collection extends Model {
 
   // construct(config) {
   //   let CustomModel;
-  //   const Schema = BaseSchema.getGlobalSchema();
+  //   const Schema = Schema.getGlobalSchema();
 
   //   CustomModel = create(this.constructor, new Schema(config));
 
@@ -562,7 +562,7 @@ class Collection extends Model {
   // }
 }
 
-Schema$1.add(Array, rawType => {
+Schema.add(Array, rawType => {
   const [contentType, ...rest] = rawType;
   let options;
   if (rawType.length > 1) {

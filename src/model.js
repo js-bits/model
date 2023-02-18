@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
-import BaseSchema from './schema.js';
+import Schema from './schema.js';
 import assemble from './model-assemble.js';
 
 const MODELS = new WeakSet();
@@ -84,12 +84,12 @@ export default class Model {
         },
       });
 
-      class Schema extends BaseSchema {
+      class CustomSchema extends Schema {
         initEntry(key, type) {
           return super.initEntry(key, type === Model.SAME ? CustomModel : type);
         }
       }
-      schema = new Schema(config);
+      schema = new CustomSchema(config);
 
       // const DataTypeRef = super({
       //   extends: Model,
@@ -127,7 +127,7 @@ export default class Model {
   }
 }
 
-BaseSchema.add(JSON, rawType => new Model(rawType));
+Schema.add(JSON, rawType => new Model(rawType));
 
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
 
