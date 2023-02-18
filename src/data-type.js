@@ -7,6 +7,8 @@ const ERRORS = enumerate('DataType|')`
   InvalidDataTypeError
 `;
 
+const hasOwn = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+
 export default class DataType {
   static toString() {
     return '[class DataType]';
@@ -28,13 +30,13 @@ export default class DataType {
 
         static fromJSON(inputValue) {
           this.validate(inputValue, true);
-          if (typeDef.fromJSON) return typeDef.fromJSON(inputValue);
+          if (hasOwn(typeDef, 'fromJSON')) return typeDef.fromJSON(inputValue);
           return inputValue;
         }
 
         static toJSON(value) {
           let outputValue = value;
-          if (typeDef.toJSON) outputValue = typeDef.toJSON(value);
+          if (hasOwn(typeDef, 'toJSON')) outputValue = typeDef.toJSON(value);
           this.validate(outputValue, true);
           return outputValue;
         }
@@ -74,7 +76,7 @@ export default class DataType {
     };
 
     if (typeof config === 'object') {
-      if (Object.prototype.hasOwnProperty.call(config, 'extends')) {
+      if (hasOwn(config, 'extends')) {
         if (!DataType.exists(config.extends)) {
           const error = new Error('Base data type is invalid');
           error.name = ERRORS.InvalidDataTypeError;
@@ -82,10 +84,7 @@ export default class DataType {
         }
         typeDef.extends = config.extends;
       }
-      if (
-        Object.prototype.hasOwnProperty.call(config, 'fromJSON') ||
-        Object.prototype.hasOwnProperty.call(config, 'toJSON')
-      ) {
+      if (hasOwn(config, 'fromJSON') || hasOwn(config, 'toJSON')) {
         if (typeof config.fromJSON !== 'function' || typeof config.toJSON !== 'function') {
           const error = new Error('Both "fromJSON" and "toJSON" must defined as functions');
           error.name = ERRORS.InvalidDataTypeError;
@@ -130,14 +129,13 @@ export default class DataType {
       throw error;
     }
     let error;
-    if (typeDef.extends) {
+    if (hasOwn(typeDef, 'extends')) {
       error = DataType.validate(typeDef.extends, value);
     }
 
     // if no error messages from a base validator
     if (!error) {
-      const validator = typeDef.validate;
-      error = validator(value);
+      error = typeDef.validate(value);
     }
 
     return error;
@@ -149,7 +147,7 @@ export default class DataType {
     }
 
     const typeDef = DATA_TYPES.get(type);
-    return typeDef.fromJSON ? typeDef.fromJSON(value) : value;
+    return hasOwn(typeDef, 'fromJSON') ? typeDef.fromJSON(value) : value;
   }
 
   static is(type, value) {
