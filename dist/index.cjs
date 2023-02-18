@@ -410,11 +410,10 @@ class Model {
         },
         fromJSON(data) {
           if (DataType.is(JSON, data)) return new CustomModel(data);
-          // if (data instanceof CustomModel)
           return data;
         },
-        toJSON() {
-          return {};
+        toJSON(value) {
+          return value.toJSON();
         },
       });
 
@@ -466,7 +465,7 @@ Schema.add(JSON, rawType => new Model(rawType));
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
 
 Object.assign(Model, STATIC_PROPS);
-DataType.add(Model.SAME, () => 'must not be use directly');
+DataType.add(Model.SAME, () => 'Model.SAME must not be use directly');
 
 Object.assign(Model, ERRORS);
 Object.freeze(Model);
@@ -585,17 +584,6 @@ class Collection extends Model {
 Schema.add(Array, rawType => {
   const { contentType, ...options } = shortcut(rawType);
   return new Collection(contentType, options);
-});
-
-new Collection(Number);
-
-const EN = enumerate`123`;
-
-new Model({
-  name: String,
-  type: EN,
-  value: String,
-  'field?': Model.SAME,
 });
 
 exports.Collection = Collection;

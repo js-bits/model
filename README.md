@@ -33,9 +33,10 @@ console.log(JSON.stringify(author, null, '  '));
 Key features:
 
 - Strict data schema
-- Runtime validation
+- Runtime data validation
 - Configurable data types
-- Deep objects immutability
+- Optional deep objects immutability
+- Interactive data store
 - ...
 
 [TBD]
@@ -78,13 +79,19 @@ JSON Schema serves more as a data format description, while `Model` is much more
 
 [TBD]
 
-## Ok. But, what about TypeScript?
+## Ok. But what about TypeScript?
 
 Code written in TypeScript is only checked for errors before it is executed, during compile time. Moreover, not every project is built with TypeScript. And not every project needs TypeScript.
 
 [TBD]
 
 As for IDE's code-completion capabilities, you can achieve similar result with [JSDoc](https://jsdoc.app/) annotations.
+
+## Hmm... But we already have [Zod](https://zod.dev/)
+
+Sure. `Model` does something similar to what [Zod](https://zod.dev/) does, but `Model` uses more natural syntax.
+Also, while [Zod](https://zod.dev/) is "a schema declaration and validation library", `Model` goes further and is aimed to serve more like a data store.
+[TBD]
 
 ## GraphQL?
 
