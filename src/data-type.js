@@ -116,16 +116,6 @@ export default class DataType {
     return false;
   }
 
-  static get(type) {
-    const typeDef = DATA_TYPES.get(type);
-    if (!typeDef) {
-      const error = new Error('Unknown data type');
-      error.name = ERRORS.InvalidDataTypeError;
-      throw error;
-    }
-    return typeDef;
-  }
-
   /**
    * Validates a value against a given type
    * @param {Object} type
@@ -133,7 +123,12 @@ export default class DataType {
    * @returns {Array}
    */
   static validate(type, value) {
-    const typeDef = DataType.get(type);
+    const typeDef = DATA_TYPES.get(type);
+    if (!typeDef) {
+      const error = new Error('Unknown data type');
+      error.name = ERRORS.InvalidDataTypeError;
+      throw error;
+    }
     let error;
     if (typeDef.extends) {
       error = DataType.validate(typeDef.extends, value);
@@ -153,8 +148,7 @@ export default class DataType {
       throw new Error('Invalid');
     }
 
-    // if (!enumerate.isEnum(propType) && propType.fromJSON)
-    const typeDef = DataType.get(type);
+    const typeDef = DATA_TYPES.get(type);
     return typeDef.fromJSON ? typeDef.fromJSON(value) : value;
   }
 

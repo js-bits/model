@@ -119,16 +119,6 @@ class DataType {
     return false;
   }
 
-  static get(type) {
-    const typeDef = DATA_TYPES.get(type);
-    if (!typeDef) {
-      const error = new Error('Unknown data type');
-      error.name = ERRORS$2.InvalidDataTypeError;
-      throw error;
-    }
-    return typeDef;
-  }
-
   /**
    * Validates a value against a given type
    * @param {Object} type
@@ -136,7 +126,12 @@ class DataType {
    * @returns {Array}
    */
   static validate(type, value) {
-    const typeDef = DataType.get(type);
+    const typeDef = DATA_TYPES.get(type);
+    if (!typeDef) {
+      const error = new Error('Unknown data type');
+      error.name = ERRORS$2.InvalidDataTypeError;
+      throw error;
+    }
     let error;
     if (typeDef.extends) {
       error = DataType.validate(typeDef.extends, value);
@@ -156,8 +151,7 @@ class DataType {
       throw new Error('Invalid');
     }
 
-    // if (!enumerate.isEnum(propType) && propType.fromJSON)
-    const typeDef = DataType.get(type);
+    const typeDef = DATA_TYPES.get(type);
     return typeDef.fromJSON ? typeDef.fromJSON(value) : value;
   }
 
@@ -431,8 +425,6 @@ class Model {
       // NewModel.fromJSON = DataTypeRef.fromJSON;
 
       // console.log('NewModel.fromJSON', NewModel.fromJSON, DataTypeRef.fromJSON);
-
-      // DataType.add(NewModel, DataType.get(DataTypeRef));
 
       // Move this to StorageModel (extends Model)
       // MODELS.set(NewModel.ID, NewModel);

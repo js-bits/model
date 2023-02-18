@@ -191,6 +191,11 @@ describe('DataType', () => {
     test('should return an error message for an invalid value of a given type', () => {
       expect(DataType.validate(CustomType, 'invalid')).toEqual('must have a valid value');
     });
+    test('should throw an error message for an invalid type', () => {
+      expect(() => {
+        DataType.validate(Promise, 'valid');
+      }).toThrowError('Unknown data type');
+    });
   });
 
   describe('#toJSON/#fromJSON', () => {
