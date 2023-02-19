@@ -95,6 +95,7 @@ class DataTypeDefinition {
     if (result) {
       const error = new Error('Data is invalid');
       error.name = ERRORS.InvalidDataTypeError;
+      error.cause = result;
       throw error;
     }
   }

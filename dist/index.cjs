@@ -98,6 +98,7 @@ class DataTypeDefinition {
     if (result) {
       const error = new Error('Data is invalid');
       error.name = ERRORS$2.InvalidDataTypeError;
+      error.cause = result;
       throw error;
     }
   }
@@ -292,57 +293,6 @@ class Schema {
 Object.assign(Schema, ERRORS$1);
 Object.freeze(Schema);
 
-/**
- * This is just a part of Model extracted for convenience
- * @param {Class} Model
- * @param {Object} data
- * @param {Schema} schema
- * @returns {Object}
- */
-function assemble(Model, data, schema) {
-  if (!DataType.is(JSON, data)) {
-    const error = new Error('Model data must be a plain object');
-    error.name = Model.InvalidDataError;
-    throw error;
-  }
-
-  const shouldInstantiate = !!this;
-  const validationResult = {};
-  const keys = new Set([...Object.keys(schema), ...Object.keys(data)]);
-  for (const propName of keys) {
-    const propType = schema[propName];
-    if (propType) {
-      const propValue = data[propName];
-      const isDefined = !(propValue === undefined || propValue === null);
-      if (isDefined) {
-        const errors = DataType.validate(propType, propValue);
-        if (errors) validationResult[propName] = errors;
-      } else if (schema.isRequired(propName)) {
-        validationResult[propName] = 'required property is not defined';
-      }
-
-      if (shouldInstantiate && !validationResult[propName])
-        // intentionally set to null for both cases (undefined and null)
-        this[propName] = isDefined ? DataType.fromJSON(propType, propValue) : null;
-    } else {
-      validationResult[propName] = 'property is not defined in schema';
-    }
-  }
-
-  const hasErrors = Object.keys(validationResult).length;
-  if (shouldInstantiate) {
-    if (hasErrors) {
-      const error = new Error('Invalid data');
-      error.name = Model.InvalidDataError;
-      error.cause = validationResult; // TODO: replace with native https://v8.dev/features/error-cause;
-      throw error;
-    }
-    return this;
-  }
-
-  return hasErrors ? validationResult : undefined;
-}
-
 /* eslint-disable max-classes-per-file */
 
 const MODELS = new WeakSet();
@@ -394,15 +344,52 @@ class Model {
         }
 
         assemble(data) {
-          assemble.call(this, CustomModel, data, schema);
+          const validationResult = CustomModel.validate(data, (propName, propType, propValue) => {
+            // intentionally set to null for both cases (undefined and null)
+            this[propName] = propValue ? DataType.fromJSON(propType, propValue) : null;
+          });
+
+          if (validationResult) {
+            const error = new Error('Invalid data');
+            error.name = Model.InvalidDataError;
+            error.cause = validationResult; // TODO: replace with native https://v8.dev/features/error-cause;
+            throw error;
+          }
         }
 
         /**
          * @param {*} data
+         * @param {Function} [callback]
          * @returns {Object} - an object representing validation errors
          */
-        static validate(data) {
-          return assemble(CustomModel, data, schema);
+        static validate(data, callback) {
+          if (!DataType.is(JSON, data)) {
+            const error = new Error('Model data must be a plain object');
+            error.name = Model.InvalidDataError;
+            throw error;
+          }
+
+          const validationResult = {};
+          const keys = new Set([...Object.keys(schema), ...Object.keys(data)]);
+          for (const propName of keys) {
+            const propType = schema[propName];
+            if (propType) {
+              const propValue = data[propName];
+              const isDefined = !(propValue === undefined || propValue === null);
+              if (isDefined) {
+                const errors = DataType.validate(propType, propValue);
+                if (errors) validationResult[propName] = errors;
+              } else if (schema.isRequired(propName)) {
+                validationResult[propName] = 'required property is not defined';
+              }
+              if (!validationResult[propName] && callback) callback(propName, propType, propValue);
+            } else {
+              validationResult[propName] = 'property is not defined in schema';
+            }
+          }
+
+          const hasErrors = Object.keys(validationResult).length;
+          return hasErrors ? validationResult : undefined;
         }
 
         // static toGraphQL() {}
@@ -515,14 +502,14 @@ const ø = enumerate`
   options
 `;
 
-// const Model1 = new Model({
-//   values: [new Union(Number, String, null)], // multiple types ( Number | String | null )
-// });
-
 const Options = new Model({
   'min?': Number,
   'max?': Number,
 });
+
+// const Model1 = new Model({
+//   values: [new Union(Number, String, null)], // multiple types ( Number | String | null )
+// });
 
 class Collection extends Model {
   static toString() {

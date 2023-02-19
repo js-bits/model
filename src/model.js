@@ -2,7 +2,6 @@
 import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
 import Schema from './schema.js';
-import assemble from './model-assemble.js';
 
 const MODELS = new WeakSet();
 
@@ -53,15 +52,52 @@ export default class Model {
         }
 
         assemble(data) {
-          assemble.call(this, CustomModel, data, schema);
+          const validationResult = CustomModel.validate(data, (propName, propType, propValue) => {
+            // intentionally set to null for both cases (undefined and null)
+            this[propName] = propValue ? DataType.fromJSON(propType, propValue) : null;
+          });
+
+          if (validationResult) {
+            const error = new Error('Invalid data');
+            error.name = Model.InvalidDataError;
+            error.cause = validationResult; // TODO: replace with native https://v8.dev/features/error-cause;
+            throw error;
+          }
         }
 
         /**
          * @param {*} data
+         * @param {Function} [callback]
          * @returns {Object} - an object representing validation errors
          */
-        static validate(data) {
-          return assemble(CustomModel, data, schema);
+        static validate(data, callback) {
+          if (!DataType.is(JSON, data)) {
+            const error = new Error('Model data must be a plain object');
+            error.name = Model.InvalidDataError;
+            throw error;
+          }
+
+          const validationResult = {};
+          const keys = new Set([...Object.keys(schema), ...Object.keys(data)]);
+          for (const propName of keys) {
+            const propType = schema[propName];
+            if (propType) {
+              const propValue = data[propName];
+              const isDefined = !(propValue === undefined || propValue === null);
+              if (isDefined) {
+                const errors = DataType.validate(propType, propValue);
+                if (errors) validationResult[propName] = errors;
+              } else if (schema.isRequired(propName)) {
+                validationResult[propName] = 'required property is not defined';
+              }
+              if (!validationResult[propName] && callback) callback(propName, propType, propValue);
+            } else {
+              validationResult[propName] = 'property is not defined in schema';
+            }
+          }
+
+          const hasErrors = Object.keys(validationResult).length;
+          return hasErrors ? validationResult : undefined;
         }
 
         // static toGraphQL() {}
@@ -76,11 +112,10 @@ export default class Model {
         },
         fromJSON(data) {
           if (DataType.is(JSON, data)) return new CustomModel(data);
-          // if (data instanceof CustomModel)
           return data;
         },
-        toJSON() {
-          return {};
+        toJSON(value) {
+          return value.toJSON();
         },
       });
 
