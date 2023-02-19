@@ -39,112 +39,113 @@ export default class Model {
   }
 
   constructor(config) {
-    if (arguments.length) {
-      // NOTE: encapsulated class definition makes it impossible to manipulate data schema from outside of the model
-      let schema;
+    // eslint-disable-next-line no-constructor-return
+    if (!arguments.length) return this; // prototype is being created
 
-      class CustomModel extends Model {
-        constructor(data) {
-          super();
-          if (!DataType.is(JSON, data)) {
-            const error = new Error('Model data must be a plain object');
-            error.name = Model.InvalidDataError;
-            throw error;
-          }
+    // NOTE: encapsulated class definition makes it impossible to manipulate data schema from outside of the model
+    let schema;
 
-          DataType.assert(CustomModel, data);
-          iterate(schema, data, (propName, propType, propValue) => {
-            // intentionally set to null for both cases (undefined and null)
-            this[propName] = propValue ? DataType.fromJSON(propType, propValue) : null;
-          });
-
-          const proxy = new Proxy(this, {
-            get(...args) {
-              const [target, prop] = args;
-              const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
-              if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
-                throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
-              }
-              return Reflect.get(...args);
-            },
-            set(target, prop) {
-              throw new Error(`Property assignment is not supported for "${String(prop)}"`);
-            },
-          });
-
-          // eslint-disable-next-line no-constructor-return
-          return proxy;
+    class CustomModel extends Model {
+      constructor(data) {
+        super();
+        if (!DataType.is(JSON, data)) {
+          const error = new Error('Model data must be a plain object');
+          error.name = Model.InvalidDataError;
+          throw error;
         }
 
-        // static toGraphQL() {}
+        DataType.assert(CustomModel, data);
+        iterate(schema, data, (propName, propType, propValue) => {
+          // intentionally set to null for both cases (undefined and null)
+          this[propName] = propValue ? DataType.fromJSON(propType, propValue) : null;
+        });
+
+        const proxy = new Proxy(this, {
+          get(...args) {
+            const [target, prop] = args;
+            const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
+            if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
+              throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
+            }
+            return Reflect.get(...args);
+          },
+          set(target, prop) {
+            throw new Error(`Property assignment is not supported for "${String(prop)}"`);
+          },
+        });
+
+        // eslint-disable-next-line no-constructor-return
+        return proxy;
       }
 
-      new DataType(
-        {
-          validate(value) {
-            if (value instanceof CustomModel) return undefined;
-            if (!DataType.is(JSON, value)) return 'invalid model type';
+      // static toGraphQL() {}
+    }
 
-            const validationResult = {};
-            iterate(schema, value, (propName, propType, propValue) => {
-              if (propType) {
-                const isDefined = !(propValue === undefined || propValue === null);
-                if (isDefined) {
-                  const errors = DataType.validate(propType, propValue);
-                  if (errors) validationResult[propName] = errors;
-                } else if (schema.isRequired(propName)) {
-                  validationResult[propName] = 'required property is not defined';
-                }
-              } else {
-                validationResult[propName] = 'property is not defined in schema';
+    new DataType(
+      {
+        validate(value) {
+          if (value instanceof CustomModel) return undefined;
+          if (!DataType.is(JSON, value)) return 'invalid model type';
+
+          const validationResult = {};
+          iterate(schema, value, (propName, propType, propValue) => {
+            if (propType) {
+              const isDefined = !(propValue === undefined || propValue === null);
+              if (isDefined) {
+                const errors = DataType.validate(propType, propValue);
+                if (errors) validationResult[propName] = errors;
+              } else if (schema.isRequired(propName)) {
+                validationResult[propName] = 'required property is not defined';
               }
-            });
+            } else {
+              validationResult[propName] = 'property is not defined in schema';
+            }
+          });
 
-            const hasErrors = Object.keys(validationResult).length;
-            return hasErrors ? validationResult : undefined;
-          },
-          fromJSON(value) {
-            if (DataType.is(JSON, value)) return new CustomModel(value);
-            return value;
-          },
-          toJSON(value) {
-            return value.toJSON();
-          },
+          const hasErrors = Object.keys(validationResult).length;
+          return hasErrors ? validationResult : undefined;
         },
-        CustomModel
-      );
+        fromJSON(value) {
+          if (DataType.is(JSON, value)) return new CustomModel(value);
+          return value;
+        },
+        toJSON(value) {
+          return value.toJSON();
+        },
+      },
+      CustomModel
+    );
 
-      class CustomSchema extends Schema {
-        initEntry(key, type) {
-          return super.initEntry(key, type === Model.SAME ? CustomModel : type);
-        }
+    class CustomSchema extends Schema {
+      initEntry(key, type) {
+        return super.initEntry(key, type === Model.SAME ? CustomModel : type);
       }
-      schema = new CustomSchema(config);
+    }
+    schema = new CustomSchema(config);
 
-      // const DataTypeRef = super({
-      //   extends: Model,
-      //   validate(value) {
-      //     return value instanceof NewModel ? undefined : 'must be a specified model';
-      //   },
-      //   // fromJSON: inputValue => {
-      //   //   if (Model.isModel(inputValue) ? DataType.is(JSON, propValue)
-      //   //   return new NewModel(inputValue)
-      //   // },
-      // });
+    // const DataTypeRef = super({
+    //   extends: Model,
+    //   validate(value) {
+    //     return value instanceof NewModel ? undefined : 'must be a specified model';
+    //   },
+    //   // fromJSON: inputValue => {
+    //   //   if (Model.isModel(inputValue) ? DataType.is(JSON, propValue)
+    //   //   return new NewModel(inputValue)
+    //   // },
+    // });
 
-      // NewModel.fromJSON = DataTypeRef.fromJSON;
+    // NewModel.fromJSON = DataTypeRef.fromJSON;
 
-      // console.log('NewModel.fromJSON', NewModel.fromJSON, DataTypeRef.fromJSON);
+    // console.log('NewModel.fromJSON', NewModel.fromJSON, DataTypeRef.fromJSON);
 
-      // Move this to StorageModel (extends Model)
-      // MODELS.set(NewModel.ID, NewModel);
-      MODELS.add(CustomModel);
-      // NewModel.ID = Symbol('Model ID'); // do I really need it?
-      // NewModel.validateOnInit = true; // by default
+    // Move this to StorageModel (extends Model)
+    // MODELS.set(NewModel.ID, NewModel);
+    MODELS.add(CustomModel);
+    // NewModel.ID = Symbol('Model ID'); // do I really need it?
+    // NewModel.validateOnInit = true; // by default
 
-      // eslint-disable-next-line no-constructor-return
-      return CustomModel;
-    } // else prototype is being created
+    // eslint-disable-next-line no-constructor-return
+    return CustomModel;
     // super();
   }
 
