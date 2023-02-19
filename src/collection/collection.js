@@ -1,8 +1,8 @@
 /* eslint-disable max-classes-per-file */
-import DataType from './data-type.js';
-import Model from './model.js';
-import Schema from './schema.js';
-import freeze from './freeze.js';
+import DataType from '../data-type/data-type.js';
+import Model from '../model/model.js';
+import Schema from '../model/schema.js';
+import freeze from '../freeze.js';
 import shortcut from './collection-shortcut.js';
 
 const Options = new Model({

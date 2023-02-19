@@ -6,7 +6,7 @@
 export default (data, propMap) =>
   new Proxy(data, {
     get(...args) {
-      const [target, key] = args;
+      const key = args[1];
       if (propMap.has(key)) {
         return propMap.get(key);
       }

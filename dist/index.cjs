@@ -212,7 +212,7 @@ Object.assign(DataType, ERRORS$2);
 var freeze = (data, propMap) =>
   new Proxy(data, {
     get(...args) {
-      const [target, key] = args;
+      const key = args[1];
       if (propMap.has(key)) {
         return propMap.get(key);
       }

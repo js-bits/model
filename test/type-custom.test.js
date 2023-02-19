@@ -1,6 +1,6 @@
 // eslint-disable-next-line max-classes-per-file
-import Model from '../src/model.js';
-import DataType from '../src/data-type.js';
+import Model from '../src/model/model.js';
+import DataType from '../src/data-type/data-type.js';
 
 describe('Custom data type', () => {
   describe('without base type', () => {

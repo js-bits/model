@@ -1,5 +1,5 @@
 import enumerate from '@js-bits/enumerate';
-import Model from '../src/model.js';
+import Model from '../src/model/model.js';
 
 describe('Enum', () => {
   const Unit = enumerate`FOOT, METER`;

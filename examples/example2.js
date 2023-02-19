@@ -1,4 +1,4 @@
-import Model from '../src/model.js';
+import Model from '../src/model/model.js';
 
 export default () => {
   /**

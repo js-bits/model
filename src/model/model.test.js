@@ -1,4 +1,4 @@
-import DataType from './data-type.js';
+import DataType from '../data-type/data-type.js';
 import Model from './model.js';
 import Schema from './schema.js';
 

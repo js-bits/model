@@ -1,5 +1,5 @@
 import enumerate from '@js-bits/enumerate';
-import DataType from './data-type.js';
+import DataType from '../data-type/data-type.js';
 
 const ERRORS = enumerate('Schema|')`
 InvalidModelSchemaError
