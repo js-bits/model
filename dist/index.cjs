@@ -204,6 +204,21 @@ DataType.add(JSON, value =>
 
 Object.assign(DataType, ERRORS$2);
 
+var freeze = data =>
+  new Proxy(data, {
+    get(...args) {
+      const [target, prop] = args;
+      const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
+      if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
+        throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
+      }
+      return Reflect.get(...args);
+    },
+    set(target, prop) {
+      throw new Error(`Property assignment is not supported for "${String(prop)}"`);
+    },
+  });
+
 const ERRORS$1 = enumerate('Schema|')`
 InvalidModelSchemaError
 InvalidDataError
@@ -360,22 +375,8 @@ class Model {
           this[propName] = propValue ? DataType.fromJSON(propType, propValue) : null;
         });
 
-        const proxy = new Proxy(this, {
-          get(...args) {
-            const [target, prop] = args;
-            const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
-            if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
-              throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
-            }
-            return Reflect.get(...args);
-          },
-          set(target, prop) {
-            throw new Error(`Property assignment is not supported for "${String(prop)}"`);
-          },
-        });
-
         // eslint-disable-next-line no-constructor-return
-        return proxy;
+        return freeze(this);
       }
 
       // static toGraphQL() {}
@@ -465,22 +466,6 @@ DataType.add(Model.SAME, () => 'Model.SAME must not be use directly');
 
 Object.assign(Model, ERRORS);
 Object.freeze(Model);
-
-var freeze = data => {
-  new Proxy(data, {
-    get(...args) {
-      const [target, prop] = args;
-      const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
-      if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
-        throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
-      }
-      return Reflect.get(...args);
-    },
-    set(target, prop) {
-      throw new Error(`Property assignment is not supported for "${String(prop)}"`);
-    },
-  });
-};
 
 var shortcut = array => {
   const [contentType, ...rest] = array;

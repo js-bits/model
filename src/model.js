@@ -1,6 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import enumerate from '@js-bits/enumerate';
 import DataType from './data-type.js';
+import freeze from './freeze.js';
 import Schema from './schema.js';
 
 const MODELS = new WeakSet();
@@ -55,27 +56,14 @@ export default class Model {
         }
 
         DataType.assert(CustomModel, data);
+        const store = {};
         iterate(schema, data, (propName, propType, propValue) => {
           // intentionally set to null for both cases (undefined and null)
           this[propName] = propValue ? DataType.fromJSON(propType, propValue) : null;
         });
 
-        const proxy = new Proxy(this, {
-          get(...args) {
-            const [target, prop] = args;
-            const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
-            if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
-              throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
-            }
-            return Reflect.get(...args);
-          },
-          set(target, prop) {
-            throw new Error(`Property assignment is not supported for "${String(prop)}"`);
-          },
-        });
-
         // eslint-disable-next-line no-constructor-return
-        return proxy;
+        return freeze(this);
       }
 
       // static toGraphQL() {}

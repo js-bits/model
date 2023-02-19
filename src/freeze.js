@@ -1,5 +1,5 @@
-export default data => {
-  const proxy = new Proxy(data, {
+export default data =>
+  new Proxy(data, {
     get(...args) {
       const [target, prop] = args;
       const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
@@ -12,4 +12,3 @@ export default data => {
       throw new Error(`Property assignment is not supported for "${String(prop)}"`);
     },
   });
-};
