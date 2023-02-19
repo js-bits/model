@@ -46,14 +46,7 @@ export default class Model {
       class CustomModel extends Model {
         constructor(data) {
           super();
-          const validationResult = CustomModel.validate(data);
-          if (validationResult) {
-            const error = new Error('Invalid data');
-            error.name = Model.InvalidDataError;
-            error.cause = validationResult; // TODO: replace with native https://v8.dev/features/error-cause;
-            throw error;
-          }
-
+          CustomModel.assert(data);
           iterate(schema, data, (propName, propType, propValue) => {
             // intentionally set to null for both cases (undefined and null)
             this[propName] = propValue ? DataType.fromJSON(propType, propValue) : null;
@@ -105,6 +98,16 @@ export default class Model {
 
           const hasErrors = Object.keys(validationResult).length;
           return hasErrors ? validationResult : undefined;
+        }
+
+        static assert(data) {
+          const validationResult = CustomModel.validate(data);
+          if (validationResult) {
+            const error = new Error('Invalid data');
+            error.name = Model.InvalidDataError;
+            error.cause = validationResult; // TODO: replace with native https://v8.dev/features/error-cause;
+            throw error;
+          }
         }
 
         // static toGraphQL() {}
