@@ -27,7 +27,7 @@ describe('Enum', () => {
       } catch (e) {
         error = e;
       }
-      expect(error).toEqual(new Error('Invalid data'));
+      expect(error).toEqual(new Error('Data is invalid'));
       expect(error.cause).toEqual({
         unit: 'must be one of allowed values [Symbol(FOOT),Symbol(METER)]',
       });
@@ -37,10 +37,10 @@ describe('Enum', () => {
         new TestModel({
           unit: Symbol('METER'),
         });
-      }).toThrowError('Invalid data');
+      }).toThrowError('Data is invalid');
       expect(() => {
         new TestModel({});
-      }).toThrowError('Invalid data');
+      }).toThrowError('Data is invalid');
     });
   });
 
@@ -50,6 +50,6 @@ describe('Enum', () => {
         unit: Unit.METER,
         optional: 123,
       });
-    }).toThrowError('Invalid data');
+    }).toThrowError('Data is invalid');
   });
 });

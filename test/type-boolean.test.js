@@ -20,17 +20,17 @@ describe('Boolean', () => {
         new TestModel({
           boolean: 123,
         });
-      }).toThrowError('Invalid data');
+      }).toThrowError('Data is invalid');
     });
     test('missing value', () => {
       expect(() => {
         new TestModel({
           boolean: null,
         });
-      }).toThrowError('Invalid data');
+      }).toThrowError('Data is invalid');
       expect(() => {
         new TestModel({});
-      }).toThrowError('Invalid data');
+      }).toThrowError('Data is invalid');
     });
   });
 
@@ -40,6 +40,6 @@ describe('Boolean', () => {
         boolean: false,
         optional: 123,
       });
-    }).toThrowError('Invalid data');
+    }).toThrowError('Data is invalid');
   });
 });

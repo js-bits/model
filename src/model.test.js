@@ -94,7 +94,7 @@ describe('Model', () => {
               boolean: new Date(),
               optional: 234,
             });
-          }).toThrowError('Invalid data');
+          }).toThrowError('Data is invalid');
         });
       });
     });
@@ -147,14 +147,7 @@ describe('Model', () => {
     });
 
     test('incorrect data', () => {
-      expect.assertions(3);
-      try {
-        DerivedModel.validate('');
-      } catch (error) {
-        expect(error.message).toEqual('Model data must be a plain object');
-        expect(error.name).toEqual(Model.InvalidDataError);
-        expect(error.name).toEqual('Model|InvalidDataError');
-      }
+      expect(DerivedModel.validate('')).toEqual('invalid model type');
     });
 
     test('incorrect values', () => {

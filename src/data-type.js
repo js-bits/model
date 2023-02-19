@@ -50,11 +50,14 @@ export default class DataType {
    * @param {Object} type
    * @throws {InvalidDataTypeError}
    */
-  static assert(type) {
+  static assert(type, value) {
     if (!this.exists(type)) {
       const error = new Error('Unknown data type');
       error.name = ERRORS.InvalidDataTypeError;
       throw error;
+    }
+    if (arguments.length === 2) {
+      DATA_TYPES.get(type).assert(value);
     }
   }
 

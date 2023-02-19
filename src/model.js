@@ -46,7 +46,13 @@ export default class Model {
       class CustomModel extends Model {
         constructor(data) {
           super();
-          CustomModel.assert(data);
+          if (!DataType.is(JSON, data)) {
+            const error = new Error('Model data must be a plain object');
+            error.name = Model.InvalidDataError;
+            throw error;
+          }
+
+          DataType.assert(CustomModel, data);
           iterate(schema, data, (propName, propType, propValue) => {
             // intentionally set to null for both cases (undefined and null)
             this[propName] = propValue ? DataType.fromJSON(propType, propValue) : null;
@@ -70,19 +76,23 @@ export default class Model {
           return proxy;
         }
 
-        /**
-         * @param {*} data
-         * @returns {Object} - an object representing validation errors
-         */
-        static validate(data) {
-          if (!DataType.is(JSON, data)) {
-            const error = new Error('Model data must be a plain object');
-            error.name = Model.InvalidDataError;
-            throw error;
-          }
+        // static toGraphQL() {}
+      }
+
+      // expose useful methods
+      ['validate', 'fromJSON', 'toJSON', 'is'].forEach(method => {
+        CustomModel[method] = value => DataType[method](CustomModel, value);
+      });
+
+      Object.freeze(CustomModel);
+
+      DataType.add(CustomModel, {
+        validate(value) {
+          if (value instanceof CustomModel) return undefined;
+          if (!DataType.is(JSON, value)) return 'invalid model type';
 
           const validationResult = {};
-          iterate(schema, data, (propName, propType, propValue) => {
+          iterate(schema, value, (propName, propType, propValue) => {
             if (propType) {
               const isDefined = !(propValue === undefined || propValue === null);
               if (isDefined) {
@@ -98,27 +108,6 @@ export default class Model {
 
           const hasErrors = Object.keys(validationResult).length;
           return hasErrors ? validationResult : undefined;
-        }
-
-        static assert(data) {
-          const validationResult = CustomModel.validate(data);
-          if (validationResult) {
-            const error = new Error('Invalid data');
-            error.name = Model.InvalidDataError;
-            error.cause = validationResult; // TODO: replace with native https://v8.dev/features/error-cause;
-            throw error;
-          }
-        }
-
-        // static toGraphQL() {}
-      }
-
-      Object.freeze(CustomModel);
-
-      DataType.add(CustomModel, {
-        validate(value) {
-          if (DataType.is(JSON, value)) return CustomModel.validate(value);
-          return value instanceof CustomModel ? undefined : 'invalid model type';
         },
         fromJSON(data) {
           if (DataType.is(JSON, data)) return new CustomModel(data);

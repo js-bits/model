@@ -20,17 +20,17 @@ describe('String', () => {
         new TestModel({
           string: 123,
         });
-      }).toThrowError('Invalid data');
+      }).toThrowError('Data is invalid');
     });
     test('missing value', () => {
       expect(() => {
         new TestModel({
           string: null,
         });
-      }).toThrowError('Invalid data');
+      }).toThrowError('Data is invalid');
       expect(() => {
         new TestModel({});
-      }).toThrowError('Invalid data');
+      }).toThrowError('Data is invalid');
     });
   });
 
@@ -40,6 +40,6 @@ describe('String', () => {
         string: '123',
         optional: 123,
       });
-    }).toThrowError('Invalid data');
+    }).toThrowError('Data is invalid');
   });
 });

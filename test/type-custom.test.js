@@ -25,13 +25,13 @@ describe('Custom data type', () => {
           new NewModel({
             field: 'other value',
           });
-        }).toThrowError('Invalid data');
+        }).toThrowError('Data is invalid');
         try {
           new NewModel({
             field: '123',
           });
         } catch (error) {
-          expect(error).toEqual(new Error('Invalid data'));
+          expect(error).toEqual(new Error('Data is invalid'));
           expect(error.cause).toEqual({ field: 'must have a valid value' });
         }
       });
@@ -96,7 +96,7 @@ describe('Custom data type', () => {
           int: '123',
         });
       } catch (error) {
-        expect(error).toEqual(new Error('Invalid data'));
+        expect(error).toEqual(new Error('Data is invalid'));
         expect(error.cause).toEqual({ int: 'must be a number' });
       }
       try {
@@ -104,7 +104,7 @@ describe('Custom data type', () => {
           int: 456.3535,
         });
       } catch (error) {
-        expect(error).toEqual(new Error('Invalid data'));
+        expect(error).toEqual(new Error('Data is invalid'));
         expect(error.cause).toEqual({ int: 'must be an integer' });
       }
       try {
@@ -112,7 +112,7 @@ describe('Custom data type', () => {
           int: 4.56,
         });
       } catch (error) {
-        expect(error).toEqual(new Error('Invalid data'));
+        expect(error).toEqual(new Error('Data is invalid'));
         expect(error.cause).toEqual({ int: 'must be an integer' });
       }
       try {
@@ -120,7 +120,7 @@ describe('Custom data type', () => {
           int: -456,
         });
       } catch (error) {
-        expect(error).toEqual(new Error('Invalid data'));
+        expect(error).toEqual(new Error('Data is invalid'));
         expect(error.cause).toEqual({ int: 'must be a positive integer' });
       }
     });
