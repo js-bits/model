@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import enumerate from '@js-bits/enumerate';
 import DataType from '../data-type/data-type.js';
-import freeze from '../freeze.js';
+import freeze from './freeze.js';
 import Schema from './schema.js';
 
 const MODELS = new WeakSet();
