@@ -466,6 +466,22 @@ DataType.add(Model.SAME, () => 'Model.SAME must not be use directly');
 Object.assign(Model, ERRORS);
 Object.freeze(Model);
 
+var freeze = data => {
+  new Proxy(data, {
+    get(...args) {
+      const [target, prop] = args;
+      const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
+      if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
+        throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
+      }
+      return Reflect.get(...args);
+    },
+    set(target, prop) {
+      throw new Error(`Property assignment is not supported for "${String(prop)}"`);
+    },
+  });
+};
+
 var shortcut = array => {
   const [contentType, ...rest] = array;
   let options;
@@ -504,6 +520,8 @@ const Options = new Model({
   'max?': Number,
 });
 
+// const INDEX = Symbol('INDEX');
+
 // const Model1 = new Model({
 //   values: [new Union(Number, String, null)], // multiple types ( Number | String | null )
 // });
@@ -539,22 +557,8 @@ class Collection extends Model {
 
         const store = data.map(item => DataType.fromJSON(ContentType, item));
 
-        const proxy = new Proxy(store, {
-          get(...args) {
-            const [target, prop] = args;
-            const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
-            if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
-              throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
-            }
-            return Reflect.get(...args);
-          },
-          set(target, prop) {
-            throw new Error(`Property assignment is not supported for "${String(prop)}"`);
-          },
-        });
-
         // eslint-disable-next-line no-constructor-return
-        return proxy;
+        return freeze(store);
       }
 
       // static toGraphQL() {}
