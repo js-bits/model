@@ -13,6 +13,21 @@ const ERRORS = enumerate('Model|')`
 InvalidDataError
 `;
 
+/**
+ * @param {Schema} schema
+ * @param {Object} data
+ * @param {Function} [callback]
+ * @returns {Object} - an object representing validation errors
+ */
+const iterate = (schema, data, callback) => {
+  const keys = new Set([...Object.keys(schema), ...Object.keys(data)]);
+  for (const propName of keys) {
+    const propType = schema[propName];
+    const propValue = data[propName];
+    callback(propName, propType, propValue);
+  }
+};
+
 export default class Model {
   static toString() {
     return '[class Model]';
@@ -31,7 +46,18 @@ export default class Model {
       class CustomModel extends Model {
         constructor(data) {
           super();
-          this.assemble(data);
+          const validationResult = CustomModel.validate(data);
+          if (validationResult) {
+            const error = new Error('Invalid data');
+            error.name = Model.InvalidDataError;
+            error.cause = validationResult; // TODO: replace with native https://v8.dev/features/error-cause;
+            throw error;
+          }
+
+          iterate(schema, data, (propName, propType, propValue) => {
+            // intentionally set to null for both cases (undefined and null)
+            this[propName] = propValue ? DataType.fromJSON(propType, propValue) : null;
+          });
 
           const proxy = new Proxy(this, {
             get(...args) {
@@ -51,26 +77,11 @@ export default class Model {
           return proxy;
         }
 
-        assemble(data) {
-          const validationResult = CustomModel.validate(data, (propName, propType, propValue) => {
-            // intentionally set to null for both cases (undefined and null)
-            this[propName] = propValue ? DataType.fromJSON(propType, propValue) : null;
-          });
-
-          if (validationResult) {
-            const error = new Error('Invalid data');
-            error.name = Model.InvalidDataError;
-            error.cause = validationResult; // TODO: replace with native https://v8.dev/features/error-cause;
-            throw error;
-          }
-        }
-
         /**
          * @param {*} data
-         * @param {Function} [callback]
          * @returns {Object} - an object representing validation errors
          */
-        static validate(data, callback) {
+        static validate(data) {
           if (!DataType.is(JSON, data)) {
             const error = new Error('Model data must be a plain object');
             error.name = Model.InvalidDataError;
@@ -78,11 +89,8 @@ export default class Model {
           }
 
           const validationResult = {};
-          const keys = new Set([...Object.keys(schema), ...Object.keys(data)]);
-          for (const propName of keys) {
-            const propType = schema[propName];
+          iterate(schema, data, (propName, propType, propValue) => {
             if (propType) {
-              const propValue = data[propName];
               const isDefined = !(propValue === undefined || propValue === null);
               if (isDefined) {
                 const errors = DataType.validate(propType, propValue);
@@ -90,11 +98,10 @@ export default class Model {
               } else if (schema.isRequired(propName)) {
                 validationResult[propName] = 'required property is not defined';
               }
-              if (!validationResult[propName] && callback) callback(propName, propType, propValue);
             } else {
               validationResult[propName] = 'property is not defined in schema';
             }
-          }
+          });
 
           const hasErrors = Object.keys(validationResult).length;
           return hasErrors ? validationResult : undefined;
