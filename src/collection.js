@@ -1,13 +1,14 @@
 /* eslint-disable max-classes-per-file */
 import enumerate from '@js-bits/enumerate';
+import DataType from './data-type.js';
 import Model from './model.js';
 import Schema from './schema.js';
+import shortcut from './collection-shortcut.js';
 
 // pseudo-private properties emulation in order to avoid source code transpiling
 // TODO: replace with #privateField syntax when it gains wide support
 const ø = enumerate`
-  ContentModel
-  data
+  Type
   options
 `;
 
@@ -19,12 +20,7 @@ const Options = new Model({
 const INDEX = Symbol('INDEX');
 
 // const Model1 = new Model({
-//   numbers: [Number], // auto create new Collection(Number) // { min: undefined, max: undefined }
-//   // eslint-disable-next-line no-sparse-arrays
-//   numbers2: [Number, { min: 1, max: 10 }], // new Collection(Number, { min: 1, max: 10 })
-//   // eslint-disable-next-line no-sparse-arrays
-//   numbers5: [Number, , , ,], // new Collection(Number, { min: undefined, max: 4 })
-//   values: [Number, String, null], // multiple types
+//   values: [new Union(Number, String, null)], // multiple types ( Number | String | null )
 // });
 
 class Collection extends Model {
@@ -37,21 +33,28 @@ class Collection extends Model {
     return 'Collection';
   }
 
-  constructor(ContentType, options = {}) {
-    super({
-      type: ContentType,
-    });
-    // if (Model.isModel(Type)) {
-    //   this.Model = Type;
-    // } else {
-    //   this.Model = new Model(Type);
-    // }
-    // this[ø.data] = new Map();
-    /* this[ø.options] = */ new Options(options);
-  }
+  constructor(type, options = {}) {
+    super();
 
-  construct(config) {
-    return super.construct(config);
+    this[ø.Type] = Schema.initType(type);
+    this[ø.options] = new Options(options);
+
+    const proxy = new Proxy(this, {
+      get(...args) {
+        const [target, prop] = args;
+        const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
+        if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
+          throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
+        }
+        return Reflect.get(...args);
+      },
+      set(target, prop) {
+        throw new Error(`Property assignment is not supported for "${String(prop)}"`);
+      },
+    });
+
+    // eslint-disable-next-line no-constructor-return
+    return proxy;
   }
 
   // add(item) {
@@ -72,58 +75,8 @@ class Collection extends Model {
 }
 
 Schema.add(Array, rawType => {
-  const [contentType, ...rest] = rawType;
-  let options;
-  if (rawType.length > 1) {
-    [options] = rest;
-    if (options === undefined) {
-      if (rest.every(item => item === undefined)) {
-        options = {
-          max: rawType.length,
-        };
-      }
-    }
-  }
-
-  return new Collection(contentType, options);
+  const { type, ...options } = shortcut(rawType);
+  return new Collection(type, options);
 });
-
-new Collection(Number);
-
-const Field = new Model({
-  name: String,
-  type: String,
-  value: String,
-});
-
-const Card = new Model({
-  title: String,
-  fields: [Field],
-});
-
-new Model({
-  // eslint-disable-next-line no-sparse-arrays
-  fields: [Field, , , ,], // TODO
-});
-
-new Model({
-  // eslint-disable-next-line no-sparse-arrays
-  fields: [
-    Field,
-    {
-      min: 1,
-      max: 2,
-      // id: 'UUID',
-      // key: 'UUID',
-    },
-  ],
-});
-
-// new NumberCollection([1, 2, 3, 4]);
-
-// new NumberCollection({
-//   'uuid-uuid': { name: '', value: '' },
-//   ...
-// });
 
 export default Collection;

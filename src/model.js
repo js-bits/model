@@ -10,7 +10,7 @@ const STATIC_PROPS = enumerate`
 `;
 
 const ERRORS = enumerate('Model|')`
-InvalidDataError
+  InvalidDataError
 `;
 
 /**
