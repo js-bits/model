@@ -537,7 +537,9 @@ class Collection extends Model {
 
         DataType.assert(CustomCollection, data);
 
-        const proxy = new Proxy(this, {
+        const store = data.map(item => DataType.fromJSON(ContentType, item));
+
+        const proxy = new Proxy(store, {
           get(...args) {
             const [target, prop] = args;
             const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
