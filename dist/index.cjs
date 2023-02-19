@@ -106,30 +106,35 @@ class DataTypeDefinition {
 
 /* eslint-disable max-classes-per-file */
 
+const createNewDataType = () => {
+  class CustomDataType extends DataTypeDefinition {
+    constructor() {
+      super();
+      const error = new Error('Data type instantiation is not allowed');
+      error.name = ERRORS$2.InvalidDataTypeError;
+      throw error;
+    }
+  }
+  return CustomDataType;
+};
+
 class DataType {
   static toString() {
     return '[class DataType]';
   }
 
-  constructor(config) {
+  constructor(config, type = createNewDataType()) {
     // eslint-disable-next-line no-constructor-return, constructor-super
     if (!arguments.length) return this; // prototype is being created
 
-    class CustomDataType extends DataTypeDefinition {
-      constructor() {
-        super();
-        const error = new Error('Data type instantiation is not allowed');
-        error.name = ERRORS$2.InvalidDataTypeError;
-        throw error;
-      }
-    }
     // expose useful methods
     ['validate', 'fromJSON', 'toJSON', 'is'].forEach(method => {
-      CustomDataType[method] = value => DataType[method](CustomDataType, value);
+      type[method] = value => DataType[method](type, value);
     });
-    DATA_TYPES.set(CustomDataType, new DataTypeDefinition(config));
+    Object.freeze(type);
+    DataType.add(type, config);
     // eslint-disable-next-line no-constructor-return
-    return CustomDataType;
+    return type;
   }
 
   static add(type, config) {
@@ -374,44 +379,40 @@ class Model {
         // static toGraphQL() {}
       }
 
-      // expose useful methods
-      ['validate', 'fromJSON', 'toJSON', 'is'].forEach(method => {
-        CustomModel[method] = value => DataType[method](CustomModel, value);
-      });
+      new DataType(
+        {
+          validate(value) {
+            if (value instanceof CustomModel) return undefined;
+            if (!DataType.is(JSON, value)) return 'invalid model type';
 
-      Object.freeze(CustomModel);
-
-      DataType.add(CustomModel, {
-        validate(value) {
-          if (value instanceof CustomModel) return undefined;
-          if (!DataType.is(JSON, value)) return 'invalid model type';
-
-          const validationResult = {};
-          iterate(schema, value, (propName, propType, propValue) => {
-            if (propType) {
-              const isDefined = !(propValue === undefined || propValue === null);
-              if (isDefined) {
-                const errors = DataType.validate(propType, propValue);
-                if (errors) validationResult[propName] = errors;
-              } else if (schema.isRequired(propName)) {
-                validationResult[propName] = 'required property is not defined';
+            const validationResult = {};
+            iterate(schema, value, (propName, propType, propValue) => {
+              if (propType) {
+                const isDefined = !(propValue === undefined || propValue === null);
+                if (isDefined) {
+                  const errors = DataType.validate(propType, propValue);
+                  if (errors) validationResult[propName] = errors;
+                } else if (schema.isRequired(propName)) {
+                  validationResult[propName] = 'required property is not defined';
+                }
+              } else {
+                validationResult[propName] = 'property is not defined in schema';
               }
-            } else {
-              validationResult[propName] = 'property is not defined in schema';
-            }
-          });
+            });
 
-          const hasErrors = Object.keys(validationResult).length;
-          return hasErrors ? validationResult : undefined;
+            const hasErrors = Object.keys(validationResult).length;
+            return hasErrors ? validationResult : undefined;
+          },
+          fromJSON(value) {
+            if (DataType.is(JSON, value)) return new CustomModel(value);
+            return value;
+          },
+          toJSON(value) {
+            return value.toJSON();
+          },
         },
-        fromJSON(data) {
-          if (DataType.is(JSON, data)) return new CustomModel(data);
-          return data;
-        },
-        toJSON(value) {
-          return value.toJSON();
-        },
-      });
+        CustomModel
+      );
 
       class CustomSchema extends Schema {
         initEntry(key, type) {

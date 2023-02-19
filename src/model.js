@@ -79,44 +79,40 @@ export default class Model {
         // static toGraphQL() {}
       }
 
-      // expose useful methods
-      ['validate', 'fromJSON', 'toJSON', 'is'].forEach(method => {
-        CustomModel[method] = value => DataType[method](CustomModel, value);
-      });
+      new DataType(
+        {
+          validate(value) {
+            if (value instanceof CustomModel) return undefined;
+            if (!DataType.is(JSON, value)) return 'invalid model type';
 
-      Object.freeze(CustomModel);
-
-      DataType.add(CustomModel, {
-        validate(value) {
-          if (value instanceof CustomModel) return undefined;
-          if (!DataType.is(JSON, value)) return 'invalid model type';
-
-          const validationResult = {};
-          iterate(schema, value, (propName, propType, propValue) => {
-            if (propType) {
-              const isDefined = !(propValue === undefined || propValue === null);
-              if (isDefined) {
-                const errors = DataType.validate(propType, propValue);
-                if (errors) validationResult[propName] = errors;
-              } else if (schema.isRequired(propName)) {
-                validationResult[propName] = 'required property is not defined';
+            const validationResult = {};
+            iterate(schema, value, (propName, propType, propValue) => {
+              if (propType) {
+                const isDefined = !(propValue === undefined || propValue === null);
+                if (isDefined) {
+                  const errors = DataType.validate(propType, propValue);
+                  if (errors) validationResult[propName] = errors;
+                } else if (schema.isRequired(propName)) {
+                  validationResult[propName] = 'required property is not defined';
+                }
+              } else {
+                validationResult[propName] = 'property is not defined in schema';
               }
-            } else {
-              validationResult[propName] = 'property is not defined in schema';
-            }
-          });
+            });
 
-          const hasErrors = Object.keys(validationResult).length;
-          return hasErrors ? validationResult : undefined;
+            const hasErrors = Object.keys(validationResult).length;
+            return hasErrors ? validationResult : undefined;
+          },
+          fromJSON(value) {
+            if (DataType.is(JSON, value)) return new CustomModel(value);
+            return value;
+          },
+          toJSON(value) {
+            return value.toJSON();
+          },
         },
-        fromJSON(data) {
-          if (DataType.is(JSON, data)) return new CustomModel(data);
-          return data;
-        },
-        toJSON(value) {
-          return value.toJSON();
-        },
-      });
+        CustomModel
+      );
 
       class CustomSchema extends Schema {
         initEntry(key, type) {

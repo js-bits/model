@@ -2,30 +2,35 @@
 import enumerate from '@js-bits/enumerate';
 import DataTypeDefinition, { ERRORS, DATA_TYPES } from './data-type-definition.js';
 
+const createNewDataType = () => {
+  class CustomDataType extends DataTypeDefinition {
+    constructor() {
+      super();
+      const error = new Error('Data type instantiation is not allowed');
+      error.name = ERRORS.InvalidDataTypeError;
+      throw error;
+    }
+  }
+  return CustomDataType;
+};
+
 export default class DataType {
   static toString() {
     return '[class DataType]';
   }
 
-  constructor(config) {
+  constructor(config, type = createNewDataType()) {
     // eslint-disable-next-line no-constructor-return, constructor-super
     if (!arguments.length) return this; // prototype is being created
 
-    class CustomDataType extends DataTypeDefinition {
-      constructor() {
-        super();
-        const error = new Error('Data type instantiation is not allowed');
-        error.name = ERRORS.InvalidDataTypeError;
-        throw error;
-      }
-    }
     // expose useful methods
     ['validate', 'fromJSON', 'toJSON', 'is'].forEach(method => {
-      CustomDataType[method] = value => DataType[method](CustomDataType, value);
+      type[method] = value => DataType[method](type, value);
     });
-    DATA_TYPES.set(CustomDataType, new DataTypeDefinition(config));
+    Object.freeze(type);
+    DataType.add(type, config);
     // eslint-disable-next-line no-constructor-return
-    return CustomDataType;
+    return type;
   }
 
   static add(type, config) {
