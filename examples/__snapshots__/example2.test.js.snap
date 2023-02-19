@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Examples Example 2 1`] = `
+Array [
+  Array [
+    "Data is invalid",
+  ],
+  Array [
+    Object {
+      "balance": "must be a number",
+    },
+  ],
+  Array [
+    "Data is invalid",
+  ],
+  Array [
+    Object {
+      "title": "required property is not defined",
+    },
+  ],
+  Array [
+    "Data is invalid",
+  ],
+  Array [
+    Object {
+      "account": "invalid model type",
+      "category": "invalid model type",
+      "date": "required property is not defined",
+    },
+  ],
+  Array [
+    "[
+  {
+    \\"title\\": \\"Checking Account\\",
+    \\"balance\\": 123.56,
+    \\"limit\\": null
+  },
+  {
+    \\"title\\": \\"Credit Card\\",
+    \\"balance\\": -876.32,
+    \\"limit\\": 1000
+  }
+]",
+  ],
+  Array [
+    "{
+  \\"title\\": \\"Food\\",
+  \\"parent\\": null,
+  \\"exclude\\": null
+}",
+  ],
+  Array [
+    2010-10-09T04:00:00.000Z,
+    "Dining",
+    "Checking Account",
+  ],
+  Array [
+    123.56,
+  ],
+]
+`;

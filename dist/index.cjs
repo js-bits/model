@@ -235,8 +235,14 @@ var freeze = (data, propMap) =>
         };
       return Reflect.getOwnPropertyDescriptor(...args);
     },
-    set(target, prop) {
-      throw new Error(`Property assignment is not supported for "${String(prop)}"`);
+    set() {
+      return false;
+    },
+    deleteProperty() {
+      return false;
+    },
+    defineProperty() {
+      return false;
     },
   });
 

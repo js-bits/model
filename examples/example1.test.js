@@ -12,19 +12,6 @@ describe('Examples', () => {
 
   test('Example 1', () => {
     example();
-    expect(console.log).toHaveBeenCalledTimes(2);
-    expect(console.log.mock.calls[0]).toEqual(['[object Model]']);
-    expect(console.log.mock.calls[1]).toEqual([
-      JSON.stringify(
-        {
-          firstName: 'Trygve',
-          lastName: 'Reenskaug',
-          yearBorn: 1930,
-          verified: null,
-        },
-        null,
-        '  '
-      ),
-    ]);
+    expect(console.log.mock.calls).toMatchSnapshot();
   });
 });
