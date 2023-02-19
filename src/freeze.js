@@ -1,12 +1,33 @@
-export default data =>
+// const MODEL_PROPS = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
+
+/**
+ * @param {Map} propMap
+ */
+export default (data, propMap) =>
   new Proxy(data, {
     get(...args) {
-      const [target, prop] = args;
-      const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
-      if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
-        throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
+      const [target, key] = args;
+      if (propMap.has(key)) {
+        return propMap.get(key);
       }
       return Reflect.get(...args);
+    },
+    has(...args) {
+      const key = args[1];
+      return Reflect.has(...args) || propMap.has(key);
+    },
+    ownKeys() {
+      return [...propMap.keys()];
+    },
+    getOwnPropertyDescriptor(...args) {
+      const key = args[1];
+      if (propMap.has(key))
+        return {
+          writable: false,
+          enumerable: true,
+          configurable: true,
+        };
+      return Reflect.getOwnPropertyDescriptor(...args);
     },
     set(target, prop) {
       throw new Error(`Property assignment is not supported for "${String(prop)}"`);

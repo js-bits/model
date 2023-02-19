@@ -204,15 +204,36 @@ DataType.add(JSON, value =>
 
 Object.assign(DataType, ERRORS$2);
 
-var freeze = data =>
+// const MODEL_PROPS = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
+
+/**
+ * @param {Map} propMap
+ */
+var freeze = (data, propMap) =>
   new Proxy(data, {
     get(...args) {
-      const [target, prop] = args;
-      const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
-      if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
-        throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
+      const [target, key] = args;
+      if (propMap.has(key)) {
+        return propMap.get(key);
       }
       return Reflect.get(...args);
+    },
+    has(...args) {
+      const key = args[1];
+      return Reflect.has(...args) || propMap.has(key);
+    },
+    ownKeys() {
+      return [...propMap.keys()];
+    },
+    getOwnPropertyDescriptor(...args) {
+      const key = args[1];
+      if (propMap.has(key))
+        return {
+          writable: false,
+          enumerable: true,
+          configurable: true,
+        };
+      return Reflect.getOwnPropertyDescriptor(...args);
     },
     set(target, prop) {
       throw new Error(`Property assignment is not supported for "${String(prop)}"`);
@@ -370,13 +391,14 @@ class Model {
         }
 
         DataType.assert(CustomModel, data);
+        const propMap = new Map();
         iterate(schema, data, (propName, propType, propValue) => {
           // intentionally set to null for both cases (undefined and null)
-          this[propName] = propValue ? DataType.fromJSON(propType, propValue) : null;
+          propMap.set(propName, propValue ? DataType.fromJSON(propType, propValue) : null);
         });
 
         // eslint-disable-next-line no-constructor-return
-        return freeze(this);
+        return freeze(this, propMap);
       }
 
       // static toGraphQL() {}
@@ -540,10 +562,13 @@ class Collection extends Model {
 
         DataType.assert(CustomCollection, data);
 
-        const store = data.map(item => DataType.fromJSON(ContentType, item));
+        const propMap = data.reduce((map, item, index) => {
+          map.set(index, DataType.fromJSON(ContentType, item));
+          return map;
+        }, new Map());
 
         // eslint-disable-next-line no-constructor-return
-        return freeze(store);
+        return freeze(this, propMap);
       }
 
       // static toGraphQL() {}

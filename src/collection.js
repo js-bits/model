@@ -45,10 +45,13 @@ class Collection extends Model {
 
         DataType.assert(CustomCollection, data);
 
-        const store = data.map(item => DataType.fromJSON(ContentType, item));
+        const propMap = data.reduce((map, item, index) => {
+          map.set(index, DataType.fromJSON(ContentType, item));
+          return map;
+        }, new Map());
 
         // eslint-disable-next-line no-constructor-return
-        return freeze(store);
+        return freeze(this, propMap);
       }
 
       // static toGraphQL() {}
