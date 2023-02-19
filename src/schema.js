@@ -46,7 +46,7 @@ class Schema {
 
   initEntry(key, type) {
     const propName = this.initKey(key);
-    const propType = this.initType(type);
+    const propType = Schema.initType(type);
 
     if (!propType) {
       const error = new Error(`Model schema is invalid: data type of "${propName}" property is invalid`);
@@ -56,8 +56,7 @@ class Schema {
     this[propName] = propType;
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  initType(propType) {
+  static initType(propType) {
     const dynamicSchema = [...DYNAMIC_SCHEMAS.keys()].find(schemaType => DataType.is(schemaType, propType));
     if (dynamicSchema) return DYNAMIC_SCHEMAS.get(dynamicSchema)(propType);
     return DataType.exists(propType) ? propType : undefined;
