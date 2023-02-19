@@ -130,7 +130,7 @@ Schema.add(JSON, rawType => new Model(rawType));
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
 
 Object.assign(Model, STATIC_PROPS);
-DataType.add(Model.SAME, () => 'must not be use directly');
+DataType.add(Model.SAME, () => 'Model.SAME must not be use directly');
 
 Object.assign(Model, ERRORS);
 Object.freeze(Model);

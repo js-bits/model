@@ -6,7 +6,7 @@ var enumerate = require('@js-bits/enumerate');
 
 // pseudo-private properties emulation in order to avoid source code transpiling
 // TODO: replace with #privateField syntax when it gains wide support
-const ø$1 = enumerate`
+const ø$2 = enumerate`
   typeDef
 `;
 
@@ -65,7 +65,7 @@ class DataTypeDefinition {
 
     Object.freeze(typeDef);
 
-    this[ø$1.typeDef] = typeDef;
+    this[ø$2.typeDef] = typeDef;
 
     // name // for GraphQL conversion
     // compare // for sorting
@@ -73,24 +73,24 @@ class DataTypeDefinition {
 
   fromJSON(inputValue) {
     this.assert(inputValue);
-    if (hasOwn(this[ø$1.typeDef], 'fromJSON')) return this[ø$1.typeDef].fromJSON(inputValue);
+    if (hasOwn(this[ø$2.typeDef], 'fromJSON')) return this[ø$2.typeDef].fromJSON(inputValue);
     return inputValue;
   }
 
   toJSON(value) {
     let outputValue = value;
-    if (hasOwn(this[ø$1.typeDef], 'toJSON')) outputValue = this[ø$1.typeDef].toJSON(value);
+    if (hasOwn(this[ø$2.typeDef], 'toJSON')) outputValue = this[ø$2.typeDef].toJSON(value);
     this.assert(outputValue);
     return outputValue;
   }
 
   validate(value) {
-    if (hasOwn(this[ø$1.typeDef], 'extends')) {
-      const error = DATA_TYPES.get(this[ø$1.typeDef].extends).validate(value);
+    if (hasOwn(this[ø$2.typeDef], 'extends')) {
+      const error = DATA_TYPES.get(this[ø$2.typeDef].extends).validate(value);
       if (error) return error;
     }
     // if no error messages from a base validator
-    return this[ø$1.typeDef].validate(value);
+    return this[ø$2.typeDef].validate(value);
   }
 
   assert(value) {
@@ -206,7 +206,7 @@ const FIELD_NAME_REGEXP = /^(.+)([?!])$/;
 
 // pseudo-private properties emulation in order to avoid source code transpiling
 // TODO: replace with #privateField syntax when it gains wide support
-const ø = enumerate`
+const ø$1 = enumerate`
 required
 requiredFlag
 `;
@@ -230,7 +230,7 @@ class Schema {
       throw error;
     }
 
-    this[ø.required] = {};
+    this[ø$1.required] = {};
     for (const [key, type] of Object.entries(config)) {
       this.initEntry(key, type);
     }
@@ -240,7 +240,7 @@ class Schema {
 
   initEntry(key, type) {
     const propName = this.initKey(key);
-    const propType = this.initType(type);
+    const propType = Schema.initType(type);
 
     if (!propType) {
       const error = new Error(`Model schema is invalid: data type of "${propName}" property is invalid`);
@@ -250,8 +250,7 @@ class Schema {
     this[propName] = propType;
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  initType(propType) {
+  static initType(propType) {
     const dynamicSchema = [...DYNAMIC_SCHEMAS.keys()].find(schemaType => DataType.is(schemaType, propType));
     if (dynamicSchema) return DYNAMIC_SCHEMAS.get(dynamicSchema)(propType);
     return DataType.exists(propType) ? propType : undefined;
@@ -260,7 +259,7 @@ class Schema {
   initKey(key) {
     let specifier;
     let propName = key;
-    const globalFlag = this[ø.requiredFlag];
+    const globalFlag = this[ø$1.requiredFlag];
     const match = key.match(FIELD_NAME_REGEXP);
     if (match) {
       [, propName, specifier] = match;
@@ -274,15 +273,15 @@ class Schema {
         error.name = Schema.InvalidModelSchemaError;
         throw error;
       }
-      this[ø.requiredFlag] = specifier === REQUIRED_FIELD_SPECIFIER;
+      this[ø$1.requiredFlag] = specifier === REQUIRED_FIELD_SPECIFIER;
     }
-    this[ø.required][propName] = !specifier;
+    this[ø$1.required][propName] = !specifier;
 
     return propName;
   }
 
   isRequired(name) {
-    return this[ø.required][name] === !this[ø.requiredFlag];
+    return this[ø$1.required][name] === !this[ø$1.requiredFlag];
   }
 
   static add(type, typeDef) {
@@ -511,21 +510,19 @@ var shortcut = array => {
 
 // pseudo-private properties emulation in order to avoid source code transpiling
 // TODO: replace with #privateField syntax when it gains wide support
-enumerate`
-  ContentModel
-  data
+const ø = enumerate`
+  Type
   options
 `;
-
-const CollectionModel = new Model({
-  type: DataType,
-  'min?': Number,
-  'max?': Number,
-});
 
 // const Model1 = new Model({
 //   values: [new Union(Number, String, null)], // multiple types ( Number | String | null )
 // });
+
+const Options = new Model({
+  'min?': Number,
+  'max?': Number,
+});
 
 class Collection extends Model {
   static toString() {
@@ -537,20 +534,11 @@ class Collection extends Model {
     return 'Collection';
   }
 
-  constructor(ContentType, options) {
+  constructor(type, options = {}) {
     super();
 
-    // if (Model.isModel(Type)) {
-    //   this.Model = Type;
-    // } else {
-    //   this.Model = new Model(Type);
-    // }
-    // this[ø.data] = new Map();
-    /* this[ø.options] = */
-    new CollectionModel({
-      type: ContentType,
-      ...options,
-    });
+    this[ø.Type] = Schema.initType(type);
+    this[ø.options] = new Options(options);
 
     const proxy = new Proxy(this, {
       get(...args) {
@@ -588,8 +576,8 @@ class Collection extends Model {
 }
 
 Schema.add(Array, rawType => {
-  const { contentType, ...options } = shortcut(rawType);
-  return new Collection(contentType, options);
+  const { type, ...options } = shortcut(rawType);
+  return new Collection(type, options);
 });
 
 exports.Collection = Collection;

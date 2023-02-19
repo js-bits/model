@@ -22,8 +22,8 @@ describe('Model', () => {
       const instance3 = new TestModel3({
         model: instance2,
       });
-      expect(instance1 instanceof TestModel1).toBeTruthy();
-      expect(instance1 instanceof Model).toBeTruthy();
+      expect(instance1 instanceof TestModel1).toBe(true);
+      expect(instance1 instanceof Model).toBe(true);
       expect(instance2).toBeInstanceOf(TestModel2);
       expect(instance2).toBeInstanceOf(Model);
       expect(instance3).toBeInstanceOf(TestModel3);

@@ -14,8 +14,8 @@ describe('Model', () => {
         'test?': String,
       });
       const instance = new DerivedModel({});
-      expect(instance instanceof DerivedModel).toBeTruthy();
-      expect(instance instanceof Model).toBeTruthy();
+      expect(instance instanceof DerivedModel).toBe(true);
+      expect(instance instanceof Model).toBe(true);
       expect(`${DerivedModel}`).toEqual('[class Model]');
       expect(`${instance}`).toEqual('[object Model]');
     });
@@ -60,7 +60,7 @@ describe('Model', () => {
         string: String,
       });
       const instance = new MyModel({ string: '' });
-      expect(DataType.is(Model, instance)).toBeTruthy();
+      expect(DataType.is(Model, instance)).toBe(true);
       expect(DataType.validate(Model, MyModel)).toEqual('must be a model');
     });
 
@@ -182,13 +182,19 @@ describe('Model', () => {
     });
 
     test('should return true for models', () => {
-      expect(Model.isModel(MyModel)).toBeTruthy();
+      expect(Model.isModel(MyModel)).toBe(true);
     });
 
     test('should return false otherwise', () => {
-      expect(Model.isModel(Model)).toBeFalsy();
-      expect(Model.isModel(Function)).toBeFalsy();
-      expect(Model.isModel()).toBeFalsy();
+      expect(Model.isModel(Model)).toBe(false);
+      expect(Model.isModel(Function)).toBe(false);
+      expect(Model.isModel()).toBe(false);
+    });
+  });
+
+  describe('Model.SAME', () => {
+    test('should return true for models', () => {
+      expect(DataType.validate(Model.SAME, '')).toEqual('Model.SAME must not be use directly');
     });
   });
 });

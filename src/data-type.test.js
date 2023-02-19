@@ -222,10 +222,10 @@ describe('DataType', () => {
 
   describe('.is', () => {
     test('should return true for a valid value of a given type', () => {
-      expect(DataType.is(String, '')).toBeTruthy();
+      expect(DataType.is(String, '')).toBe(true);
     });
     test('should return false for an invalid value of a given type', () => {
-      expect(DataType.is(String, 123)).toBeFalsy();
+      expect(DataType.is(String, 123)).toBe(false);
     });
   });
 
