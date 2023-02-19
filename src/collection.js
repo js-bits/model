@@ -5,13 +5,6 @@ import Model from './model.js';
 import Schema from './schema.js';
 import shortcut from './collection-shortcut.js';
 
-// pseudo-private properties emulation in order to avoid source code transpiling
-// TODO: replace with #privateField syntax when it gains wide support
-const ø = enumerate`
-  Type
-  options
-`;
-
 const Options = new Model({
   'min?': Number,
   'max?': Number,
@@ -33,28 +26,86 @@ class Collection extends Model {
     return 'Collection';
   }
 
-  constructor(type, options = {}) {
+  constructor(type, config = {}) {
     super();
+    // eslint-disable-next-line no-constructor-return
+    if (!arguments.length) return this; // prototype is being created
 
-    this[ø.Type] = Schema.initType(type);
-    this[ø.options] = new Options(options);
+    const ContentType = Schema.initType(type);
+    const options = new Options(config);
 
-    const proxy = new Proxy(this, {
-      get(...args) {
-        const [target, prop] = args;
-        const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
-        if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
-          throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
+    class CustomCollection extends Collection {
+      constructor(data) {
+        super();
+        if (!DataType.is(Array, data)) {
+          const error = new Error('Model data must be a array'); // TODO: fix message dupes
+          error.name = Model.InvalidDataError;
+          throw error;
         }
-        return Reflect.get(...args);
+
+        DataType.assert(CustomCollection, data);
+
+        const proxy = new Proxy(this, {
+          get(...args) {
+            const [target, prop] = args;
+            const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
+            if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
+              throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
+            }
+            return Reflect.get(...args);
+          },
+          set(target, prop) {
+            throw new Error(`Property assignment is not supported for "${String(prop)}"`);
+          },
+        });
+
+        // eslint-disable-next-line no-constructor-return
+        return proxy;
+      }
+
+      // static toGraphQL() {}
+    }
+
+    new DataType(
+      {
+        /**
+         * @param {Array} value
+         */
+        validate(value) {
+          if (value instanceof CustomCollection) return undefined;
+          if (!DataType.is(Array, value)) return 'invalid collection type';
+
+          const validationResult = {};
+
+          value.forEach((item, index) => {
+            const error = DataType.validate(ContentType, item);
+            if (error) {
+              validationResult[index] = error;
+            }
+          });
+
+          if (options.max && value.length > options.max) {
+            validationResult.size = `must be less then or equal to ${options.max}`;
+          } else if (options.min && value.length < options.min) {
+            validationResult.size = `must be equal to or more then ${options.min}`;
+          }
+
+          const hasErrors = Object.keys(validationResult).length;
+          return hasErrors ? validationResult : undefined;
+        },
+        fromJSON(value) {
+          if (DataType.is(Array, value)) return new CustomCollection(value);
+          return value;
+        },
+        toJSON(value) {
+          return value.toJSON();
+        },
       },
-      set(target, prop) {
-        throw new Error(`Property assignment is not supported for "${String(prop)}"`);
-      },
-    });
+      CustomCollection
+    );
 
     // eslint-disable-next-line no-constructor-return
-    return proxy;
+    return CustomCollection;
   }
 
   // add(item) {

@@ -6,7 +6,7 @@ var enumerate = require('@js-bits/enumerate');
 
 // pseudo-private properties emulation in order to avoid source code transpiling
 // TODO: replace with #privateField syntax when it gains wide support
-const ø$2 = enumerate`
+const ø$1 = enumerate`
   typeDef
 `;
 
@@ -65,7 +65,7 @@ class DataTypeDefinition {
 
     Object.freeze(typeDef);
 
-    this[ø$2.typeDef] = typeDef;
+    this[ø$1.typeDef] = typeDef;
 
     // name // for GraphQL conversion
     // compare // for sorting
@@ -73,24 +73,24 @@ class DataTypeDefinition {
 
   fromJSON(inputValue) {
     this.assert(inputValue);
-    if (hasOwn(this[ø$2.typeDef], 'fromJSON')) return this[ø$2.typeDef].fromJSON(inputValue);
+    if (hasOwn(this[ø$1.typeDef], 'fromJSON')) return this[ø$1.typeDef].fromJSON(inputValue);
     return inputValue;
   }
 
   toJSON(value) {
     let outputValue = value;
-    if (hasOwn(this[ø$2.typeDef], 'toJSON')) outputValue = this[ø$2.typeDef].toJSON(value);
+    if (hasOwn(this[ø$1.typeDef], 'toJSON')) outputValue = this[ø$1.typeDef].toJSON(value);
     this.assert(outputValue);
     return outputValue;
   }
 
   validate(value) {
-    if (hasOwn(this[ø$2.typeDef], 'extends')) {
-      const error = DATA_TYPES.get(this[ø$2.typeDef].extends).validate(value);
+    if (hasOwn(this[ø$1.typeDef], 'extends')) {
+      const error = DATA_TYPES.get(this[ø$1.typeDef].extends).validate(value);
       if (error) return error;
     }
     // if no error messages from a base validator
-    return this[ø$2.typeDef].validate(value);
+    return this[ø$1.typeDef].validate(value);
   }
 
   assert(value) {
@@ -215,7 +215,7 @@ const FIELD_NAME_REGEXP = /^(.+)([?!])$/;
 
 // pseudo-private properties emulation in order to avoid source code transpiling
 // TODO: replace with #privateField syntax when it gains wide support
-const ø$1 = enumerate`
+const ø = enumerate`
 required
 requiredFlag
 `;
@@ -239,7 +239,7 @@ class Schema {
       throw error;
     }
 
-    this[ø$1.required] = {};
+    this[ø.required] = {};
     for (const [key, type] of Object.entries(config)) {
       this.initEntry(key, type);
     }
@@ -268,7 +268,7 @@ class Schema {
   initKey(key) {
     let specifier;
     let propName = key;
-    const globalFlag = this[ø$1.requiredFlag];
+    const globalFlag = this[ø.requiredFlag];
     const match = key.match(FIELD_NAME_REGEXP);
     if (match) {
       [, propName, specifier] = match;
@@ -282,15 +282,15 @@ class Schema {
         error.name = Schema.InvalidModelSchemaError;
         throw error;
       }
-      this[ø$1.requiredFlag] = specifier === REQUIRED_FIELD_SPECIFIER;
+      this[ø.requiredFlag] = specifier === REQUIRED_FIELD_SPECIFIER;
     }
-    this[ø$1.required][propName] = !specifier;
+    this[ø.required][propName] = !specifier;
 
     return propName;
   }
 
   isRequired(name) {
-    return this[ø$1.required][name] === !this[ø$1.requiredFlag];
+    return this[ø.required][name] === !this[ø.requiredFlag];
   }
 
   static add(type, typeDef) {
@@ -349,7 +349,7 @@ class Model {
       constructor(data) {
         super();
         if (!DataType.is(JSON, data)) {
-          const error = new Error('Model data must be a plain object');
+          const error = new Error('Model data must be a plain object'); // TODO: fix message dupes
           error.name = Model.InvalidDataError;
           throw error;
         }
@@ -499,13 +499,6 @@ var shortcut = array => {
 
 /* eslint-disable max-classes-per-file */
 
-// pseudo-private properties emulation in order to avoid source code transpiling
-// TODO: replace with #privateField syntax when it gains wide support
-const ø = enumerate`
-  Type
-  options
-`;
-
 const Options = new Model({
   'min?': Number,
   'max?': Number,
@@ -525,17 +518,19 @@ class Collection extends Model {
     return 'Collection';
   }
 
-  constructor(type, options = {}) {
+  constructor(type, config = {}) {
     super();
+    // eslint-disable-next-line no-constructor-return
+    if (!arguments.length) return this; // prototype is being created
 
-    this[ø.Type] = Schema.initType(type);
-    this[ø.options] = new Options(options);
+    const ContentType = Schema.initType(type);
+    const options = new Options(config);
 
     class CustomCollection extends Collection {
       constructor(data) {
         super();
-        if (!DataType.is(JSON, data)) {
-          const error = new Error('Model data must be a plain object');
+        if (!DataType.is(Array, data)) {
+          const error = new Error('Model data must be a array'); // TODO: fix message dupes
           error.name = Model.InvalidDataError;
           throw error;
         }
@@ -563,33 +558,35 @@ class Collection extends Model {
       // static toGraphQL() {}
     }
 
-    const proxy = new Proxy(this, {
-      get(...args) {
-        const [target, prop] = args;
-        const allowedProps = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
-        if (!Object.prototype.hasOwnProperty.call(target, prop) && !allowedProps.includes(prop)) {
-          throw new Error(`Property "${String(prop)}" of a Model instance is not accessible`);
-        }
-        return Reflect.get(...args);
-      },
-      set(target, prop) {
-        throw new Error(`Property assignment is not supported for "${String(prop)}"`);
-      },
-    });
-
     new DataType(
       {
+        /**
+         * @param {Array} value
+         */
         validate(value) {
           if (value instanceof CustomCollection) return undefined;
-          if (!DataType.is(JSON, value)) return 'invalid model type';
+          if (!DataType.is(Array, value)) return 'invalid collection type';
 
           const validationResult = {};
+
+          value.forEach((item, index) => {
+            const error = DataType.validate(ContentType, item);
+            if (error) {
+              validationResult[index] = error;
+            }
+          });
+
+          if (options.max && value.length > options.max) {
+            validationResult.size = `must be less then or equal to ${options.max}`;
+          } else if (options.min && value.length < options.min) {
+            validationResult.size = `must be equal to or more then ${options.min}`;
+          }
 
           const hasErrors = Object.keys(validationResult).length;
           return hasErrors ? validationResult : undefined;
         },
         fromJSON(value) {
-          if (DataType.is(JSON, value)) return new CustomCollection(value);
+          if (DataType.is(Array, value)) return new CustomCollection(value);
           return value;
         },
         toJSON(value) {
@@ -600,7 +597,7 @@ class Collection extends Model {
     );
 
     // eslint-disable-next-line no-constructor-return
-    return proxy;
+    return CustomCollection;
   }
 
   // add(item) {

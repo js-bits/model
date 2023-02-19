@@ -49,7 +49,7 @@ export default class Model {
       constructor(data) {
         super();
         if (!DataType.is(JSON, data)) {
-          const error = new Error('Model data must be a plain object');
+          const error = new Error('Model data must be a plain object'); // TODO: fix message dupes
           error.name = Model.InvalidDataError;
           throw error;
         }
