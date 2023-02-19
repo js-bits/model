@@ -46,7 +46,7 @@ class Collection extends Model {
         DataType.assert(CustomCollection, data);
 
         const propMap = data.reduce((map, item, index) => {
-          map.set(index, DataType.fromJSON(ContentType, item));
+          map.set(String(index), DataType.fromJSON(ContentType, item));
           return map;
         }, new Map());
 
