@@ -385,10 +385,25 @@ class Model {
     return 'Model';
   }
 
-  constructor(config) {
+  constructor(...args) {
     // eslint-disable-next-line no-constructor-return
     if (!arguments.length) return this; // prototype is being created
 
+    const CustomModel = this.create(...args);
+
+    // Move this to StorageModel (extends Model)
+    // MODELS.set(NewModel.ID, NewModel);
+    MODELS.add(CustomModel);
+    // NewModel.ID = Symbol('Model ID'); // do I really need it?
+    // NewModel.validateOnInit = true; // by default
+
+    // eslint-disable-next-line no-constructor-return
+    return CustomModel;
+    // super();
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  create(config) {
     // NOTE: encapsulated class definition makes it impossible to manipulate data schema from outside of the model
     let schema;
 
@@ -482,16 +497,7 @@ class Model {
     // NewModel.fromJSON = DataTypeRef.fromJSON;
 
     // console.log('NewModel.fromJSON', NewModel.fromJSON, DataTypeRef.fromJSON);
-
-    // Move this to StorageModel (extends Model)
-    // MODELS.set(NewModel.ID, NewModel);
-    MODELS.add(CustomModel);
-    // NewModel.ID = Symbol('Model ID'); // do I really need it?
-    // NewModel.validateOnInit = true; // by default
-
-    // eslint-disable-next-line no-constructor-return
     return CustomModel;
-    // super();
   }
 
   // fromJSON() {}
@@ -569,11 +575,20 @@ class Collection extends Model {
     return 'Collection';
   }
 
-  constructor(type, config = {}) {
+  constructor(...args) {
     super();
     // eslint-disable-next-line no-constructor-return
     if (!arguments.length) return this; // prototype is being created
 
+    const CustomCollection = this.create(...args);
+    MODELS.add(CustomCollection);
+
+    // eslint-disable-next-line no-constructor-return
+    return CustomCollection;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  create(type, config = {}) {
     const ContentType = Schema.initType(type);
     const options = new Options(config);
 
@@ -608,8 +623,6 @@ class Collection extends Model {
 
       // static toGraphQL() {}
     }
-
-    MODELS.add(CustomCollection);
 
     new DataType(
       {
@@ -649,7 +662,6 @@ class Collection extends Model {
       CustomCollection
     );
 
-    // eslint-disable-next-line no-constructor-return
     return CustomCollection;
   }
 

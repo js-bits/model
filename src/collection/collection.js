@@ -30,11 +30,20 @@ class Collection extends Model {
     return 'Collection';
   }
 
-  constructor(type, config = {}) {
+  constructor(...args) {
     super();
     // eslint-disable-next-line no-constructor-return
     if (!arguments.length) return this; // prototype is being created
 
+    const CustomCollection = this.create(...args);
+    MODELS.add(CustomCollection);
+
+    // eslint-disable-next-line no-constructor-return
+    return CustomCollection;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  create(type, config = {}) {
     const ContentType = Schema.initType(type);
     const options = new Options(config);
 
@@ -69,8 +78,6 @@ class Collection extends Model {
 
       // static toGraphQL() {}
     }
-
-    MODELS.add(CustomCollection);
 
     new DataType(
       {
@@ -110,7 +117,6 @@ class Collection extends Model {
       CustomCollection
     );
 
-    // eslint-disable-next-line no-constructor-return
     return CustomCollection;
   }
 
