@@ -32,7 +32,7 @@ describe('Custom data type', () => {
           });
         } catch (error) {
           expect(error).toEqual(new Error('Data is invalid'));
-          expect(error.cause).toEqual({ field: 'must have a valid value' });
+          expect(error.cause).toEqual(['"field": must have a valid value']);
         }
       });
     });
@@ -97,7 +97,7 @@ describe('Custom data type', () => {
         });
       } catch (error) {
         expect(error).toEqual(new Error('Data is invalid'));
-        expect(error.cause).toEqual({ int: 'must be a number' });
+        expect(error.cause).toEqual(['"int": must be a number']);
       }
       try {
         new TestModel1({
@@ -105,7 +105,7 @@ describe('Custom data type', () => {
         });
       } catch (error) {
         expect(error).toEqual(new Error('Data is invalid'));
-        expect(error.cause).toEqual({ int: 'must be an integer' });
+        expect(error.cause).toEqual(['"int": must be an integer']);
       }
       try {
         new TestModel2({
@@ -113,7 +113,7 @@ describe('Custom data type', () => {
         });
       } catch (error) {
         expect(error).toEqual(new Error('Data is invalid'));
-        expect(error.cause).toEqual({ int: 'must be an integer' });
+        expect(error.cause).toEqual(['"int": must be an integer']);
       }
       try {
         new TestModel2({
@@ -121,7 +121,7 @@ describe('Custom data type', () => {
         });
       } catch (error) {
         expect(error).toEqual(new Error('Data is invalid'));
-        expect(error.cause).toEqual({ int: 'must be a positive integer' });
+        expect(error.cause).toEqual(['"int": must be a positive integer']);
       }
     });
 

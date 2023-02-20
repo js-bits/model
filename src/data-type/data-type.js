@@ -25,7 +25,7 @@ export default class DataType {
 
     // expose useful methods
     ['validate', 'fromJSON', 'toJSON', 'is'].forEach(method => {
-      type[method] = value => DataType[method](type, value);
+      type[method] = (...args) => DataType[method](type, ...args);
     });
     Object.freeze(type);
     DataType.add(type, config);
@@ -66,9 +66,9 @@ export default class DataType {
     }
   }
 
-  static validate(type, value) {
+  static validate(type, value, message) {
     this.assert(type);
-    return DATA_TYPES.get(type).validate(value);
+    return DATA_TYPES.get(type).validate(value, message);
   }
 
   static fromJSON(type, value) {

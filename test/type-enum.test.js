@@ -28,9 +28,7 @@ describe('Enum', () => {
         error = e;
       }
       expect(error).toEqual(new Error('Data is invalid'));
-      expect(error.cause).toEqual({
-        unit: 'must be one of allowed values [Symbol(FOOT),Symbol(METER)]',
-      });
+      expect(error.cause).toEqual(['"unit": must be one of allowed values [Symbol(FOOT),Symbol(METER)]']);
     });
     test('missing value', () => {
       expect(() => {

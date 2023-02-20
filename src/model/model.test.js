@@ -152,7 +152,7 @@ describe('Model', () => {
       });
       const instance = new MyModel({ string: '' });
       expect(DataType.is(Model, instance)).toBe(true);
-      expect(DataType.validate(Model, MyModel)).toEqual('must be a model');
+      expect(DataType.validate(Model, MyModel)).toEqual(['must be a model']);
     });
 
     describe('built-in types', () => {
@@ -199,10 +199,10 @@ describe('Model', () => {
         'required!': Boolean,
         'number!': Number,
       });
-      expect(MyModel.validate({})).toEqual({
-        required: 'required property is not defined',
-        number: 'required property is not defined',
-      });
+      expect(MyModel.validate({})).toEqual([
+        '"required": required property is not defined',
+        '"number": required property is not defined',
+      ]);
     });
     test('? specifier', () => {
       const MyModel = new Model({
@@ -211,10 +211,10 @@ describe('Model', () => {
         'optional?': Boolean,
         'number?': Number,
       });
-      expect(MyModel.validate({})).toEqual({
-        string: 'required property is not defined',
-        date: 'required property is not defined',
-      });
+      expect(MyModel.validate({})).toEqual([
+        '"string": required property is not defined',
+        '"date": required property is not defined',
+      ]);
     });
     test('illegal usage of both ! and ?', () => {
       expect(() => {
@@ -238,7 +238,7 @@ describe('Model', () => {
     });
 
     test('incorrect data', () => {
-      expect(DerivedModel.validate('')).toEqual('invalid model type');
+      expect(DerivedModel.validate('')).toEqual(['invalid model type']);
     });
 
     test('incorrect values', () => {
@@ -250,13 +250,13 @@ describe('Model', () => {
           boolean: new Date(),
           optional: 234,
         })
-      ).toEqual({
-        string: 'must be a string',
-        number: 'must be a number',
-        boolean: 'must be a boolean',
-        date: 'must be a date',
-        optional: 'must be a string',
-      });
+      ).toEqual([
+        '"string": must be a string',
+        '"number": must be a number',
+        '"boolean": must be a boolean',
+        '"date": must be a date',
+        '"optional": must be a string',
+      ]);
     });
   });
 
@@ -278,7 +278,7 @@ describe('Model', () => {
 
   describe('Model.SAME', () => {
     test('should return true for models', () => {
-      expect(DataType.validate(Model.SAME, '')).toEqual('Model.SAME must not be use directly');
+      expect(DataType.validate(Model.SAME, '')).toEqual(['Model.SAME must not be use directly']);
     });
   });
 });

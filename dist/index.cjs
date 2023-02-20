@@ -84,13 +84,14 @@ class DataTypeDefinition {
     return outputValue;
   }
 
-  validate(value) {
+  validate(value, name = '') {
     if (hasOwn(this[ø$1.typeDef], 'extends')) {
-      const error = DATA_TYPES.get(this[ø$1.typeDef].extends).validate(value);
-      if (error) return error;
+      const baseTypeError = DATA_TYPES.get(this[ø$1.typeDef].extends).validate(value, name);
+      if (baseTypeError) return baseTypeError;
     }
     // if no error messages from a base validator
-    return this[ø$1.typeDef].validate(value);
+    const error = this[ø$1.typeDef].validate(value, name);
+    return typeof error === 'string' ? [name ? `"${name}": ${error}` : error] : error;
   }
 
   assert(value) {
@@ -129,7 +130,7 @@ class DataType {
 
     // expose useful methods
     ['validate', 'fromJSON', 'toJSON', 'is'].forEach(method => {
-      type[method] = value => DataType[method](type, value);
+      type[method] = (...args) => DataType[method](type, ...args);
     });
     Object.freeze(type);
     DataType.add(type, config);
@@ -170,9 +171,9 @@ class DataType {
     }
   }
 
-  static validate(type, value) {
+  static validate(type, value, message) {
     this.assert(type);
-    return DATA_TYPES.get(type).validate(value);
+    return DATA_TYPES.get(type).validate(value, message);
   }
 
   static fromJSON(type, value) {
@@ -443,22 +444,23 @@ class Model {
 
     new DataType(
       {
-        validate(value) {
+        validate(value, parentName) {
           if (value instanceof CustomModel) return undefined;
           if (!DataType.is(JSON, value)) return 'invalid model type';
 
-          const validationResult = {};
+          const validationResult = [];
           iterate(schema, value, (propName, propType, propValue) => {
+            const propPath = parentName ? `${parentName}.${propName}` : propName;
             if (propType) {
               const isDefined = !(propValue === undefined || propValue === null);
               if (isDefined) {
-                const errors = DataType.validate(propType, propValue);
-                if (errors) validationResult[propName] = errors;
+                const errors = DataType.validate(propType, propValue, propPath);
+                if (errors) validationResult.push(...errors);
               } else if (schema.isRequired(propName)) {
-                validationResult[propName] = 'required property is not defined';
+                validationResult.push(`"${propPath}": required property is not defined`);
               }
             } else {
-              validationResult[propName] = 'property is not defined in schema';
+              validationResult.push(`"${propPath}": property is not defined in schema`);
             }
           });
 

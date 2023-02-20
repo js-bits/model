@@ -101,22 +101,23 @@ export default class Model {
 
     new DataType(
       {
-        validate(value) {
+        validate(value, parentName) {
           if (value instanceof CustomModel) return undefined;
           if (!DataType.is(JSON, value)) return 'invalid model type';
 
-          const validationResult = {};
+          const validationResult = [];
           iterate(schema, value, (propName, propType, propValue) => {
+            const propPath = parentName ? `${parentName}.${propName}` : propName;
             if (propType) {
               const isDefined = !(propValue === undefined || propValue === null);
               if (isDefined) {
-                const errors = DataType.validate(propType, propValue);
-                if (errors) validationResult[propName] = errors;
+                const errors = DataType.validate(propType, propValue, propPath);
+                if (errors) validationResult.push(...errors);
               } else if (schema.isRequired(propName)) {
-                validationResult[propName] = 'required property is not defined';
+                validationResult.push(`"${propPath}": required property is not defined`);
               }
             } else {
-              validationResult[propName] = 'property is not defined in schema';
+              validationResult.push(`"${propPath}": property is not defined in schema`);
             }
           });
 

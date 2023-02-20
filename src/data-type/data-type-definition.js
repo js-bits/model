@@ -81,13 +81,14 @@ class DataTypeDefinition {
     return outputValue;
   }
 
-  validate(value) {
+  validate(value, name = '') {
     if (hasOwn(this[ø.typeDef], 'extends')) {
-      const error = DATA_TYPES.get(this[ø.typeDef].extends).validate(value);
-      if (error) return error;
+      const baseTypeError = DATA_TYPES.get(this[ø.typeDef].extends).validate(value, name);
+      if (baseTypeError) return baseTypeError;
     }
     // if no error messages from a base validator
-    return this[ø.typeDef].validate(value);
+    const error = this[ø.typeDef].validate(value, name);
+    return typeof error === 'string' ? [name ? `"${name}": ${error}` : error] : error;
   }
 
   assert(value) {

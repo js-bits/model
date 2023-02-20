@@ -40,7 +40,7 @@ describe('Model', () => {
         error = e;
       }
       expect(error).toEqual(new Error('Data is invalid'));
-      expect(error.cause).toEqual({ model: 'must be a model' });
+      expect(error.cause).toEqual(['"model": must be a model']);
     });
   });
 
@@ -81,7 +81,7 @@ describe('Model', () => {
           });
         } catch (error) {
           expect(error).toEqual(new Error('Data is invalid'));
-          expect(error.cause).toEqual({ link: 'invalid model type' });
+          expect(error.cause).toEqual(['"link": invalid model type']);
         }
       });
     });
@@ -123,7 +123,7 @@ describe('Model', () => {
           });
         } catch (error) {
           expect(error).toEqual(new Error('Data is invalid'));
-          expect(error.cause).toEqual({ parent: 'invalid model type' });
+          expect(error.cause).toEqual(['"parent": invalid model type']);
         }
       });
     });
@@ -162,13 +162,11 @@ describe('Model', () => {
           error = e;
         }
         expect(error).toEqual(new Error('Data is invalid'));
-        expect(error.cause).toEqual({
-          options: {
-            flag: 'must be a boolean',
-            param: 'must be a string',
-            unknown: 'property is not defined in schema',
-          },
-        });
+        expect(error.cause).toEqual([
+          '"options.param": must be a string',
+          '"options.flag": must be a boolean',
+          '"options.unknown": property is not defined in schema',
+        ]);
       });
     });
 
@@ -224,17 +222,13 @@ describe('Model', () => {
           error = e;
         }
         expect(error).toEqual(new Error('Data is invalid'));
-        expect(error.cause).toEqual({
-          title: 'must be a string',
-          options: {
-            flag: 'required property is not defined',
-            unknown: 'property is not defined in schema',
-            settings: {
-              param: 'must be a number',
-              json: 'must be a plain object',
-            },
-          },
-        });
+        expect(error.cause).toEqual([
+          '"title": must be a string',
+          '"options.flag": required property is not defined',
+          '"options.settings.param": must be a number',
+          '"options.settings.json": must be a plain object',
+          '"options.unknown": property is not defined in schema',
+        ]);
       });
     });
   });

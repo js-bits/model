@@ -6,27 +6,27 @@ Array [
     "Data is invalid",
   ],
   Array [
-    Object {
-      "balance": "must be a number",
-    },
+    Array [
+      "\\"balance\\": must be a number",
+    ],
   ],
   Array [
     "Data is invalid",
   ],
   Array [
-    Object {
-      "title": "required property is not defined",
-    },
+    Array [
+      "\\"title\\": required property is not defined",
+    ],
   ],
   Array [
     "Data is invalid",
   ],
   Array [
-    Object {
-      "account": "invalid model type",
-      "category": "invalid model type",
-      "date": "required property is not defined",
-    },
+    Array [
+      "\\"account\\": invalid model type",
+      "\\"category\\": invalid model type",
+      "\\"date\\": required property is not defined",
+    ],
   ],
   Array [
     "[
