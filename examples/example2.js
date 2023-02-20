@@ -83,7 +83,7 @@ export default () => {
     account: CreditCard,
     category: Dining,
     amount: 50,
-    date: new Date('10/09/2010'),
+    date: new Date('10/09/2010 UTC'),
     notes: 'Green Dragon',
   });
 
@@ -91,7 +91,7 @@ export default () => {
     account: Checking,
     category: Housing,
     amount: 2000,
-    date: new Date('10/10/2010'),
+    date: new Date('10/10/2010 UTC'),
     notes: 'Rent',
   });
 
