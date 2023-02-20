@@ -1,18 +1,18 @@
-import Model from '../src/model/model.js';
+import Model from '../model.js';
 
-describe('Number', () => {
+describe('String', () => {
   const TestModel = new Model({
-    number: Number,
-    'optional?': Number,
+    string: String,
+    'optional?': String,
   });
 
   test('correct value', () => {
     const instance = new TestModel({
-      number: 0,
+      string: '',
     });
     expect(instance).toBeInstanceOf(TestModel);
     expect(instance).toBeInstanceOf(Model);
-    expect(instance.number).toEqual(0);
+    expect(instance.string).toEqual('');
     expect(instance.optional).toBeNull();
   });
 
@@ -20,14 +20,14 @@ describe('Number', () => {
     test('incorrect type', () => {
       expect(() => {
         new TestModel({
-          number: '',
+          string: 123,
         });
       }).toThrowError('Data is not valid');
     });
     test('missing value', () => {
       expect(() => {
         new TestModel({
-          number: null,
+          string: null,
         });
       }).toThrowError('Data is not valid');
       expect(() => {
@@ -39,8 +39,8 @@ describe('Number', () => {
   test('incorrect optional value', () => {
     expect(() => {
       new TestModel({
-        number: 234,
-        optional: '234',
+        string: '123',
+        optional: 123,
       });
     }).toThrowError('Data is not valid');
   });

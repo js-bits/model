@@ -1,4 +1,4 @@
-import Model from '../src/model/model.js';
+import Model from '../model.js';
 
 describe('Date', () => {
   const TestModel = new Model({

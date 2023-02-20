@@ -1,39 +1,33 @@
-import enumerate from '@js-bits/enumerate';
-import Model from '../src/model/model.js';
+import Model from '../model.js';
 
-describe('Enum', () => {
-  const Unit = enumerate`FOOT, METER`;
-
+describe('Number', () => {
   const TestModel = new Model({
-    unit: Unit,
-    'optional?': Unit,
+    number: Number,
+    'optional?': Number,
   });
 
   test('correct value', () => {
     const instance = new TestModel({
-      unit: Unit.FOOT,
+      number: 0,
     });
     expect(instance).toBeInstanceOf(TestModel);
     expect(instance).toBeInstanceOf(Model);
+    expect(instance.number).toEqual(0);
+    expect(instance.optional).toBeNull();
   });
 
   describe('incorrect value', () => {
     test('incorrect type', () => {
-      let error;
-      try {
+      expect(() => {
         new TestModel({
-          unit: 123,
+          number: '',
         });
-      } catch (e) {
-        error = e;
-      }
-      expect(error).toEqual(new Error('Data is not valid'));
-      expect(error.cause).toEqual(['"unit": must be one of allowed values [Symbol(FOOT),Symbol(METER)]']);
+      }).toThrowError('Data is not valid');
     });
     test('missing value', () => {
       expect(() => {
         new TestModel({
-          unit: Symbol('METER'),
+          number: null,
         });
       }).toThrowError('Data is not valid');
       expect(() => {
@@ -45,8 +39,8 @@ describe('Enum', () => {
   test('incorrect optional value', () => {
     expect(() => {
       new TestModel({
-        unit: Unit.METER,
-        optional: 123,
+        number: 234,
+        optional: '234',
       });
     }).toThrowError('Data is not valid');
   });

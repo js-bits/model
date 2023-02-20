@@ -1,4 +1,4 @@
-import Model from '../src/model/model.js';
+import Model from '../model.js';
 
 describe('Model', () => {
   describe('should accept base model as a data type', () => {
