@@ -293,5 +293,52 @@ describe('Model', () => {
     test('should return true for models', () => {
       expect(DataType.validate(Model.SAME, '')).toEqual(['Model.SAME must not be use directly']);
     });
+    test('multiple Model.SAME on a single model is applied to a closest model, not to the root model', () => {
+      const Node = new Model({
+        name: String,
+        'parent?': Model.SAME,
+        object: {
+          prop: Number,
+          'object?': Model.SAME,
+        },
+      });
+      const Tree = new Model({
+        title: String,
+        'subTree?': Model.SAME,
+        node: Node,
+      });
+      expect(() => {
+        new Tree({
+          title: 'tree',
+          subTree: {
+            title: 'sub-tree',
+            node: {
+              name: 'node',
+              object: {
+                prop: 555,
+              },
+            },
+          },
+          node: {
+            name: 'node',
+            parent: {
+              name: 'parent-node',
+              object: {
+                prop: 123,
+                object: {
+                  prop: 456,
+                },
+              },
+            },
+            object: {
+              prop: 678,
+              object: {
+                prop: 901,
+              },
+            },
+          },
+        });
+      }).not.toThrow();
+    });
   });
 });
