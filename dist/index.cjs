@@ -616,12 +616,7 @@ class Collection extends Model {
       }
 
       constructor(data) {
-        if (!DataType.is(Array, data)) {
-          const error = new Error('Model data must be a array'); // TODO: fix message dupes
-          error.name = Model.InvalidDataError;
-          throw error;
-        }
-
+        DataType.assert(Array, data, '<collection_data>');
         DataType.assert(CustomCollection, data);
 
         super(...data.map(item => DataType.fromJSON(ContentType, item)));
@@ -650,10 +645,12 @@ class Collection extends Model {
             if (errors) validationResult.push(...errors);
           });
 
-          if (options.max && value.length > options.max) {
-            validationResult.push(`"${parentName}size": must be less then or equal to ${options.max}`);
+          if (options.min && options.max && options.min === options.max && value.length !== options.max) {
+            validationResult.push(`"${parentName}size" must be ${options.max}`);
+          } else if (options.max && value.length > options.max) {
+            validationResult.push(`"${parentName}size" must be less then or equal to ${options.max}`);
           } else if (options.min && value.length < options.min) {
-            validationResult.push(`"${parentName}size": must be equal to or more then ${options.min}`);
+            validationResult.push(`"${parentName}size" must be equal to or more then ${options.min}`);
           }
 
           const hasErrors = validationResult.length;
