@@ -57,9 +57,9 @@ export default class Model {
 
         DataType.assert(CustomModel, data);
         const store = {};
-        iterate(schema, data, (propName, propType, propValue) => {
+        iterate(schema, data, (propName, propType, propValue = null) => {
           // intentionally set to null for both cases (undefined and null)
-          store[propName] = propValue ? DataType.fromJSON(propType, propValue) : null;
+          store[propName] = propValue !== null ? DataType.fromJSON(propType, propValue) : null;
         });
 
         // eslint-disable-next-line no-constructor-return

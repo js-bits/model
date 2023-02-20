@@ -206,6 +206,7 @@ Object.assign(DataType, ERRORS$2);
 
 // const MODEL_PROPS = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
 const ARRAY_MEMBERS = ['length', 'forEach'];
+const REDIRECT_MEMBERS = [Symbol.iterator];
 
 /**
  * @param {Map} propMap
@@ -214,13 +215,15 @@ var freeze = (model, data) =>
   new Proxy(model, {
     get(...args) {
       const key = args[1];
-      if (hasOwn(data, key) || ARRAY_MEMBERS.includes(key)) {
+      // console.log('get', key);
+      if (hasOwn(data, key) || ARRAY_MEMBERS.includes(key) || REDIRECT_MEMBERS.includes(key)) {
         return data[key];
       }
       return Reflect.get(...args);
     },
     has(...args) {
       const key = args[1];
+      // console.log('has', key);
       return Reflect.has(...args) || hasOwn(data, key);
     },
     ownKeys() {
@@ -228,6 +231,7 @@ var freeze = (model, data) =>
     },
     getOwnPropertyDescriptor(...args) {
       const key = args[1];
+      // console.log('getOwnPropertyDescriptor', key);
       if (hasOwn(data, key))
         return {
           writable: false,
@@ -399,14 +403,22 @@ class Model {
 
         DataType.assert(CustomModel, data);
         const store = {};
-        iterate(schema, data, (propName, propType, propValue) => {
+        iterate(schema, data, (propName, propType, propValue = null) => {
           // intentionally set to null for both cases (undefined and null)
-          store[propName] = propValue ? DataType.fromJSON(propType, propValue) : null;
+          store[propName] = propValue !== null ? DataType.fromJSON(propType, propValue) : null;
         });
 
         // eslint-disable-next-line no-constructor-return
         return freeze(this, store);
       }
+
+      // toString() {
+      //   return '';
+      // }
+
+      // valueOf() {
+      //   return '123';
+      // }
 
       // static toGraphQL() {}
     }
@@ -569,13 +581,15 @@ class Collection extends Model {
 
         DataType.assert(CustomCollection, data);
 
-        const propMap = data.reduce((map, item, index) => {
-          map.set(String(index), DataType.fromJSON(ContentType, item));
-          return map;
-        }, new Map());
+        const store = data.map(item => {
+          console.log('item', item);
+          const model = DataType.fromJSON(ContentType, item);
+          console.log('model', JSON.stringify(model));
+          return model;
+        });
 
         // eslint-disable-next-line no-constructor-return
-        return freeze(this, propMap);
+        return freeze(this, store);
       }
 
       // static toGraphQL() {}

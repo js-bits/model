@@ -8,10 +8,12 @@ describe('Number', () => {
 
   test('correct value', () => {
     const instance = new TestModel({
-      number: 123.12,
+      number: 0,
     });
     expect(instance).toBeInstanceOf(TestModel);
     expect(instance).toBeInstanceOf(Model);
+    expect(instance.number).toEqual(0);
+    expect(instance.optional).toBeNull();
   });
 
   describe('incorrect value', () => {

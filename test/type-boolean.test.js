@@ -7,11 +7,25 @@ describe('Boolean', () => {
   });
 
   test('correct value', () => {
-    const instance = new TestModel({
+    const instance1 = new TestModel({
       boolean: false,
     });
-    expect(instance).toBeInstanceOf(TestModel);
-    expect(instance).toBeInstanceOf(Model);
+    const instance2 = new TestModel({
+      boolean: true,
+      optional: null,
+    });
+    const instance3 = new TestModel({
+      boolean: false,
+      optional: false,
+    });
+    expect(instance1).toBeInstanceOf(TestModel);
+    expect(instance1).toBeInstanceOf(Model);
+    expect(instance1.boolean).toBe(false);
+    expect(instance1.optional).toBeNull();
+    expect(instance2.boolean).toBe(true);
+    expect(instance2.optional).toBeNull();
+    expect(instance3.boolean).toBe(false);
+    expect(instance3.optional).toBe(false);
   });
 
   describe('incorrect value', () => {
