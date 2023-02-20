@@ -48,7 +48,7 @@ class DataTypeDefinition {
 
     if (typeof config === 'object') {
       if (hasOwn(config, 'extends')) {
-        if (!DATA_TYPES.has(config.extends)) {
+        if (!DataTypeDefinition.exists(config.extends)) {
           const error = new Error(configError`unknown base data type`);
           error.name = ERRORS$1.ConfigurationError;
           throw error;
@@ -113,6 +113,23 @@ class DataTypeDefinition {
       throw error;
     }
   }
+
+  static add(type, config) {
+    DATA_TYPES.set(type, new DataTypeDefinition(config));
+  }
+
+  static exists(type) {
+    if (DATA_TYPES.has(type)) return true;
+    if (enumerate.isEnum(type)) {
+      this.add(type, value => {
+        const allowedValues = Object.values(type);
+        const list = allowedValues.map(item => String(item)).join(',');
+        return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
+      });
+      return true;
+    }
+    return false;
+  }
 }
 
 /* eslint-disable max-classes-per-file */
@@ -146,21 +163,12 @@ class DataType {
     return type;
   }
 
-  static add(type, config) {
-    DATA_TYPES.set(type, new DataTypeDefinition(config));
+  static add(...args) {
+    DataTypeDefinition.add(...args);
   }
 
-  static exists(type) {
-    if (DATA_TYPES.has(type)) return true;
-    if (enumerate.isEnum(type)) {
-      DataType.add(type, value => {
-        const allowedValues = Object.values(type);
-        const list = allowedValues.map(item => String(item)).join(',');
-        return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
-      });
-      return true;
-    }
-    return false;
+  static exists(...args) {
+    return DataTypeDefinition.exists(...args);
   }
 
   /**

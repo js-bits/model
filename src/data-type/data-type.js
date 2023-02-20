@@ -31,21 +31,12 @@ export default class DataType {
     return type;
   }
 
-  static add(type, config) {
-    DATA_TYPES.set(type, new DataTypeDefinition(config));
+  static add(...args) {
+    DataTypeDefinition.add(...args);
   }
 
-  static exists(type) {
-    if (DATA_TYPES.has(type)) return true;
-    if (enumerate.isEnum(type)) {
-      DataType.add(type, value => {
-        const allowedValues = Object.values(type);
-        const list = allowedValues.map(item => String(item)).join(',');
-        return allowedValues.includes(value) ? undefined : `must be one of allowed values [${list}]`;
-      });
-      return true;
-    }
-    return false;
+  static exists(...args) {
+    return DataTypeDefinition.exists(...args);
   }
 
   /**

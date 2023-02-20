@@ -1,4 +1,5 @@
 import enumerate from '@js-bits/enumerate';
+import DataType from '../../data-type/data-type.js';
 import Model from '../model.js';
 
 describe('Enum', () => {
@@ -15,6 +16,22 @@ describe('Enum', () => {
     });
     expect(instance).toBeInstanceOf(TestModel);
     expect(instance).toBeInstanceOf(Model);
+  });
+
+  test('new DataType', () => {
+    const Enum = enumerate(String)`ONE TWO THREE`;
+
+    const ONE = new DataType({
+      extends: Enum,
+      validate(value) {
+        return value === 'ONE' ? undefined : 'must be equal to "ONE"';
+      },
+    });
+
+    expect(DataType.validate(ONE, 'ONE')).toBeUndefined();
+    expect(DataType.validate(Enum, 'ONE')).toBeUndefined();
+    expect(DataType.validate(Enum, 'THREE')).toBeUndefined();
+    expect(DataType.validate(ONE, 'TWO')).toEqual(['must be equal to "ONE"']);
   });
 
   describe('incorrect value', () => {
