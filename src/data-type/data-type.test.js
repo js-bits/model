@@ -53,9 +53,16 @@ describe('DataType', () => {
       });
       test('invalid value', () => {
         expect(DataType.validate(CustomType, 123)).toEqual(['must have a valid value']);
+        expect(CustomType.validate(123)).toEqual(['must have a valid value']);
+        expect(CustomType.validate(123, 'var')).toEqual(['"var" must have a valid value']);
+      });
+      test('invalid value with property name', () => {
+        expect(DataType.validate(CustomType, 123, 'var')).toEqual(['"var" must have a valid value']);
+        expect(CustomType.validate(123, 'var')).toEqual(['"var" must have a valid value']);
       });
       test('valid value', () => {
         expect(DataType.validate(CustomType, 'valid')).toBeUndefined();
+        expect(CustomType.validate('valid')).toBeUndefined();
       });
     });
 
@@ -67,9 +74,11 @@ describe('DataType', () => {
       });
       test('invalid value', () => {
         expect(DataType.validate(CustomType, 123)).toEqual(['must have a valid value']);
+        expect(CustomType.validate(123)).toEqual(['must have a valid value']);
       });
       test('valid value', () => {
         expect(DataType.validate(CustomType, 'valid')).toBeUndefined();
+        expect(CustomType.validate('valid')).toBeUndefined();
       });
     });
 
@@ -135,6 +144,7 @@ describe('DataType', () => {
         expect(DataType.validate(String, undefined)).toEqual(['must be a string']);
         expect(DataType.validate(String, null)).toEqual(['must be a string']);
         expect(DataType.validate(String, 123)).toEqual(['must be a string']);
+        expect(DataType.validate(String, 123, 'var')).toEqual(['"var" must be a string']);
       });
       test('valid value', () => {
         expect(DataType.validate(String, '123')).toBeUndefined();
@@ -243,6 +253,39 @@ describe('DataType', () => {
       expect(() => {
         DataType.validate(Promise, 'valid');
       }).toThrowError('Unknown data type');
+      expect(() => {
+        DataType.validate(Promise, 'valid', 'var');
+      }).toThrowError('Unknown data type for "var"');
+    });
+  });
+
+  describe('.assert', () => {
+    const CustomType = new DataType(value => (value !== 'valid' ? 'must have a valid value' : undefined));
+    test('should return undefined for a valid value of a given type', () => {
+      expect(DataType.assert(CustomType, 'valid')).toBeUndefined();
+      expect(CustomType.assert('valid')).toBeUndefined();
+    });
+    test('should throw an error message for an invalid type or value', () => {
+      expect(() => {
+        DataType.assert(Promise, 'valid');
+      }).toThrowError('Unknown data type');
+      expect(() => {
+        DataType.assert(CustomType, 'invalid', 'var');
+      }).toThrowError('Data is not valid: "var" must have a valid value');
+    });
+
+    describe('when validator returns multiple errors', () => {
+      const AnotherType = new DataType(value =>
+        value !== 'valid' ? ['must have a valid value', 'must be 100% valid'] : undefined
+      );
+      test('should throw an error message with the cause', () => {
+        try {
+          DataType.assert(AnotherType, 'invalid', 'var');
+        } catch (error) {
+          expect(error.message).toEqual('Data is not valid: see "error.cause" for details');
+          expect(error.cause).toEqual(['must have a valid value', 'must be 100% valid']);
+        }
+      });
     });
   });
 

@@ -103,8 +103,8 @@ class DataTypeDefinition {
   assert(value, name = '') {
     const result = this.validate(value, name);
     if (result) {
-      const message = result.length ? `: ${result[0]}` : '';
-      const error = new Error(`Data is not valid${message}`);
+      const message = result.length === 1 ? `${result[0]}` : 'see "error.cause" for details';
+      const error = new Error(`Data is not valid: ${message}`);
       error.name = ERRORS.ValidationError;
       error.cause = result;
       throw error;

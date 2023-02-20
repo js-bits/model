@@ -22,7 +22,7 @@ export default class DataType {
     if (!arguments.length) return this; // prototype is being created
 
     // expose useful methods
-    ['validate', 'fromJSON', 'toJSON', 'is'].forEach(method => {
+    ['validate', 'fromJSON', 'toJSON', 'is', 'assert'].forEach(method => {
       type[method] = (...args) => DataType[method](type, ...args);
     });
     Object.freeze(type);

@@ -106,8 +106,8 @@ class DataTypeDefinition {
   assert(value, name = '') {
     const result = this.validate(value, name);
     if (result) {
-      const message = result.length ? `: ${result[0]}` : '';
-      const error = new Error(`Data is not valid${message}`);
+      const message = result.length === 1 ? `${result[0]}` : 'see "error.cause" for details';
+      const error = new Error(`Data is not valid: ${message}`);
       error.name = ERRORS$1.ValidationError;
       error.cause = result;
       throw error;
@@ -137,7 +137,7 @@ class DataType {
     if (!arguments.length) return this; // prototype is being created
 
     // expose useful methods
-    ['validate', 'fromJSON', 'toJSON', 'is'].forEach(method => {
+    ['validate', 'fromJSON', 'toJSON', 'is', 'assert'].forEach(method => {
       type[method] = (...args) => DataType[method](type, ...args);
     });
     Object.freeze(type);

@@ -162,7 +162,7 @@ describe('Model', () => {
           });
         } catch (error) {
           expect(error.name).toEqual('DataType|ValidationError');
-          expect(error.message).toEqual('Data is not valid: "options.param" must be a string');
+          expect(error.message).toEqual('Data is not valid: see "error.cause" for details');
           expect(error.cause).toEqual([
             '"options.param" must be a string',
             '"options.flag" must be a boolean',
@@ -224,7 +224,7 @@ describe('Model', () => {
           error = e;
         }
         expect(error.name).toEqual('DataType|ValidationError');
-        expect(error.message).toEqual('Data is not valid: "title" must be a string');
+        expect(error.message).toEqual('Data is not valid: see "error.cause" for details');
         expect(error.cause).toEqual([
           '"title" must be a string',
           '"options.flag" required property is not defined',
