@@ -13,7 +13,7 @@ export const ERRORS = enumerate('DataType|')`
 
 export const DATA_TYPES = new Map();
 
-const hasOwn = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+export const hasOwn = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
 
 class DataTypeDefinition {
   static toString() {

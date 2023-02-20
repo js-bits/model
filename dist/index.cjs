@@ -205,29 +205,30 @@ DataType.add(JSON, value =>
 Object.assign(DataType, ERRORS$2);
 
 // const MODEL_PROPS = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
+const ARRAY_MEMBERS = ['length', 'forEach'];
 
 /**
  * @param {Map} propMap
  */
-var freeze = (data, propMap) =>
-  new Proxy(data, {
+var freeze = (model, data) =>
+  new Proxy(model, {
     get(...args) {
       const key = args[1];
-      if (propMap.has(key)) {
-        return propMap.get(key);
+      if (hasOwn(data, key) || ARRAY_MEMBERS.includes(key)) {
+        return data[key];
       }
       return Reflect.get(...args);
     },
     has(...args) {
       const key = args[1];
-      return Reflect.has(...args) || propMap.has(key);
+      return Reflect.has(...args) || hasOwn(data, key);
     },
     ownKeys() {
-      return [...propMap.keys()];
+      return Object.keys(data);
     },
     getOwnPropertyDescriptor(...args) {
       const key = args[1];
-      if (propMap.has(key))
+      if (hasOwn(data, key))
         return {
           writable: false,
           enumerable: true,
@@ -397,14 +398,14 @@ class Model {
         }
 
         DataType.assert(CustomModel, data);
-        const propMap = new Map();
+        const store = {};
         iterate(schema, data, (propName, propType, propValue) => {
           // intentionally set to null for both cases (undefined and null)
-          propMap.set(propName, propValue ? DataType.fromJSON(propType, propValue) : null);
+          store[propName] = propValue ? DataType.fromJSON(propType, propValue) : null;
         });
 
         // eslint-disable-next-line no-constructor-return
-        return freeze(this, propMap);
+        return freeze(this, store);
       }
 
       // static toGraphQL() {}

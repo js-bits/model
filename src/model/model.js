@@ -56,14 +56,14 @@ export default class Model {
         }
 
         DataType.assert(CustomModel, data);
-        const propMap = new Map();
+        const store = {};
         iterate(schema, data, (propName, propType, propValue) => {
           // intentionally set to null for both cases (undefined and null)
-          propMap.set(propName, propValue ? DataType.fromJSON(propType, propValue) : null);
+          store[propName] = propValue ? DataType.fromJSON(propType, propValue) : null;
         });
 
         // eslint-disable-next-line no-constructor-return
-        return freeze(this, propMap);
+        return freeze(this, store);
       }
 
       // static toGraphQL() {}
