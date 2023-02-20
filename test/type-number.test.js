@@ -22,17 +22,17 @@ describe('Number', () => {
         new TestModel({
           number: '',
         });
-      }).toThrowError('Data is invalid');
+      }).toThrowError('Data is not valid');
     });
     test('missing value', () => {
       expect(() => {
         new TestModel({
           number: null,
         });
-      }).toThrowError('Data is invalid');
+      }).toThrowError('Data is not valid');
       expect(() => {
         new TestModel({});
-      }).toThrowError('Data is invalid');
+      }).toThrowError('Data is not valid');
     });
   });
 
@@ -42,6 +42,6 @@ describe('Number', () => {
         number: 234,
         optional: '234',
       });
-    }).toThrowError('Data is invalid');
+    }).toThrowError('Data is not valid');
   });
 });

@@ -279,14 +279,14 @@ describe('DataType', () => {
           test('incorrect value', () => {
             expect(() => {
               CustomType.fromJSON('invalid');
-            }).toThrow('Data is invalid');
+            }).toThrow('Data is not valid');
           });
         });
         describe('#toJSON', () => {
           test('incorrect value', () => {
             expect(() => {
               CustomType.toJSON('invalid');
-            }).toThrow('Data is invalid');
+            }).toThrow('Data is not valid');
           });
         });
       });

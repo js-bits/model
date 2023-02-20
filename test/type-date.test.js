@@ -21,17 +21,17 @@ describe('Date', () => {
           date: new Model(),
           optional: new Date(),
         });
-      }).toThrowError('Data is invalid');
+      }).toThrowError('Data is not valid');
     });
     test('missing value', () => {
       expect(() => {
         new TestModel({
           date: null,
         });
-      }).toThrowError('Data is invalid');
+      }).toThrowError('Data is not valid');
       expect(() => {
         new TestModel({});
-      }).toThrowError('Data is invalid');
+      }).toThrowError('Data is not valid');
     });
   });
 
@@ -41,6 +41,6 @@ describe('Date', () => {
         date: new Date(),
         optional: 123,
       });
-    }).toThrowError('Data is invalid');
+    }).toThrowError('Data is not valid');
   });
 });

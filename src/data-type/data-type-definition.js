@@ -98,7 +98,7 @@ class DataTypeDefinition {
     const result = this.validate(value, name);
     if (result) {
       const message = typeof result === 'string' ? `: ${result}` : '';
-      const error = new Error(`Data is invalid${message}`);
+      const error = new Error(`Data is not valid${message}`);
       error.name = ERRORS.ValidationError;
       error.cause = result;
       throw error;

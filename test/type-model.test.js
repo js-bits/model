@@ -39,7 +39,7 @@ describe('Model', () => {
       } catch (e) {
         error = e;
       }
-      expect(error).toEqual(new Error('Data is invalid'));
+      expect(error).toEqual(new Error('Data is not valid'));
       expect(error.cause).toEqual(['"model": must be a model']);
     });
   });
@@ -80,7 +80,7 @@ describe('Model', () => {
             link: instance3,
           });
         } catch (error) {
-          expect(error).toEqual(new Error('Data is invalid'));
+          expect(error).toEqual(new Error('Data is not valid'));
           expect(error.cause).toEqual(['"link": invalid model type']);
         }
       });
@@ -122,7 +122,7 @@ describe('Model', () => {
             }),
           });
         } catch (error) {
-          expect(error).toEqual(new Error('Data is invalid'));
+          expect(error).toEqual(new Error('Data is not valid'));
           expect(error.cause).toEqual(['"parent": invalid model type']);
         }
       });
@@ -161,7 +161,7 @@ describe('Model', () => {
         } catch (e) {
           error = e;
         }
-        expect(error).toEqual(new Error('Data is invalid'));
+        expect(error).toEqual(new Error('Data is not valid'));
         expect(error.cause).toEqual([
           '"options.param": must be a string',
           '"options.flag": must be a boolean',
@@ -221,7 +221,7 @@ describe('Model', () => {
         } catch (e) {
           error = e;
         }
-        expect(error).toEqual(new Error('Data is invalid'));
+        expect(error).toEqual(new Error('Data is not valid'));
         expect(error.cause).toEqual([
           '"title": must be a string',
           '"options.flag": required property is not defined',

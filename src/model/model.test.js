@@ -185,7 +185,7 @@ describe('Model', () => {
               boolean: new Date(),
               optional: 234,
             });
-          }).toThrowError('Data is invalid');
+          }).toThrowError('Data is not valid');
         });
       });
     });
