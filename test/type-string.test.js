@@ -12,7 +12,7 @@ describe('String', () => {
     });
     expect(instance).toBeInstanceOf(TestModel);
     expect(instance).toBeInstanceOf(Model);
-    expect(instance.string).toEqual(0);
+    expect(instance.string).toEqual('');
     expect(instance.optional).toBeNull();
   });
 

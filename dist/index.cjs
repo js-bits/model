@@ -581,12 +581,7 @@ class Collection extends Model {
 
         DataType.assert(CustomCollection, data);
 
-        const store = data.map(item => {
-          console.log('item', item);
-          const model = DataType.fromJSON(ContentType, item);
-          console.log('model', JSON.stringify(model));
-          return model;
-        });
+        const store = data.map(item => DataType.fromJSON(ContentType, item));
 
         // eslint-disable-next-line no-constructor-return
         return freeze(this, store);
