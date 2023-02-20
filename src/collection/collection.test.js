@@ -233,17 +233,68 @@ describe('Model', () => {
       });
     });
 
-    describe('.validate', () => {
-      test('valid input', () => {
-        const DerivedCollection = new Collection(String);
-        expect(DerivedCollection.validate(['123', '456'])).toBeUndefined();
-        expect(DerivedCollection.validate(new DerivedCollection(['a', 'b', 'c']))).toBeUndefined();
+    describe('data access', () => {
+      test('simple collection', () => {
+        const StringCollection = new Collection(String);
+        const instance = new StringCollection(['a', 'b', 'c']);
+        expect(instance[2]).toEqual('c');
       });
-      test('invalid input', () => {
-        const DerivedCollection = new Collection(String);
-        expect(DerivedCollection.validate(() => {})).toEqual(['invalid collection type']);
-        expect(DerivedCollection.validate(new Collection(Number))).toEqual(['invalid collection type']);
+      test('complicated collection', () => {
+        const ComplexCollection = new Model({
+          items: [
+            {
+              title: String,
+              fields: [
+                {
+                  name: String,
+                  value: String,
+                },
+              ],
+            },
+          ],
+        });
+        const instance = new ComplexCollection({
+          items: [
+            {
+              title: 'item1',
+              fields: [
+                {
+                  name: 'email',
+                  value: '@gmail.com',
+                },
+              ],
+            },
+            {
+              title: 'item2',
+              fields: [
+                {
+                  name: 'firstName',
+                  value: 'Paul',
+                },
+                {
+                  name: 'address',
+                  value: '1234',
+                },
+              ],
+            },
+          ],
+        });
+        expect(instance.items[0].fields[0].value).toEqual('@gmail.com');
+        expect(instance.items[1].fields[1].value).toEqual('1234');
       });
+    });
+  });
+
+  describe('.validate', () => {
+    test('valid input', () => {
+      const DerivedCollection = new Collection(String);
+      expect(DerivedCollection.validate(['123', '456'])).toBeUndefined();
+      expect(DerivedCollection.validate(new DerivedCollection(['a', 'b', 'c']))).toBeUndefined();
+    });
+    test('invalid input', () => {
+      const DerivedCollection = new Collection(String);
+      expect(DerivedCollection.validate(() => {})).toEqual(['invalid collection type']);
+      expect(DerivedCollection.validate(new Collection(Number))).toEqual(['invalid collection type']);
     });
   });
 });
