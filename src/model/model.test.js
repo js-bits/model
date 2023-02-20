@@ -146,13 +146,26 @@ describe('Model', () => {
       });
     });
 
-    test('data type', () => {
+    describe('data type', () => {
       const MyModel = new Model({
         string: String,
       });
-      const instance = new MyModel({ string: '' });
-      expect(DataType.is(Model, instance)).toBe(true);
-      expect(DataType.validate(Model, MyModel)).toEqual(['must be a model']);
+      test('valid data type', () => {
+        const instance = new MyModel({ string: '' });
+        expect(DataType.is(Model, instance)).toBe(true);
+        expect(DataType.validate(Model, MyModel)).toEqual(['must be a model']);
+      });
+
+      test('invalid data type', () => {
+        expect.assertions(3);
+        try {
+          new MyModel(MyModel);
+        } catch (error) {
+          expect(error.message).toEqual('Data is not valid: "<model_data>" must be a plain object');
+          expect(error.name).toEqual(DataType.ValidationError);
+          expect(error.name).toEqual('DataType|ValidationError');
+        }
+      });
     });
 
     describe('built-in types', () => {
@@ -200,8 +213,8 @@ describe('Model', () => {
         'number!': Number,
       });
       expect(MyModel.validate({})).toEqual([
-        '"required": required property is not defined',
-        '"number": required property is not defined',
+        '"required" required property is not defined',
+        '"number" required property is not defined',
       ]);
     });
     test('? specifier', () => {
@@ -212,8 +225,8 @@ describe('Model', () => {
         'number?': Number,
       });
       expect(MyModel.validate({})).toEqual([
-        '"string": required property is not defined',
-        '"date": required property is not defined',
+        '"string" required property is not defined',
+        '"date" required property is not defined',
       ]);
     });
     test('illegal usage of both ! and ?', () => {
@@ -251,11 +264,11 @@ describe('Model', () => {
           optional: 234,
         })
       ).toEqual([
-        '"string": must be a string',
-        '"number": must be a number',
-        '"boolean": must be a boolean',
-        '"date": must be a date',
-        '"optional": must be a string',
+        '"string" must be a string',
+        '"number" must be a number',
+        '"boolean" must be a boolean',
+        '"date" must be a date',
+        '"optional" must be a string',
       ]);
     });
   });

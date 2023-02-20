@@ -84,6 +84,12 @@ class DataTypeDefinition {
     return outputValue;
   }
 
+  /**
+   *
+   * @param {*} value
+   * @param {String} name
+   * @returns {Array}
+   */
   validate(value, name = '') {
     if (hasOwn(this[ø.typeDef], 'extends')) {
       const baseTypeError = DATA_TYPES.get(this[ø.typeDef].extends).validate(value, name);
@@ -91,13 +97,13 @@ class DataTypeDefinition {
     }
     // if no error messages from a base validator
     const error = this[ø.typeDef].validate(value, name);
-    return typeof error === 'string' ? [name ? `"${name}": ${error}` : error] : error;
+    return typeof error === 'string' ? [name ? `"${name}" ${error}` : error] : error;
   }
 
   assert(value, name = '') {
     const result = this.validate(value, name);
     if (result) {
-      const message = typeof result === 'string' ? `: ${result}` : '';
+      const message = result.length ? `: ${result[0]}` : '';
       const error = new Error(`Data is not valid${message}`);
       error.name = ERRORS.ValidationError;
       error.cause = result;

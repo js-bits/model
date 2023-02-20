@@ -10,7 +10,7 @@ const ø$1 = enumerate`
   typeDef
 `;
 
-const ERRORS$2 = enumerate('DataType|')`
+const ERRORS$1 = enumerate('DataType|')`
   ConfigurationError
   ValidationError
 `;
@@ -38,7 +38,7 @@ class DataTypeDefinition {
     }
     if (!validator) {
       const error = new Error(configError`validator is missing`);
-      error.name = ERRORS$2.ConfigurationError;
+      error.name = ERRORS$1.ConfigurationError;
       throw error;
     }
 
@@ -50,7 +50,7 @@ class DataTypeDefinition {
       if (hasOwn(config, 'extends')) {
         if (!DATA_TYPES.has(config.extends)) {
           const error = new Error(configError`unknown base data type`);
-          error.name = ERRORS$2.ConfigurationError;
+          error.name = ERRORS$1.ConfigurationError;
           throw error;
         }
         typeDef.extends = config.extends;
@@ -58,7 +58,7 @@ class DataTypeDefinition {
       if (hasOwn(config, 'fromJSON') || hasOwn(config, 'toJSON')) {
         if (typeof config.fromJSON !== 'function' || typeof config.toJSON !== 'function') {
           const error = new Error(configError`both "fromJSON" and "toJSON" functions must defined`);
-          error.name = ERRORS$2.ConfigurationError;
+          error.name = ERRORS$1.ConfigurationError;
           throw error;
         }
         typeDef.fromJSON = config.fromJSON;
@@ -87,6 +87,12 @@ class DataTypeDefinition {
     return outputValue;
   }
 
+  /**
+   *
+   * @param {*} value
+   * @param {String} name
+   * @returns {Array}
+   */
   validate(value, name = '') {
     if (hasOwn(this[ø$1.typeDef], 'extends')) {
       const baseTypeError = DATA_TYPES.get(this[ø$1.typeDef].extends).validate(value, name);
@@ -94,15 +100,15 @@ class DataTypeDefinition {
     }
     // if no error messages from a base validator
     const error = this[ø$1.typeDef].validate(value, name);
-    return typeof error === 'string' ? [name ? `"${name}": ${error}` : error] : error;
+    return typeof error === 'string' ? [name ? `"${name}" ${error}` : error] : error;
   }
 
   assert(value, name = '') {
     const result = this.validate(value, name);
     if (result) {
-      const message = typeof result === 'string' ? `: ${result}` : '';
+      const message = result.length ? `: ${result[0]}` : '';
       const error = new Error(`Data is not valid${message}`);
-      error.name = ERRORS$2.ValidationError;
+      error.name = ERRORS$1.ValidationError;
       error.cause = result;
       throw error;
     }
@@ -160,31 +166,41 @@ class DataType {
   /**
    * Validates passed data type
    * @param {Object} type
+   * @param {String} name
    * @throws {DataType.ValidationError}
    */
-  static assert(type, value) {
+  static assertType(type, name) {
     if (!this.exists(type)) {
-      const error = new Error('Unknown data type');
-      error.name = ERRORS$2.ValidationError;
+      const error = new Error(`Unknown data type${name ? ` for "${name}"` : ''}`);
+      error.name = ERRORS$1.ValidationError;
       throw error;
     }
-    if (arguments.length === 2) {
-      DATA_TYPES.get(type).assert(value);
-    }
+  }
+
+  /**
+   * Validates passed data type
+   * @param {Object} type
+   * @param {*} value
+   * @param {String} name
+   * @throws {DataType.ValidationError}
+   */
+  static assert(type, value, name) {
+    this.assertType(type, name);
+    DATA_TYPES.get(type).assert(value, name);
   }
 
   static validate(type, value, name) {
-    this.assert(type);
+    this.assertType(type, name);
     return DATA_TYPES.get(type).validate(value, name);
   }
 
-  static fromJSON(type, value) {
-    this.assert(type);
+  static fromJSON(type, value, name) {
+    this.assertType(type, name);
     return DATA_TYPES.get(type).fromJSON(value);
   }
 
-  static toJSON(type, value) {
-    this.assert(type);
+  static toJSON(type, value, name) {
+    this.assertType(type, name);
     return DATA_TYPES.get(type).toJSON(value);
   }
 
@@ -205,7 +221,7 @@ DataType.add(JSON, value =>
     : 'must be a plain object'
 );
 
-Object.assign(DataType, ERRORS$2);
+Object.assign(DataType, ERRORS$1);
 
 /**
  * @param {Map} propMap
@@ -250,7 +266,7 @@ var freeze = model =>
     },
   });
 
-const ERRORS$1 = enumerate('Schema|')`
+const ERRORS = enumerate('Schema|')`
 InvalidModelSchemaError
 `;
 
@@ -274,13 +290,13 @@ class Schema {
   constructor(config) {
     if (!DataType.is(JSON, config)) {
       const error = new Error('Model schema is invalid');
-      error.name = ERRORS$1.InvalidModelSchemaError;
+      error.name = ERRORS.InvalidModelSchemaError;
       throw error;
     }
 
     if (Object.keys(config).length === 0) {
       const error = new Error('Model schema is empty');
-      error.name = ERRORS$1.InvalidModelSchemaError;
+      error.name = ERRORS.InvalidModelSchemaError;
       throw error;
     }
 
@@ -298,7 +314,7 @@ class Schema {
 
     if (!propType) {
       const error = new Error(`Model schema is invalid: data type of "${propName}" property is invalid`);
-      error.name = ERRORS$1.InvalidModelSchemaError;
+      error.name = ERRORS.InvalidModelSchemaError;
       throw error;
     }
     this[propName] = propType;
@@ -343,7 +359,7 @@ class Schema {
   }
 }
 
-Object.assign(Schema, ERRORS$1);
+Object.assign(Schema, ERRORS);
 Object.freeze(Schema);
 
 /* eslint-disable max-classes-per-file */
@@ -352,10 +368,6 @@ const MODELS = new WeakSet();
 
 const STATIC_PROPS = enumerate`
   SAME
-`;
-
-const ERRORS = enumerate('Model|')`
-  InvalidDataError
 `;
 
 /**
@@ -416,13 +428,7 @@ class Model {
 
       constructor(data) {
         super();
-        DataType.assert(JSON, data, 'xxx');
-        // if (!) {
-        //   const error = new Error('Model data must be a plain object'); // TODO: fix message dupes
-        //   error.name = Model.InvalidDataError;
-        //   throw error;
-        // }
-
+        DataType.assert(JSON, data, '<model_data>');
         DataType.assert(CustomModel, data);
         iterate(schema, data, (propName, propType, propValue = null) => {
           // intentionally set to null for both cases (undefined and null)
@@ -459,10 +465,10 @@ class Model {
                 const errors = DataType.validate(propType, propValue, propPath);
                 if (errors) validationResult.push(...errors);
               } else if (schema.isRequired(propName)) {
-                validationResult.push(`"${propPath}": required property is not defined`);
+                validationResult.push(`"${propPath}" required property is not defined`);
               }
             } else {
-              validationResult.push(`"${propPath}": property is not defined in schema`);
+              validationResult.push(`"${propPath}" property is not defined in schema`);
             }
           });
 
@@ -518,7 +524,6 @@ DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a mo
 Object.assign(Model, STATIC_PROPS);
 DataType.add(Model.SAME, () => 'Model.SAME must not be use directly');
 
-Object.assign(Model, ERRORS);
 Object.freeze(Model);
 
 var shortcut = array => {

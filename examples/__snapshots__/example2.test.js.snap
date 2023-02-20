@@ -3,29 +3,29 @@
 exports[`Examples Example 2 1`] = `
 Array [
   Array [
-    "Data is invalid",
+    "Data is not valid: \\"balance\\" must be a number",
   ],
   Array [
     Array [
-      "\\"balance\\": must be a number",
+      "\\"balance\\" must be a number",
     ],
   ],
   Array [
-    "Data is invalid",
+    "Data is not valid: \\"title\\" required property is not defined",
   ],
   Array [
     Array [
-      "\\"title\\": required property is not defined",
+      "\\"title\\" required property is not defined",
     ],
   ],
   Array [
-    "Data is invalid",
+    "Data is not valid: \\"account\\" invalid model type",
   ],
   Array [
     Array [
-      "\\"account\\": invalid model type",
-      "\\"category\\": invalid model type",
-      "\\"date\\": required property is not defined",
+      "\\"account\\" invalid model type",
+      "\\"category\\" invalid model type",
+      "\\"date\\" required property is not defined",
     ],
   ],
   Array [

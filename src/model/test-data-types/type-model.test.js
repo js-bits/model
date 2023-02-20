@@ -31,16 +31,16 @@ describe('Model', () => {
     });
 
     test('incorrect value', () => {
-      let error;
+      expect.assertions(3);
       try {
         const instance = new TestModel3({
           model: {},
         });
-      } catch (e) {
-        error = e;
+      } catch (error) {
+        expect(error.name).toEqual('DataType|ValidationError');
+        expect(error.message).toEqual('Data is not valid: "model" must be a model');
+        expect(error.cause).toEqual(['"model" must be a model']);
       }
-      expect(error).toEqual(new Error('Data is not valid'));
-      expect(error.cause).toEqual(['"model": must be a model']);
     });
   });
 
@@ -67,7 +67,7 @@ describe('Model', () => {
 
     describe('incorrect value', () => {
       test('incorrect type', () => {
-        expect.assertions(2);
+        expect.assertions(3);
         try {
           const TestModel3 = new Model({
             title: String,
@@ -80,8 +80,9 @@ describe('Model', () => {
             link: instance3,
           });
         } catch (error) {
-          expect(error).toEqual(new Error('Data is not valid'));
-          expect(error.cause).toEqual(['"link": invalid model type']);
+          expect(error.name).toEqual('DataType|ValidationError');
+          expect(error.message).toEqual('Data is not valid: "link" invalid model type');
+          expect(error.cause).toEqual(['"link" invalid model type']);
         }
       });
     });
@@ -113,7 +114,7 @@ describe('Model', () => {
         expect(instance2).toBeInstanceOf(TestModel);
       });
       test('incorrect value', () => {
-        expect.assertions(2);
+        expect.assertions(3);
         try {
           const instance = new TestModel({
             title: 'TestModel2',
@@ -122,8 +123,9 @@ describe('Model', () => {
             }),
           });
         } catch (error) {
-          expect(error).toEqual(new Error('Data is not valid'));
-          expect(error.cause).toEqual(['"parent": invalid model type']);
+          expect(error.name).toEqual('DataType|ValidationError');
+          expect(error.message).toEqual('Data is not valid: "parent" invalid model type');
+          expect(error.cause).toEqual(['"parent" invalid model type']);
         }
       });
     });
@@ -148,7 +150,7 @@ describe('Model', () => {
         // expect(instance1.options).toBeInstanceOf(TestModel);
       });
       test('incorrect value', () => {
-        let error;
+        expect.assertions(3);
         try {
           const instance1 = new TestModel({
             title: 'NestedModel',
@@ -158,15 +160,15 @@ describe('Model', () => {
               unknown: null,
             },
           });
-        } catch (e) {
-          error = e;
+        } catch (error) {
+          expect(error.name).toEqual('DataType|ValidationError');
+          expect(error.message).toEqual('Data is not valid: "options.param" must be a string');
+          expect(error.cause).toEqual([
+            '"options.param" must be a string',
+            '"options.flag" must be a boolean',
+            '"options.unknown" property is not defined in schema',
+          ]);
         }
-        expect(error).toEqual(new Error('Data is not valid'));
-        expect(error.cause).toEqual([
-          '"options.param": must be a string',
-          '"options.flag": must be a boolean',
-          '"options.unknown": property is not defined in schema',
-        ]);
       });
     });
 
@@ -221,13 +223,14 @@ describe('Model', () => {
         } catch (e) {
           error = e;
         }
-        expect(error).toEqual(new Error('Data is not valid'));
+        expect(error.name).toEqual('DataType|ValidationError');
+        expect(error.message).toEqual('Data is not valid: "title" must be a string');
         expect(error.cause).toEqual([
-          '"title": must be a string',
-          '"options.flag": required property is not defined',
-          '"options.settings.param": must be a number',
-          '"options.settings.json": must be a plain object',
-          '"options.unknown": property is not defined in schema',
+          '"title" must be a string',
+          '"options.flag" required property is not defined',
+          '"options.settings.param" must be a number',
+          '"options.settings.json" must be a plain object',
+          '"options.unknown" property is not defined in schema',
         ]);
       });
     });

@@ -10,13 +10,13 @@ describe('DataType', () => {
       expect.assertions(6);
       expect(() => {
         new DataType('');
-      }).toThrowError('Data type configuration is not valid');
+      }).toThrowError('Data type configuration is not valid: validator is missing');
       expect(() => {
         new DataType(undefined);
-      }).toThrowError('Data type configuration is not valid');
+      }).toThrowError('Data type configuration is not valid: validator is missing');
       expect(() => {
         new DataType(null);
-      }).toThrowError('Data type configuration is not valid');
+      }).toThrowError('Data type configuration is not valid: validator is missing');
 
       try {
         new DataType(123123);

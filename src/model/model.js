@@ -10,10 +10,6 @@ const STATIC_PROPS = enumerate`
   SAME
 `;
 
-const ERRORS = enumerate('Model|')`
-  InvalidDataError
-`;
-
 /**
  * @param {Schema} schema
  * @param {Object} data
@@ -72,12 +68,7 @@ export default class Model {
 
       constructor(data) {
         super();
-        if (!DataType.is(JSON, data)) {
-          const error = new Error('Model data must be a plain object'); // TODO: fix message dupes
-          error.name = Model.InvalidDataError;
-          throw error;
-        }
-
+        DataType.assert(JSON, data, '<model_data>');
         DataType.assert(CustomModel, data);
         iterate(schema, data, (propName, propType, propValue = null) => {
           // intentionally set to null for both cases (undefined and null)
@@ -114,10 +105,10 @@ export default class Model {
                 const errors = DataType.validate(propType, propValue, propPath);
                 if (errors) validationResult.push(...errors);
               } else if (schema.isRequired(propName)) {
-                validationResult.push(`"${propPath}": required property is not defined`);
+                validationResult.push(`"${propPath}" required property is not defined`);
               }
             } else {
-              validationResult.push(`"${propPath}": property is not defined in schema`);
+              validationResult.push(`"${propPath}" property is not defined in schema`);
             }
           });
 
@@ -173,5 +164,4 @@ DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a mo
 Object.assign(Model, STATIC_PROPS);
 DataType.add(Model.SAME, () => 'Model.SAME must not be use directly');
 
-Object.assign(Model, ERRORS);
 Object.freeze(Model);

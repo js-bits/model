@@ -19,16 +19,18 @@ describe('Enum', () => {
 
   describe('incorrect value', () => {
     test('incorrect type', () => {
-      let error;
+      expect.assertions(3);
       try {
         new TestModel({
           unit: 123,
         });
-      } catch (e) {
-        error = e;
+      } catch (error) {
+        expect(error.name).toEqual('DataType|ValidationError');
+        expect(error.message).toEqual(
+          'Data is not valid: "unit" must be one of allowed values [Symbol(FOOT),Symbol(METER)]'
+        );
+        expect(error.cause).toEqual(['"unit" must be one of allowed values [Symbol(FOOT),Symbol(METER)]']);
       }
-      expect(error).toEqual(new Error('Data is not valid'));
-      expect(error.cause).toEqual(['"unit": must be one of allowed values [Symbol(FOOT),Symbol(METER)]']);
     });
     test('missing value', () => {
       expect(() => {

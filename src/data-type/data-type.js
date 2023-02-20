@@ -51,31 +51,41 @@ export default class DataType {
   /**
    * Validates passed data type
    * @param {Object} type
+   * @param {String} name
    * @throws {DataType.ValidationError}
    */
-  static assert(type, value) {
+  static assertType(type, name) {
     if (!this.exists(type)) {
-      const error = new Error('Unknown data type');
+      const error = new Error(`Unknown data type${name ? ` for "${name}"` : ''}`);
       error.name = ERRORS.ValidationError;
       throw error;
     }
-    if (arguments.length === 2) {
-      DATA_TYPES.get(type).assert(value);
-    }
+  }
+
+  /**
+   * Validates passed data type
+   * @param {Object} type
+   * @param {*} value
+   * @param {String} name
+   * @throws {DataType.ValidationError}
+   */
+  static assert(type, value, name) {
+    this.assertType(type, name);
+    DATA_TYPES.get(type).assert(value, name);
   }
 
   static validate(type, value, name) {
-    this.assert(type);
+    this.assertType(type, name);
     return DATA_TYPES.get(type).validate(value, name);
   }
 
-  static fromJSON(type, value) {
-    this.assert(type);
+  static fromJSON(type, value, name) {
+    this.assertType(type, name);
     return DATA_TYPES.get(type).fromJSON(value);
   }
 
-  static toJSON(type, value) {
-    this.assert(type);
+  static toJSON(type, value, name) {
+    this.assertType(type, name);
     return DATA_TYPES.get(type).toJSON(value);
   }
 

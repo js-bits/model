@@ -21,6 +21,7 @@ describe('Custom data type', () => {
         }).not.toThrow();
       });
       test('incorrect value', () => {
+        expect.assertions(4);
         expect(() => {
           new NewModel({
             field: 'other value',
@@ -31,8 +32,9 @@ describe('Custom data type', () => {
             field: '123',
           });
         } catch (error) {
-          expect(error).toEqual(new Error('Data is not valid'));
-          expect(error.cause).toEqual(['"field": must have a valid value']);
+          expect(error.name).toEqual('DataType|ValidationError');
+          expect(error.message).toEqual('Data is not valid: "field" must have a valid value');
+          expect(error.cause).toEqual(['"field" must have a valid value']);
         }
       });
     });
@@ -90,38 +92,42 @@ describe('Custom data type', () => {
     });
 
     test('incorrect value', () => {
-      expect.assertions(8);
+      expect.assertions(12);
       try {
         new TestModel1({
           int: '123',
         });
       } catch (error) {
-        expect(error).toEqual(new Error('Data is not valid'));
-        expect(error.cause).toEqual(['"int": must be a number']);
+        expect(error.name).toEqual('DataType|ValidationError');
+        expect(error.message).toEqual('Data is not valid: "int" must be a number');
+        expect(error.cause).toEqual(['"int" must be a number']);
       }
       try {
         new TestModel1({
           int: 456.3535,
         });
       } catch (error) {
-        expect(error).toEqual(new Error('Data is not valid'));
-        expect(error.cause).toEqual(['"int": must be an integer']);
+        expect(error.name).toEqual('DataType|ValidationError');
+        expect(error.message).toEqual('Data is not valid: "int" must be an integer');
+        expect(error.cause).toEqual(['"int" must be an integer']);
       }
       try {
         new TestModel2({
           int: 4.56,
         });
       } catch (error) {
-        expect(error).toEqual(new Error('Data is not valid'));
-        expect(error.cause).toEqual(['"int": must be an integer']);
+        expect(error.name).toEqual('DataType|ValidationError');
+        expect(error.message).toEqual('Data is not valid: "int" must be an integer');
+        expect(error.cause).toEqual(['"int" must be an integer']);
       }
       try {
         new TestModel2({
           int: -456,
         });
       } catch (error) {
-        expect(error).toEqual(new Error('Data is not valid'));
-        expect(error.cause).toEqual(['"int": must be a positive integer']);
+        expect(error.name).toEqual('DataType|ValidationError');
+        expect(error.message).toEqual('Data is not valid: "int" must be a positive integer');
+        expect(error.cause).toEqual(['"int" must be a positive integer']);
       }
     });
 
