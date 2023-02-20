@@ -10,20 +10,20 @@ describe('DataType', () => {
       expect.assertions(6);
       expect(() => {
         new DataType('');
-      }).toThrowError('Data type is invalid');
+      }).toThrowError('Data type configuration is not valid');
       expect(() => {
         new DataType(undefined);
-      }).toThrowError('Data type is invalid');
+      }).toThrowError('Data type configuration is not valid');
       expect(() => {
         new DataType(null);
-      }).toThrowError('Data type is invalid');
+      }).toThrowError('Data type configuration is not valid');
 
       try {
         new DataType(123123);
       } catch (error) {
-        expect(error.message).toEqual('Data type is invalid');
-        expect(error.name).toEqual(DataType.InvalidDataTypeError);
-        expect(error.name).toEqual('DataType|InvalidDataTypeError');
+        expect(error.message).toEqual('Data type configuration is not valid: validator is missing');
+        expect(error.name).toEqual(DataType.ConfigurationError);
+        expect(error.name).toEqual('DataType|ConfigurationError');
       }
     });
 
@@ -88,7 +88,7 @@ describe('DataType', () => {
               return value !== 'valid' ? 'must have a valid value' : undefined;
             },
           });
-        }).toThrowError('Base data type is invalid');
+        }).toThrowError('Data type configuration is not valid: unknown base data type');
       });
       test('invalid value type', () => {
         expect(DataType.validate(CustomType, 123)).toEqual(['must be a string']);
@@ -301,7 +301,7 @@ describe('DataType', () => {
               toJSON: {},
               validate: () => {},
             });
-          }).toThrow('Both "fromJSON" and "toJSON" must defined as functions');
+          }).toThrow('Data type configuration is not valid: both "fromJSON" and "toJSON" functions must defined');
         });
       });
 

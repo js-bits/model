@@ -8,12 +8,15 @@ const ø = enumerate`
 `;
 
 export const ERRORS = enumerate('DataType|')`
-  InvalidDataTypeError
+  ConfigurationError
+  ValidationError
 `;
 
 export const DATA_TYPES = new Map();
 
 export const hasOwn = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+
+const configError = ([reason]) => `Data type configuration is not valid: ${reason}`;
 
 class DataTypeDefinition {
   static toString() {
@@ -31,8 +34,8 @@ class DataTypeDefinition {
       validator = config.validate;
     }
     if (!validator) {
-      const error = new Error('Data type is invalid');
-      error.name = ERRORS.InvalidDataTypeError;
+      const error = new Error(configError`validator is missing`);
+      error.name = ERRORS.ConfigurationError;
       throw error;
     }
 
@@ -43,16 +46,16 @@ class DataTypeDefinition {
     if (typeof config === 'object') {
       if (hasOwn(config, 'extends')) {
         if (!DATA_TYPES.has(config.extends)) {
-          const error = new Error('Base data type is invalid');
-          error.name = ERRORS.InvalidDataTypeError;
+          const error = new Error(configError`unknown base data type`);
+          error.name = ERRORS.ConfigurationError;
           throw error;
         }
         typeDef.extends = config.extends;
       }
       if (hasOwn(config, 'fromJSON') || hasOwn(config, 'toJSON')) {
         if (typeof config.fromJSON !== 'function' || typeof config.toJSON !== 'function') {
-          const error = new Error('Both "fromJSON" and "toJSON" must defined as functions');
-          error.name = ERRORS.InvalidDataTypeError;
+          const error = new Error(configError`both "fromJSON" and "toJSON" functions must defined`);
+          error.name = ERRORS.ConfigurationError;
           throw error;
         }
         typeDef.fromJSON = config.fromJSON;
@@ -68,16 +71,16 @@ class DataTypeDefinition {
     // compare // for sorting
   }
 
-  fromJSON(inputValue) {
-    this.assert(inputValue);
-    if (hasOwn(this[ø.typeDef], 'fromJSON')) return this[ø.typeDef].fromJSON(inputValue);
+  fromJSON(inputValue, name) {
+    this.assert(inputValue, name);
+    if (hasOwn(this[ø.typeDef], 'fromJSON')) return this[ø.typeDef].fromJSON(inputValue, name);
     return inputValue;
   }
 
-  toJSON(value) {
+  toJSON(value, name) {
     let outputValue = value;
-    if (hasOwn(this[ø.typeDef], 'toJSON')) outputValue = this[ø.typeDef].toJSON(value);
-    this.assert(outputValue);
+    if (hasOwn(this[ø.typeDef], 'toJSON')) outputValue = this[ø.typeDef].toJSON(value, name);
+    this.assert(outputValue, name);
     return outputValue;
   }
 
@@ -91,11 +94,12 @@ class DataTypeDefinition {
     return typeof error === 'string' ? [name ? `"${name}": ${error}` : error] : error;
   }
 
-  assert(value) {
-    const result = this.validate(value);
+  assert(value, name = '') {
+    const result = this.validate(value, name);
     if (result) {
-      const error = new Error('Data is invalid');
-      error.name = ERRORS.InvalidDataTypeError;
+      const message = typeof result === 'string' ? `: ${result}` : '';
+      const error = new Error(`Data is invalid${message}`);
+      error.name = ERRORS.ValidationError;
       error.cause = result;
       throw error;
     }

@@ -20,7 +20,7 @@ export default array => {
         };
       } else {
         const error = new Error('Invalid collection shortcut');
-        error.name = DataType.InvalidDataTypeError;
+        error.name = DataType.ValidationError;
         throw error;
       }
     }

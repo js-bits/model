@@ -11,12 +11,15 @@ const ø$1 = enumerate`
 `;
 
 const ERRORS$2 = enumerate('DataType|')`
-  InvalidDataTypeError
+  ConfigurationError
+  ValidationError
 `;
 
 const DATA_TYPES = new Map();
 
 const hasOwn = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+
+const configError = ([reason]) => `Data type configuration is not valid: ${reason}`;
 
 class DataTypeDefinition {
   static toString() {
@@ -34,8 +37,8 @@ class DataTypeDefinition {
       validator = config.validate;
     }
     if (!validator) {
-      const error = new Error('Data type is invalid');
-      error.name = ERRORS$2.InvalidDataTypeError;
+      const error = new Error(configError`validator is missing`);
+      error.name = ERRORS$2.ConfigurationError;
       throw error;
     }
 
@@ -46,16 +49,16 @@ class DataTypeDefinition {
     if (typeof config === 'object') {
       if (hasOwn(config, 'extends')) {
         if (!DATA_TYPES.has(config.extends)) {
-          const error = new Error('Base data type is invalid');
-          error.name = ERRORS$2.InvalidDataTypeError;
+          const error = new Error(configError`unknown base data type`);
+          error.name = ERRORS$2.ConfigurationError;
           throw error;
         }
         typeDef.extends = config.extends;
       }
       if (hasOwn(config, 'fromJSON') || hasOwn(config, 'toJSON')) {
         if (typeof config.fromJSON !== 'function' || typeof config.toJSON !== 'function') {
-          const error = new Error('Both "fromJSON" and "toJSON" must defined as functions');
-          error.name = ERRORS$2.InvalidDataTypeError;
+          const error = new Error(configError`both "fromJSON" and "toJSON" functions must defined`);
+          error.name = ERRORS$2.ConfigurationError;
           throw error;
         }
         typeDef.fromJSON = config.fromJSON;
@@ -71,16 +74,16 @@ class DataTypeDefinition {
     // compare // for sorting
   }
 
-  fromJSON(inputValue) {
-    this.assert(inputValue);
-    if (hasOwn(this[ø$1.typeDef], 'fromJSON')) return this[ø$1.typeDef].fromJSON(inputValue);
+  fromJSON(inputValue, name) {
+    this.assert(inputValue, name);
+    if (hasOwn(this[ø$1.typeDef], 'fromJSON')) return this[ø$1.typeDef].fromJSON(inputValue, name);
     return inputValue;
   }
 
-  toJSON(value) {
+  toJSON(value, name) {
     let outputValue = value;
-    if (hasOwn(this[ø$1.typeDef], 'toJSON')) outputValue = this[ø$1.typeDef].toJSON(value);
-    this.assert(outputValue);
+    if (hasOwn(this[ø$1.typeDef], 'toJSON')) outputValue = this[ø$1.typeDef].toJSON(value, name);
+    this.assert(outputValue, name);
     return outputValue;
   }
 
@@ -94,11 +97,12 @@ class DataTypeDefinition {
     return typeof error === 'string' ? [name ? `"${name}": ${error}` : error] : error;
   }
 
-  assert(value) {
-    const result = this.validate(value);
+  assert(value, name = '') {
+    const result = this.validate(value, name);
     if (result) {
-      const error = new Error('Data is invalid');
-      error.name = ERRORS$2.InvalidDataTypeError;
+      const message = typeof result === 'string' ? `: ${result}` : '';
+      const error = new Error(`Data is invalid${message}`);
+      error.name = ERRORS$2.ValidationError;
       error.cause = result;
       throw error;
     }
@@ -111,9 +115,7 @@ const createNewDataType = () => {
   class CustomDataType extends DataTypeDefinition {
     constructor() {
       super();
-      const error = new Error('Data type instantiation is not allowed');
-      error.name = ERRORS$2.InvalidDataTypeError;
-      throw error;
+      throw new Error('Data type instantiation is not allowed');
     }
   }
   return CustomDataType;
@@ -158,12 +160,12 @@ class DataType {
   /**
    * Validates passed data type
    * @param {Object} type
-   * @throws {InvalidDataTypeError}
+   * @throws {DataType.ValidationError}
    */
   static assert(type, value) {
     if (!this.exists(type)) {
       const error = new Error('Unknown data type');
-      error.name = ERRORS$2.InvalidDataTypeError;
+      error.name = ERRORS$2.ValidationError;
       throw error;
     }
     if (arguments.length === 2) {
@@ -250,7 +252,6 @@ var freeze = model =>
 
 const ERRORS$1 = enumerate('Schema|')`
 InvalidModelSchemaError
-InvalidDataError
 `;
 
 const REQUIRED_FIELD_SPECIFIER = '!';
@@ -415,11 +416,12 @@ class Model {
 
       constructor(data) {
         super();
-        if (!DataType.is(JSON, data)) {
-          const error = new Error('Model data must be a plain object'); // TODO: fix message dupes
-          error.name = Model.InvalidDataError;
-          throw error;
-        }
+        DataType.assert(JSON, data, 'xxx');
+        // if (!) {
+        //   const error = new Error('Model data must be a plain object'); // TODO: fix message dupes
+        //   error.name = Model.InvalidDataError;
+        //   throw error;
+        // }
 
         DataType.assert(CustomModel, data);
         iterate(schema, data, (propName, propType, propValue = null) => {
@@ -539,7 +541,7 @@ var shortcut = array => {
         };
       } else {
         const error = new Error('Invalid collection shortcut');
-        error.name = DataType.InvalidDataTypeError;
+        error.name = DataType.ValidationError;
         throw error;
       }
     }

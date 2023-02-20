@@ -3,7 +3,6 @@ import DataType from '../data-type/data-type.js';
 
 const ERRORS = enumerate('Schema|')`
 InvalidModelSchemaError
-InvalidDataError
 `;
 
 const REQUIRED_FIELD_SPECIFIER = '!';

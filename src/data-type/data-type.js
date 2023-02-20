@@ -6,9 +6,7 @@ const createNewDataType = () => {
   class CustomDataType extends DataTypeDefinition {
     constructor() {
       super();
-      const error = new Error('Data type instantiation is not allowed');
-      error.name = ERRORS.InvalidDataTypeError;
-      throw error;
+      throw new Error('Data type instantiation is not allowed');
     }
   }
   return CustomDataType;
@@ -53,12 +51,12 @@ export default class DataType {
   /**
    * Validates passed data type
    * @param {Object} type
-   * @throws {InvalidDataTypeError}
+   * @throws {DataType.ValidationError}
    */
   static assert(type, value) {
     if (!this.exists(type)) {
       const error = new Error('Unknown data type');
-      error.name = ERRORS.InvalidDataTypeError;
+      error.name = ERRORS.ValidationError;
       throw error;
     }
     if (arguments.length === 2) {

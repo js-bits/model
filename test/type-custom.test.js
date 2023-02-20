@@ -64,19 +64,19 @@ describe('Custom data type', () => {
           extends: NewClass,
           validate: () => {},
         });
-      }).toThrowError('Base data type is invalid');
+      }).toThrowError('Data type configuration is not valid: unknown base data type');
       expect(() => {
         new DataType({
           extends: null,
           validate: () => {},
         });
-      }).toThrowError('Base data type is invalid');
+      }).toThrowError('Data type configuration is not valid: unknown base data type');
       expect(() => {
         new DataType({
           extends: () => {},
           validate: () => {},
         });
-      }).toThrowError('Base data type is invalid');
+      }).toThrowError('Data type configuration is not valid: unknown base data type');
     });
     test('correct value', () => {
       expect(() => {
