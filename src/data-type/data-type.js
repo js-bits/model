@@ -66,9 +66,9 @@ export default class DataType {
     }
   }
 
-  static validate(type, value, message) {
+  static validate(type, value, name) {
     this.assert(type);
-    return DATA_TYPES.get(type).validate(value, message);
+    return DATA_TYPES.get(type).validate(value, name);
   }
 
   static fromJSON(type, value) {

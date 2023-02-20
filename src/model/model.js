@@ -121,7 +121,7 @@ export default class Model {
             }
           });
 
-          const hasErrors = Object.keys(validationResult).length;
+          const hasErrors = validationResult.length;
           return hasErrors ? validationResult : undefined;
         },
         fromJSON(value) {

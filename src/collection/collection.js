@@ -84,26 +84,25 @@ class Collection extends Model {
         /**
          * @param {Array} value
          */
-        validate(value) {
+        validate(value, parent) {
           if (value instanceof CustomCollection) return undefined;
           if (!DataType.is(Array, value)) return 'invalid collection type';
 
-          const validationResult = {};
+          const validationResult = [];
+          const parentName = parent ? `${parent}.` : '';
 
           value.forEach((item, index) => {
-            const error = DataType.validate(ContentType, item);
-            if (error) {
-              validationResult[index] = error;
-            }
+            const errors = DataType.validate(ContentType, item, `${parentName}[${index}]`);
+            if (errors) validationResult.push(...errors);
           });
 
           if (options.max && value.length > options.max) {
-            validationResult.size = `must be less then or equal to ${options.max}`;
+            validationResult.push(`"${parentName}size": must be less then or equal to ${options.max}`);
           } else if (options.min && value.length < options.min) {
-            validationResult.size = `must be equal to or more then ${options.min}`;
+            validationResult.push(`"${parentName}size": must be equal to or more then ${options.min}`);
           }
 
-          const hasErrors = Object.keys(validationResult).length;
+          const hasErrors = validationResult.length;
           return hasErrors ? validationResult : undefined;
         },
         fromJSON(value) {
