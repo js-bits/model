@@ -4,7 +4,7 @@ import DataType from '../data-type/data-type.js';
 import freeze from './freeze.js';
 import Schema from './schema.js';
 
-const MODELS = new WeakSet();
+export const MODELS = new WeakSet();
 
 const STATIC_PROPS = enumerate`
   SAME
@@ -34,6 +34,10 @@ export default class Model {
     return '[class Model]';
   }
 
+  static [Symbol.hasInstance](instance) {
+    return this.isModel(instance && instance.constructor);
+  }
+
   // eslint-disable-next-line class-methods-use-this
   get [Symbol.toStringTag]() {
     return 'Model';
@@ -47,6 +51,10 @@ export default class Model {
     let schema;
 
     class CustomModel extends Model {
+      static [Symbol.hasInstance](instance) {
+        return super[Symbol.hasInstance](instance) && instance.constructor === CustomModel;
+      }
+
       constructor(data) {
         super();
         if (!DataType.is(JSON, data)) {
@@ -56,14 +64,13 @@ export default class Model {
         }
 
         DataType.assert(CustomModel, data);
-        const store = {};
         iterate(schema, data, (propName, propType, propValue = null) => {
           // intentionally set to null for both cases (undefined and null)
-          store[propName] = propValue !== null ? DataType.fromJSON(propType, propValue) : null;
+          this[propName] = propValue !== null ? DataType.fromJSON(propType, propValue) : null;
         });
 
         // eslint-disable-next-line no-constructor-return
-        return freeze(this, store);
+        return freeze(this);
       }
 
       // static toGraphQL() {}

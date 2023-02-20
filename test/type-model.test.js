@@ -67,7 +67,7 @@ describe('Model', () => {
 
     describe('incorrect value', () => {
       test('incorrect type', () => {
-        let error;
+        expect.assertions(2);
         try {
           const TestModel3 = new Model({
             title: String,
@@ -79,11 +79,10 @@ describe('Model', () => {
             title: 'TestModel1',
             link: instance3,
           });
-        } catch (e) {
-          error = e;
+        } catch (error) {
+          expect(error).toEqual(new Error('Data is invalid'));
+          expect(error.cause).toEqual({ link: 'invalid model type' });
         }
-        expect(error).toEqual(new Error('Data is invalid'));
-        expect(error.cause).toEqual({ link: 'invalid model type' });
       });
     });
 
@@ -114,7 +113,7 @@ describe('Model', () => {
         expect(instance2).toBeInstanceOf(TestModel);
       });
       test('incorrect value', () => {
-        let error;
+        expect.assertions(2);
         try {
           const instance = new TestModel({
             title: 'TestModel2',
@@ -122,11 +121,10 @@ describe('Model', () => {
               title: 'TestModel1',
             }),
           });
-        } catch (e) {
-          error = e;
+        } catch (error) {
+          expect(error).toEqual(new Error('Data is invalid'));
+          expect(error.cause).toEqual({ parent: 'invalid model type' });
         }
-        expect(error).toEqual(new Error('Data is invalid'));
-        expect(error.cause).toEqual({ parent: 'invalid model type' });
       });
     });
 

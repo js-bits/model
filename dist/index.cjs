@@ -204,42 +204,38 @@ DataType.add(JSON, value =>
 
 Object.assign(DataType, ERRORS$2);
 
-// const MODEL_PROPS = [Symbol.toPrimitive, Symbol.toStringTag, 'toJSON', 'toString', 'constructor'];
-const ARRAY_MEMBERS = ['length', 'forEach'];
-const REDIRECT_MEMBERS = [Symbol.iterator];
-
 /**
  * @param {Map} propMap
  */
-var freeze = (model, data) =>
+var freeze = model =>
   new Proxy(model, {
     get(...args) {
-      const key = args[1];
+      args[1];
       // console.log('get', key);
-      if (hasOwn(data, key) || ARRAY_MEMBERS.includes(key) || REDIRECT_MEMBERS.includes(key)) {
-        return data[key];
-      }
+      // if (hasOwn(data, key) || ARRAY_MEMBERS.includes(key) || REDIRECT_MEMBERS.includes(key)) {
+      //   return data[key];
+      // }
       return Reflect.get(...args);
     },
-    has(...args) {
-      const key = args[1];
-      // console.log('has', key);
-      return Reflect.has(...args) || hasOwn(data, key);
-    },
-    ownKeys() {
-      return Object.keys(data);
-    },
-    getOwnPropertyDescriptor(...args) {
-      const key = args[1];
-      // console.log('getOwnPropertyDescriptor', key);
-      if (hasOwn(data, key))
-        return {
-          writable: false,
-          enumerable: true,
-          configurable: true,
-        };
-      return Reflect.getOwnPropertyDescriptor(...args);
-    },
+    // has(...args) {
+    //   const key = args[1];
+    //   // console.log('has', key);
+    //   return Reflect.has(...args) || hasOwn(data, key);
+    // },
+    // ownKeys() {
+    //   return Object.keys(data);
+    // },
+    // getOwnPropertyDescriptor(...args) {
+    //   const key = args[1];
+    //   // console.log('getOwnPropertyDescriptor', key);
+    //   if (hasOwn(data, key))
+    //     return {
+    //       writable: false,
+    //       enumerable: true,
+    //       configurable: true,
+    //     };
+    //   return Reflect.getOwnPropertyDescriptor(...args);
+    // },
     set() {
       return false;
     },
@@ -380,6 +376,10 @@ class Model {
     return '[class Model]';
   }
 
+  static [Symbol.hasInstance](instance) {
+    return this.isModel(instance && instance.constructor);
+  }
+
   // eslint-disable-next-line class-methods-use-this
   get [Symbol.toStringTag]() {
     return 'Model';
@@ -393,6 +393,10 @@ class Model {
     let schema;
 
     class CustomModel extends Model {
+      static [Symbol.hasInstance](instance) {
+        return super[Symbol.hasInstance](instance) && instance.constructor === CustomModel;
+      }
+
       constructor(data) {
         super();
         if (!DataType.is(JSON, data)) {
@@ -402,14 +406,13 @@ class Model {
         }
 
         DataType.assert(CustomModel, data);
-        const store = {};
         iterate(schema, data, (propName, propType, propValue = null) => {
           // intentionally set to null for both cases (undefined and null)
-          store[propName] = propValue !== null ? DataType.fromJSON(propType, propValue) : null;
+          this[propName] = propValue !== null ? DataType.fromJSON(propType, propValue) : null;
         });
 
         // eslint-disable-next-line no-constructor-return
-        return freeze(this, store);
+        return freeze(this);
       }
 
       // toString() {
@@ -557,6 +560,10 @@ class Collection extends Model {
     return '[class Collection]';
   }
 
+  static [Symbol.hasInstance](instance) {
+    return super[Symbol.hasInstance](instance) && Array.isArray(instance);
+  }
+
   // eslint-disable-next-line class-methods-use-this
   get [Symbol.toStringTag]() {
     return 'Collection';
@@ -570,9 +577,21 @@ class Collection extends Model {
     const ContentType = Schema.initType(type);
     const options = new Options(config);
 
-    class CustomCollection extends Collection {
+    class CustomCollection extends Array {
+      static toString() {
+        return Collection.toString();
+      }
+
+      // eslint-disable-next-line class-methods-use-this
+      get [Symbol.toStringTag]() {
+        return 'Collection';
+      }
+
+      toString() {
+        return `[object ${this[Symbol.toStringTag]}]`;
+      }
+
       constructor(data) {
-        super();
         if (!DataType.is(Array, data)) {
           const error = new Error('Model data must be a array'); // TODO: fix message dupes
           error.name = Model.InvalidDataError;
@@ -581,14 +600,16 @@ class Collection extends Model {
 
         DataType.assert(CustomCollection, data);
 
-        const store = data.map(item => DataType.fromJSON(ContentType, item));
+        super(...data.map(item => DataType.fromJSON(ContentType, item)));
 
         // eslint-disable-next-line no-constructor-return
-        return freeze(this, store);
+        return freeze(this);
       }
 
       // static toGraphQL() {}
     }
+
+    MODELS.add(CustomCollection);
 
     new DataType(
       {

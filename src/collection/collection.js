@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import DataType from '../data-type/data-type.js';
-import Model from '../model/model.js';
+import Model, { MODELS } from '../model/model.js';
 import Schema from '../model/schema.js';
 import freeze from '../model/freeze.js';
 import shortcut from './collection-shortcut.js';
@@ -21,6 +21,10 @@ class Collection extends Model {
     return '[class Collection]';
   }
 
+  static [Symbol.hasInstance](instance) {
+    return super[Symbol.hasInstance](instance) && Array.isArray(instance);
+  }
+
   // eslint-disable-next-line class-methods-use-this
   get [Symbol.toStringTag]() {
     return 'Collection';
@@ -34,9 +38,21 @@ class Collection extends Model {
     const ContentType = Schema.initType(type);
     const options = new Options(config);
 
-    class CustomCollection extends Collection {
+    class CustomCollection extends Array {
+      static toString() {
+        return Collection.toString();
+      }
+
+      // eslint-disable-next-line class-methods-use-this
+      get [Symbol.toStringTag]() {
+        return 'Collection';
+      }
+
+      toString() {
+        return `[object ${this[Symbol.toStringTag]}]`;
+      }
+
       constructor(data) {
-        super();
         if (!DataType.is(Array, data)) {
           const error = new Error('Model data must be a array'); // TODO: fix message dupes
           error.name = Model.InvalidDataError;
@@ -45,14 +61,16 @@ class Collection extends Model {
 
         DataType.assert(CustomCollection, data);
 
-        const store = data.map(item => DataType.fromJSON(ContentType, item));
+        super(...data.map(item => DataType.fromJSON(ContentType, item)));
 
         // eslint-disable-next-line no-constructor-return
-        return freeze(this, store);
+        return freeze(this);
       }
 
       // static toGraphQL() {}
     }
+
+    MODELS.add(CustomCollection);
 
     new DataType(
       {

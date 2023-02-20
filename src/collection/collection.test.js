@@ -13,7 +13,10 @@ describe('Model', () => {
       const instance = new DerivedCollection([]);
       expect(instance instanceof DerivedCollection).toBe(true);
       expect(instance instanceof Collection).toBe(true);
+      expect([] instanceof Collection).toBe(false);
+      expect(null instanceof Collection).toBe(false);
       expect(instance instanceof Model).toBe(true);
+      expect(Model.isModel(DerivedCollection)).toBe(true);
       expect(`${DerivedCollection}`).toEqual('[class Collection]');
       expect(`${instance}`).toEqual('[object Collection]');
     });
