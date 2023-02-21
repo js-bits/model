@@ -69,7 +69,7 @@ describe('Custom data type', () => {
       }).toThrowError('Data type configuration is not valid: unknown base data type');
       expect(() => {
         new DataType({
-          extends: null,
+          extends: 123,
           validate: () => {},
         });
       }).toThrowError('Data type configuration is not valid: unknown base data type');

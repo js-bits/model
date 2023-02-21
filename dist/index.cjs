@@ -217,6 +217,7 @@ class DataType {
   }
 }
 
+DataType.add(null, value => (value === null ? undefined : 'must be null'));
 DataType.add(String, value => (typeof value === 'string' ? undefined : 'must be a string'));
 DataType.add(Number, value => (typeof value === 'number' ? undefined : 'must be a number'));
 DataType.add(Boolean, value => (typeof value === 'boolean' ? undefined : 'must be a boolean'));

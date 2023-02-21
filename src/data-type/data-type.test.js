@@ -139,6 +139,18 @@ describe('DataType', () => {
   });
 
   describe('built-in types', () => {
+    describe('null', () => {
+      test('invalid value', () => {
+        expect(DataType.validate(null, undefined)).toEqual(['must be null']);
+        expect(DataType.validate(null, '')).toEqual(['must be null']);
+        expect(DataType.validate(null, 123)).toEqual(['must be null']);
+        expect(DataType.validate(null, 123, 'var')).toEqual(['"var" must be null']);
+      });
+      test('valid value', () => {
+        expect(DataType.validate(null, null)).toBeUndefined();
+        expect(DataType.is(null, null)).toBe(true);
+      });
+    });
     describe('String', () => {
       test('invalid value', () => {
         expect(DataType.validate(String, undefined)).toEqual(['must be a string']);
@@ -203,7 +215,7 @@ describe('DataType', () => {
     describe('DataType', () => {
       test('invalid value', () => {
         expect(DataType.validate(DataType, undefined)).toEqual(['must be a data type']);
-        expect(DataType.validate(DataType, null)).toEqual(['must be a data type']);
+        expect(DataType.validate(DataType, 123)).toEqual(['must be a data type']);
         expect(DataType.validate(DataType, new Date())).toEqual(['must be a data type']);
         expect(DataType.validate(DataType, {})).toEqual(['must be a data type']);
       });
