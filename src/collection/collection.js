@@ -91,12 +91,13 @@ class Collection extends Model {
             if (errors) validationResult.push(...errors);
           });
 
-          if (options.min && options.max && options.min === options.max && value.length !== options.max) {
-            validationResult.push(`"${parentName}size" must be ${options.max}`);
-          } else if (options.max && value.length > options.max) {
-            validationResult.push(`"${parentName}size" must be less then or equal to ${options.max}`);
-          } else if (options.min && value.length < options.min) {
-            validationResult.push(`"${parentName}size" must be equal to or more then ${options.min}`);
+          const { min = 0, max } = options;
+          if (min === max && value.length !== options.max) {
+            validationResult.push(`"${parentName}size" must be ${max}`);
+          } else if (value.length > max) {
+            validationResult.push(`"${parentName}size" must be less then or equal to ${max}`);
+          } else if (value.length < min) {
+            validationResult.push(`"${parentName}size" must be equal to or more then ${min}`);
           }
 
           const hasErrors = validationResult.length;

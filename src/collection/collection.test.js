@@ -218,7 +218,6 @@ describe('Model', () => {
         test('range', () => {
           expect.assertions(2);
           const TestModel = new Model({
-            // eslint-disable-next-line no-sparse-arrays
             items: [Item, { min: 1, max: 2 }],
           });
           try {
@@ -228,6 +227,25 @@ describe('Model', () => {
           } catch (error) {
             expect(error.message).toEqual('Data is not valid: "items.size" must be less then or equal to 2');
             expect(error.cause).toEqual(['"items.size" must be less then or equal to 2']);
+          }
+        });
+        test('empty', () => {
+          expect.assertions(3);
+          const TestModel = new Model({
+            items: [Item, { max: 0 }],
+          });
+          expect(() => {
+            new TestModel({
+              items: [],
+            });
+          }).not.toThrow();
+          try {
+            new TestModel({
+              items: [{ name: 'item1' }],
+            });
+          } catch (error) {
+            expect(error.message).toEqual('Data is not valid: "items.size" must be 0');
+            expect(error.cause).toEqual(['"items.size" must be 0']);
           }
         });
       });

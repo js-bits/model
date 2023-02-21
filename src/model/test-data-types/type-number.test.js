@@ -13,7 +13,7 @@ describe('Number', () => {
     expect(instance).toBeInstanceOf(TestModel);
     expect(instance).toBeInstanceOf(Model);
     expect(instance.number).toEqual(0);
-    expect(instance.optional).toBeNull();
+    expect(instance.optional).toBeUndefined();
   });
 
   describe('incorrect value', () => {

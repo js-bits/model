@@ -12,7 +12,7 @@ describe('Boolean', () => {
     });
     const instance2 = new TestModel({
       boolean: true,
-      optional: null,
+      optional: undefined,
     });
     const instance3 = new TestModel({
       boolean: false,
@@ -21,9 +21,9 @@ describe('Boolean', () => {
     expect(instance1).toBeInstanceOf(TestModel);
     expect(instance1).toBeInstanceOf(Model);
     expect(instance1.boolean).toBe(false);
-    expect(instance1.optional).toBeNull();
+    expect(instance1.optional).toBeUndefined();
     expect(instance2.boolean).toBe(true);
-    expect(instance2.optional).toBeNull();
+    expect(instance2.optional).toBeUndefined();
     expect(instance3.boolean).toBe(false);
     expect(instance3.optional).toBe(false);
   });

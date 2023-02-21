@@ -70,9 +70,8 @@ export default class Model {
         super();
         DataType.assert(JSON, data, '<model_data>');
         DataType.assert(CustomModel, data);
-        iterate(schema, data, (propName, propType, propValue = null) => {
-          // intentionally set to null for both cases (undefined and null)
-          this[propName] = propValue !== null ? DataType.fromJSON(propType, propValue) : null;
+        iterate(schema, data, (propName, propType, propValue) => {
+          this[propName] = propValue !== undefined ? DataType.fromJSON(propType, propValue) : undefined;
         });
 
         // eslint-disable-next-line no-constructor-return

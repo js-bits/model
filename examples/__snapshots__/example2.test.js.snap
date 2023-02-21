@@ -32,8 +32,7 @@ Array [
     "[
   {
     \\"title\\": \\"Checking Account\\",
-    \\"balance\\": 123.56,
-    \\"limit\\": null
+    \\"balance\\": 123.56
   },
   {
     \\"title\\": \\"Credit Card\\",
@@ -44,9 +43,7 @@ Array [
   ],
   Array [
     "{
-  \\"title\\": \\"Food\\",
-  \\"parent\\": null,
-  \\"exclude\\": null
+  \\"title\\": \\"Food\\"
 }",
   ],
   Array [
