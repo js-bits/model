@@ -321,7 +321,7 @@ class Schema {
     const propName = this.initKey(key);
     const propType = Schema.initType(type);
 
-    if (!propType) {
+    if (propType === undefined) {
       const error = new Error(`Model schema is invalid: data type of "${propName}" property is invalid`);
       error.name = ERRORS.InvalidModelSchemaError;
       throw error;
@@ -367,6 +367,13 @@ class Schema {
     DYNAMIC_SCHEMAS.set(type, typeDef);
   }
 }
+
+// TODO: add shortcuts for constants
+// new Model({
+//   prop1: 'constant', // String
+//   prop2: 123, // Number
+//   prop3: true, // Boolean
+// });
 
 Object.assign(Schema, ERRORS);
 Object.freeze(Schema);
@@ -467,9 +474,8 @@ class Model {
           const validationResult = [];
           iterate(schema, value, (propName, propType, propValue) => {
             const propPath = parentName ? `${parentName}.${propName}` : propName;
-            if (propType) {
-              const isDefined = !(propValue === undefined || propValue === null);
-              if (isDefined) {
+            if (propType !== undefined) {
+              if (propValue !== undefined) {
                 const errors = DataType.validate(propType, propValue, propPath);
                 if (errors) validationResult.push(...errors);
               } else if (schema.isRequired(propName)) {

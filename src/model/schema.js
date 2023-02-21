@@ -47,7 +47,7 @@ class Schema {
     const propName = this.initKey(key);
     const propType = Schema.initType(type);
 
-    if (!propType) {
+    if (propType === undefined) {
       const error = new Error(`Model schema is invalid: data type of "${propName}" property is invalid`);
       error.name = ERRORS.InvalidModelSchemaError;
       throw error;
@@ -93,6 +93,13 @@ class Schema {
     DYNAMIC_SCHEMAS.set(type, typeDef);
   }
 }
+
+// TODO: add shortcuts for constants
+// new Model({
+//   prop1: 'constant', // String
+//   prop2: 123, // Number
+//   prop3: true, // Boolean
+// });
 
 Object.assign(Schema, ERRORS);
 Object.freeze(Schema);

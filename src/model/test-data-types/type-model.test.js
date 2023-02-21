@@ -7,6 +7,7 @@ describe('Model', () => {
     });
     const TestModel2 = new Model({
       model: Model,
+      nullable: null,
     });
     const TestModel3 = new Model({
       model: Model,
@@ -18,6 +19,7 @@ describe('Model', () => {
       });
       const instance2 = new TestModel2({
         model: instance1,
+        nullable: null,
       });
       const instance3 = new TestModel3({
         model: instance2,
