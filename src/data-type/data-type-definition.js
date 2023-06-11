@@ -3,14 +3,17 @@ import enumerate from '@js-bits/enumerate';
 
 // pseudo-private properties emulation in order to avoid source code transpiling
 // TODO: replace with #privateField syntax when it gains wide support
-const ø = enumerate`
+const ø = enumerate.ts(`
   typeDef
-`;
+`);
 
-export const ERRORS = enumerate('DataType|')`
+export const ERRORS = enumerate.ts(
+  `
   ConfigurationError
   ValidationError
-`;
+`,
+  'DataType|'
+);
 
 export const DATA_TYPES = new Map();
 

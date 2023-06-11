@@ -1,9 +1,12 @@
 import enumerate from '@js-bits/enumerate';
 import DataType from '../data-type/data-type.js';
 
-const ERRORS = enumerate('Schema|')`
-InvalidModelSchemaError
-`;
+const ERRORS = enumerate.ts(
+  `
+  InvalidModelSchemaError
+`,
+  'Schema|'
+);
 
 const REQUIRED_FIELD_SPECIFIER = '!';
 const OPTIONAL_FIELD_SPECIFIER = '?';
@@ -11,10 +14,10 @@ const FIELD_NAME_REGEXP = /^(.+)([?!])$/;
 
 // pseudo-private properties emulation in order to avoid source code transpiling
 // TODO: replace with #privateField syntax when it gains wide support
-const ø = enumerate`
-required
-requiredFlag
-`;
+const ø = enumerate.ts(`
+  required
+  requiredFlag
+`);
 
 const DYNAMIC_SCHEMAS = new Map();
 

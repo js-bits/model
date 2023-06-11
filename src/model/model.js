@@ -6,9 +6,9 @@ import Schema from './schema.js';
 
 export const MODELS = new WeakSet();
 
-const STATIC_PROPS = enumerate`
+const STATIC_PROPS = enumerate.ts(`
   SAME
-`;
+`);
 
 /**
  * @param {Schema} schema

@@ -3,7 +3,7 @@ import DataType from '../../data-type/data-type.js';
 import Model from '../model.js';
 
 describe('Enum', () => {
-  const Unit = enumerate`FOOT, METER`;
+  const Unit = enumerate.ts('FOOT, METER');
 
   const TestModel = new Model({
     unit: Unit,
@@ -19,7 +19,7 @@ describe('Enum', () => {
   });
 
   test('new DataType', () => {
-    const Enum = enumerate(String)`ONE TWO THREE`;
+    const Enum = enumerate.ts('ONE TWO THREE', String);
 
     const ONE = new DataType({
       extends: Enum,

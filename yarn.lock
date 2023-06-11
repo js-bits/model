@@ -663,10 +663,13 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
-"@js-bits/enumerate@^0.9.1":
-  version "0.9.1"
-  resolved "https://registry.yarnpkg.com/@js-bits/enumerate/-/enumerate-0.9.1.tgz#34f841a7b3dbb1c14319b530846c70f421923e32"
-  integrity sha512-4zDNfkXuLcxqUswgo2u8a0A5PcGxfAbtGpk73MmNxkOuJCnq0hkOy6X7/ifrjQmxIQ29Qp1aj9tIkw1TH5XgVQ==
+"@js-bits/enumerate@^1.0.18":
+  version "1.0.18"
+  resolved "https://registry.yarnpkg.com/@js-bits/enumerate/-/enumerate-1.0.18.tgz#352dbf232c19b6529ee5edc652729f27a6becc47"
+  integrity sha512-X3WS9IFhYbjuPyjdFUuH+FG+hyvIkMcx3maJHBuq69E5UsQteM7WdtVEsaRqICYiYHcH8Imq6xaBfF/Agf48Cg==
+  dependencies:
+    "@js-bits/log-in-color" "^1.0.2"
+    "@js-bits/typedef-utils" "^1.0.6"
 
 "@js-bits/eslint-config@^1.0.3":
   version "1.0.3"
@@ -695,6 +698,16 @@
     eslint-plugin-react-hooks "^4.6.0"
     prettier "^2.8.8"
     typescript "^4.8.4"
+
+"@js-bits/log-in-color@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@js-bits/log-in-color/-/log-in-color-1.0.2.tgz#c4a9ce4576f33c653ee751f1c8aca234bbdf1436"
+  integrity sha512-g709PwmOlYHLEgvV8mcLEXuPD2xqMHiGlrr6Byf9XDT8CwhuHppchPq9mWgFjGw0lYMunOAkpR4ANkBSCy87yw==
+
+"@js-bits/typedef-utils@^1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@js-bits/typedef-utils/-/typedef-utils-1.0.6.tgz#c3fd39dba685ced143080002714a4c7da950b1b2"
+  integrity sha512-tO5y4IYguKXtlu9rOSxItruNhsn4SXQiGgxLVEtaVmX89d0xYPQ+TQ1T/HvlXx/pTFlCG1poejwLuSXjQwTOVQ==
 
 "@jsdoc/salty@^0.2.1":
   version "0.2.5"

@@ -235,7 +235,7 @@ describe('DataType', () => {
       expect(DataType.exists(Promise)).toBe(false);
     });
     test('new enum', () => {
-      const Enum = enumerate`aa bb cc`;
+      const Enum = enumerate.ts('aa bb cc');
       expect(DataType.exists(Enum)).toBe(true);
       expect(DataType.is(Enum, Enum.bb)).toBe(true);
       expect(DataType.is(Enum, 'bb')).toBe(false);
