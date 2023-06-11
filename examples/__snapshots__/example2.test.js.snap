@@ -1,57 +1,57 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Examples Example 2 1`] = `
-Array [
-  Array [
-    "Data is not valid: \\"balance\\" must be a number",
+[
+  [
+    "Data is not valid: "balance" must be a number",
   ],
-  Array [
-    Array [
-      "\\"balance\\" must be a number",
+  [
+    [
+      ""balance" must be a number",
     ],
   ],
-  Array [
-    "Data is not valid: \\"title\\" required property is not defined",
+  [
+    "Data is not valid: "title" required property is not defined",
   ],
-  Array [
-    Array [
-      "\\"title\\" required property is not defined",
+  [
+    [
+      ""title" required property is not defined",
     ],
   ],
-  Array [
-    "Data is not valid: see \\"error.cause\\" for details",
+  [
+    "Data is not valid: see "error.cause" for details",
   ],
-  Array [
-    Array [
-      "\\"account\\" invalid model type",
-      "\\"category\\" invalid model type",
-      "\\"date\\" required property is not defined",
+  [
+    [
+      ""account" invalid model type",
+      ""category" invalid model type",
+      ""date" required property is not defined",
     ],
   ],
-  Array [
+  [
     "[
   {
-    \\"title\\": \\"Checking Account\\",
-    \\"balance\\": 123.56
+    "title": "Checking Account",
+    "balance": 123.56
   },
   {
-    \\"title\\": \\"Credit Card\\",
-    \\"balance\\": -876.32,
-    \\"limit\\": 1000
+    "title": "Credit Card",
+    "balance": -876.32,
+    "limit": 1000
   }
 ]",
   ],
-  Array [
+  [
     "{
-  \\"title\\": \\"Food\\"
+  "title": "Food"
 }",
   ],
-  Array [
+  [
     2010-10-09T00:00:00.000Z,
     "Dining",
     "Checking Account",
   ],
-  Array [
+  [
     123.56,
   ],
 ]

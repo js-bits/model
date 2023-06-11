@@ -1,15 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Examples Example 1 1`] = `
-Array [
-  Array [
+[
+  [
     "[object Model]",
   ],
-  Array [
+  [
     "{
-  \\"firstName\\": \\"Trygve\\",
-  \\"lastName\\": \\"Reenskaug\\",
-  \\"yearBorn\\": 1930
+  "firstName": "Trygve",
+  "lastName": "Reenskaug",
+  "yearBorn": 1930
 }",
   ],
 ]
