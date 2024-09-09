@@ -83,6 +83,8 @@ JSON Schema serves more as a data format description, while `Model` is much more
 
 Code written in TypeScript is only checked for errors before it is executed, during compile time. Moreover, not every project is built with TypeScript. And not every project needs TypeScript.
 
+[TypeScript is ‘not worth it’ for developing libraries, says Svelte author, as team switches to JavaScript and JSDoc](https://devclass.com/2023/05/11/typescript-is-not-worth-it-for-developing-libraries-says-svelte-author-as-team-switches-to-javascript-and-jsdoc/)
+
 [TBD]
 
 As for IDE's code-completion capabilities, you can achieve similar result with [JSDoc](https://jsdoc.app/) annotations.
@@ -92,7 +94,7 @@ As for IDE's code-completion capabilities, you can achieve similar result with [
 Sure. `Model` does something similar to what [Zod](https://zod.dev/) does,
 but while [Zod](https://zod.dev/) is "a schema declaration and validation library",
 `Model` goes further and is aimed to serve more like a data store.
-Also, `Model` uses more natural syntax.
+Also, `Model` has more natural syntax.
 
 [TBD]
 
