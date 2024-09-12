@@ -100,7 +100,7 @@ class Schema {
   }
 
   static add(type, typeDef) {
-    DYNAMIC_DATA_TYPES.set(type, typeDef);
+    SHORTCUT_TYPES.set(type, typeDef);
   }
 }
 
