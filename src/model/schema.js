@@ -19,7 +19,7 @@ const ø = enumerate.ts(`
   requiredFlag
 `);
 
-const DYNAMIC_SCHEMAS = new Map();
+const SHORTCUT_TYPES = new Map();
 
 /**
  * Supports only primitive data types (defined with DataType class) by default
@@ -48,20 +48,27 @@ class Schema {
 
   initEntry(key, type) {
     const propName = this.initKey(key);
-    const propType = Schema.initType(type);
-
-    if (propType === undefined) {
-      const error = new Error(`Model schema is invalid: data type of "${propName}" property is invalid`);
+    try {
+      const propType = Schema.initType(type);
+      this[propName] = propType;
+    } catch (cause) {
+      const error = new Error(`Model schema is invalid: "${key}" property is invalid (see "error.cause" for details)`);
       error.name = ERRORS.InvalidModelSchemaError;
+      error.cause = cause;
       throw error;
     }
-    this[propName] = propType;
   }
 
-  static initType(propType) {
-    const dynamicSchema = [...DYNAMIC_SCHEMAS.keys()].find(schemaType => DataType.is(schemaType, propType));
-    if (dynamicSchema) return DYNAMIC_SCHEMAS.get(dynamicSchema)(propType);
-    return DataType.exists(propType) ? propType : undefined;
+  static initType(type, key) {
+    let finalType = type;
+    [...SHORTCUT_TYPES.keys()].find(shortcutType => {
+      if (DataType.is(shortcutType, type)) {
+        finalType = SHORTCUT_TYPES.get(shortcutType)(type, key);
+        return true;
+      }
+      return false;
+    });
+    return DataType.assertType(finalType, key);
   }
 
   initKey(key) {
@@ -76,7 +83,7 @@ class Schema {
         specifier !== (globalFlag ? REQUIRED_FIELD_SPECIFIER : OPTIONAL_FIELD_SPECIFIER)
       ) {
         const error = new Error(
-          `Model schema is invalid. Must contain either ${OPTIONAL_FIELD_SPECIFIER} or ${REQUIRED_FIELD_SPECIFIER} specifiers`
+          `Model schema is invalid: must contain either ${OPTIONAL_FIELD_SPECIFIER} or ${REQUIRED_FIELD_SPECIFIER} specifiers`
         );
         error.name = Schema.InvalidModelSchemaError;
         throw error;
@@ -93,18 +100,26 @@ class Schema {
   }
 
   static add(type, typeDef) {
-    DYNAMIC_SCHEMAS.set(type, typeDef);
+    DYNAMIC_DATA_TYPES.set(type, typeDef);
   }
 }
 
-// TODO: add shortcuts for constants
-// new Model({
-//   prop1: 'constant', // String
-//   prop2: 123, // Number
-//   prop3: true, // Boolean
-// });
-
 Object.assign(Schema, ERRORS);
 Object.freeze(Schema);
+
+// shortcuts should be added on the data schema level since they dynamically create data types during the schema instantiation
+[String, Number, Boolean].map(ConstantDataType =>
+  Schema.add(
+    ConstantDataType,
+    constant =>
+      new DataType({
+        extends: ConstantDataType,
+        validate: value =>
+          value === constant
+            ? undefined
+            : `must be equal to ${typeof constant === 'string' ? `"${constant}"` : constant}`,
+      })
+  )
+);
 
 export default Schema;

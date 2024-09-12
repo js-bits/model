@@ -156,30 +156,6 @@ export default class Model {
 }
 
 Schema.add(JSON, rawType => new Model(rawType));
-Schema.add(
-  String,
-  constant =>
-    new DataType({
-      extends: String,
-      validate: value => (value === constant ? undefined : `must be equal to "${constant}"`),
-    })
-);
-Schema.add(
-  Number,
-  constant =>
-    new DataType({
-      extends: Number,
-      validate: value => (value === constant ? undefined : `must be equal to ${constant}`),
-    })
-);
-Schema.add(
-  Boolean,
-  constant =>
-    new DataType({
-      extends: Boolean,
-      validate: value => (value === constant ? undefined : `must be equal to ${constant}`),
-    })
-);
 
 DataType.add(Model, value => (value instanceof Model ? undefined : 'must be a model'));
 

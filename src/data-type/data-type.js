@@ -42,7 +42,8 @@ export default class DataType {
   /**
    * Validates passed data type
    * @param {Object} type
-   * @param {String} name
+   * @param {String} [name]
+   * @returns {Object}
    * @throws {DataType.ValidationError}
    */
   static assertType(type, name) {
@@ -51,6 +52,7 @@ export default class DataType {
       error.name = ERRORS.ValidationError;
       throw error;
     }
+    return type;
   }
 
   /**

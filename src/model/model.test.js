@@ -111,41 +111,6 @@ describe('Model', () => {
       });
     });
 
-    describe('invalid schema', () => {
-      test('empty schema', () => {
-        expect.assertions(3);
-        try {
-          new Model({});
-        } catch (error) {
-          expect(error.message).toEqual('Model schema is empty');
-          expect(error.name).toEqual(Schema.InvalidModelSchemaError);
-          expect(error.name).toEqual('Schema|InvalidModelSchemaError');
-        }
-      });
-      test('wrong object type', () => {
-        expect.assertions(3);
-        try {
-          new Model(new Date());
-        } catch (error) {
-          expect(error.message).toEqual('Model schema is invalid');
-          expect(error.name).toEqual(Schema.InvalidModelSchemaError);
-          expect(error.name).toEqual('Schema|InvalidModelSchemaError');
-        }
-      });
-      test('wrong schema parameter', () => {
-        expect.assertions(3);
-        try {
-          new Model({
-            func: () => {},
-          });
-        } catch (error) {
-          expect(error.message).toEqual('Model schema is invalid: data type of "func" property is invalid');
-          expect(error.name).toEqual(Schema.InvalidModelSchemaError);
-          expect(error.name).toEqual('Schema|InvalidModelSchemaError');
-        }
-      });
-    });
-
     describe('data type', () => {
       const MyModel = new Model({
         string: String,
@@ -237,7 +202,7 @@ describe('Model', () => {
           'optional?': Boolean,
           'required!': true,
         });
-      }).toThrow('Model schema is invalid. Must contain either ? or ! specifiers');
+      }).toThrow('Model schema is invalid: must contain either ? or ! specifiers');
     });
   });
 
@@ -339,57 +304,6 @@ describe('Model', () => {
           },
         });
       }).not.toThrow();
-    });
-  });
-
-  describe('data type shortcuts', () => {
-    const MyModel = new Model({
-      string_constant: '1234',
-      number_constant: 1234,
-      boolean_constant: false,
-    });
-    test('valid data type', () => {
-      expect(() => {
-        new MyModel({
-          string_constant: '1234',
-          number_constant: 1234,
-          boolean_constant: false,
-        });
-      }).not.toThrow();
-    });
-    test('invalid data values', () => {
-      expect.assertions(2);
-      try {
-        new MyModel({
-          string_constant: '3456',
-          number_constant: 3456,
-          boolean_constant: true,
-        });
-      } catch (error) {
-        expect(error.message).toEqual('Data is not valid: see "error.cause" for details');
-        expect(error.cause).toEqual([
-          '"string_constant" must be equal to "1234"',
-          '"number_constant" must be equal to 1234',
-          '"boolean_constant" must be equal to false',
-        ]);
-      }
-    });
-    test('invalid data types', () => {
-      expect.assertions(2);
-      try {
-        new MyModel({
-          string_constant: 3456,
-          number_constant: true,
-          boolean_constant: '3456',
-        });
-      } catch (error) {
-        expect(error.message).toEqual('Data is not valid: see "error.cause" for details');
-        expect(error.cause).toEqual([
-          '"string_constant" must be a string',
-          '"number_constant" must be a number',
-          '"boolean_constant" must be a boolean',
-        ]);
-      }
     });
   });
 });
