@@ -68,7 +68,9 @@ export default class Model {
       }
 
       static get schema() {
-        return schema;
+        // should return raw config to account for 'optional?' fields
+        // and to avoid interference between different schemas
+        return config;
       }
 
       constructor(data) {
