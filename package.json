@@ -30,7 +30,8 @@
     "test-watch": "yarn test --watch",
     "lint": "eslint '**/*.{js,jsx,ts,tsx}' --ignore-pattern jsdoc",
     "jsdoc": "jsdoc ./src -d jsdoc",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "run:example": "run(){ node -e \"import('./examples/$1').then( m => m.default())\"; }; run"
   },
   "repository": {
     "type": "git",
