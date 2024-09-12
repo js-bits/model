@@ -3,6 +3,7 @@ import enumerate from '@js-bits/enumerate';
 import DataType from '../data-type/data-type.js';
 import freeze from './freeze.js';
 import Schema from './schema.js';
+import './set.js';
 
 export const MODELS = new WeakSet();
 

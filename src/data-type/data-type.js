@@ -92,6 +92,7 @@ DataType.add(String, value => (typeof value === 'string' ? undefined : 'must be 
 DataType.add(Number, value => (typeof value === 'number' ? undefined : 'must be a number'));
 DataType.add(Boolean, value => (typeof value === 'boolean' ? undefined : 'must be a boolean'));
 DataType.add(Date, value => (value instanceof Date ? undefined : 'must be a date'));
+DataType.add(Set, value => (value instanceof Set ? undefined : 'must be a set'));
 DataType.add(Array, value => (Array.isArray(value) ? undefined : 'must be an array'));
 DataType.add(DataType, value => (DataType.exists(value) ? undefined : 'must be a data type'));
 DataType.add(JSON, value =>
