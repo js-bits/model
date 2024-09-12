@@ -67,6 +67,10 @@ export default class Model {
         return super[Symbol.hasInstance](instance) && instance.constructor === CustomModel;
       }
 
+      static get schema() {
+        return schema;
+      }
+
       constructor(data) {
         super();
         DataType.assert(JSON, data, '<model_data>');
